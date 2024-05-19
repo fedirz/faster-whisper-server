@@ -1,0 +1,34 @@
+services:
+  speaches-cuda:
+    image: fedirz/speaches:cuda
+    build:
+      dockerfile: Dockerfile.cuda
+      context: .
+      tags:
+        - fedirz/speaches:cuda
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+    environment:
+      - INFERENCE_DEVICE=cuda
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
+  speaches-cpu:
+    image: fedirz/speaches:cpu
+    build:
+      dockerfile: Dockerfile.cpu
+      context: .
+      tags:
+        - fedirz/speaches:cpu
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+    environment:
+      - INFERENCE_DEVICE=cpu

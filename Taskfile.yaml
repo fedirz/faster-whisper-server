@@ -1,0 +1,15 @@
+version: "3"
+tasks:
+  speaches: poetry run uvicorn speaches.main:app {{.CLI_ARGS}}
+  test:
+    cmds:
+      - poetry run pytest -o log_cli=true -o log_cli_level=DEBUG {{.CLI_ARGS}}
+    sources:
+      - "**/*.py"
+  build-and-push:
+    cmds:
+      - docker compose build --push speaches
+    sources:
+      - Dockerfile
+      - speaches/*.py
+  sync: lsyncd -nodaemon -delay 0 -rsyncssh . gpu-box speaches

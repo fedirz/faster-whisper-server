@@ -1,0 +1,14 @@
+FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
+RUN apt-get update && \
+    apt-get install -y curl software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install python3.11 python3.11-distutils && \
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
+RUN pip install --no-cache-dir poetry==1.8.2
+WORKDIR /root/speaches
+COPY pyproject.toml poetry.lock ./
+RUN poetry install
+COPY ./speaches ./speaches
+ENTRYPOINT ["poetry", "run"]
+CMD ["uvicorn", "speaches.main:app"]
