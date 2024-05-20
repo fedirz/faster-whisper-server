@@ -23,6 +23,7 @@
               lsyncd
               poetry
               pre-commit
+              pv
               pyright
               python311
               websocat

@@ -90,6 +90,8 @@ async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
                     audio_stream.duration - config.inactivity_window_seconds
                 )
                 vad_opts = VadOptions(min_silence_duration_ms=500, speech_pad_ms=0)
+                # NOTE: This is a synchronous operation that runs every time new data is received.
+                # This shouldn't be an issue unless data is being received in tiny chunks or the user's machine is a potato.
                 timestamps = get_speech_timestamps(audio.data, vad_opts)
                 if len(timestamps) == 0:
                     logger.info(
@@ -143,7 +145,6 @@ async def transcribe_stream(
         tg.create_task(audio_receiver(ws, audio_stream))
         async for transcription in audio_transcriber(asr, audio_stream):
             logger.debug(f"Sending transcription: {transcription.text}")
-            # Or should it be
             if ws.client_state == WebSocketState.DISCONNECTED:
                 break
             await ws.send_text(format_transcription(transcription, response_format))

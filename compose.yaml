@@ -11,8 +11,6 @@ services:
     restart: unless-stopped
     ports:
       - 8000:8000
-    environment:
-      - INFERENCE_DEVICE=cuda
     deploy:
       resources:
         reservations:
@@ -30,5 +28,3 @@ services:
     restart: unless-stopped
     ports:
       - 8000:8000
-    environment:
-      - INFERENCE_DEVICE=cpu

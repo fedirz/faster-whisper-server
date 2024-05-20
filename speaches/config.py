@@ -37,6 +37,7 @@ class Device(enum.StrEnum):
 
 
 # https://github.com/OpenNMT/CTranslate2/blob/master/docs/quantization.md
+# NOTE: `Precision` might be a better name
 class Quantization(enum.StrEnum):
     INT8 = "int8"
     INT8_FLOAT16 = "int8_float16"
@@ -153,24 +154,35 @@ class Language(enum.StrEnum):
 
 
 class WhisperConfig(BaseModel):
-    model: Model = Field(default=Model.DISTIL_SMALL_EN)
-    inference_device: Device = Field(default=Device.AUTO)
-    compute_type: Quantization = Field(default=Quantization.DEFAULT)
+    model: Model = Field(default=Model.DISTIL_SMALL_EN)  # ENV: WHISPER_MODEL
+    inference_device: Device = Field(
+        default=Device.AUTO
+    )  # ENV: WHISPER_INFERENCE_DEVICE
+    compute_type: Quantization = Field(
+        default=Quantization.DEFAULT
+    )  # ENV: WHISPER_COMPUTE_TYPE
 
 
 class Config(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="_")
 
-    log_level: str = "info"
-    whisper: WhisperConfig = WhisperConfig()
+    log_level: str = "info"  # ENV: LOG_LEVEL
+    whisper: WhisperConfig = WhisperConfig()  # ENV: WHISPER_*
     """
-    Max duration to for the next audio chunk before finilizing the transcription and closing the connection.
+    Max duration to for the next audio chunk before transcription is finilized and connection is closed.
     """
-    max_no_data_seconds: float = 1.0
-    min_duration: float = 1.0
-    word_timestamp_error_margin: float = 0.2
-    inactivity_window_seconds: float = 3.0
-    max_inactivity_seconds: float = 1.5
+    max_no_data_seconds: float = 1.0  # ENV: MAX_NO_DATA_SECONDS
+    min_duration: float = 1.0  # ENV: MIN_DURATION
+    word_timestamp_error_margin: float = 0.2  # ENV: WORD_TIMESTAMP_ERROR_MARGIN
+    """
+    Max allowed audio duration without any speech being detected before transcription is finilized and connection is closed.
+    """
+    max_inactivity_seconds: float = 2.0  # ENV: MAX_INACTIVITY_SECONDS
+    """
+    Controls how many latest seconds of audio are being passed through VAD.
+    Should be greater than `max_inactivity_seconds`
+    """
+    inactivity_window_seconds: float = 3.0  # ENV: INACTIVITY_WINDOW_SECONDS
 
 
 config = Config()

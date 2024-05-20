@@ -12,5 +12,7 @@ RUN poetry install
 COPY ./speaches ./speaches
 ENTRYPOINT ["poetry", "run"]
 CMD ["uvicorn", "speaches.main:app"]
-ENV MODEL_SIZE=distil-medium.en
-ENV DEVICE=cuda
+ENV WHISPER_MODEL=distil-medium.en
+ENV WHISPER_INFERENCE_DEVICE=cuda
+ENV UVICORN_HOST=0.0.0.0
+ENV UVICORN_PORT=8000
