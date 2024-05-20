@@ -8,8 +8,8 @@ tasks:
       - "**/*.py"
   build-and-push:
     cmds:
-      - docker compose build --push speaches
+      - docker compose build --push
     sources:
-      - Dockerfile
+      - Dockerfile.*
       - speaches/*.py
   sync: lsyncd -nodaemon -delay 0 -rsyncssh . gpu-box speaches

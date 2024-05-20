@@ -7,14 +7,8 @@ from contextlib import asynccontextmanager
 from io import BytesIO
 from typing import Annotated
 
-from fastapi import (
-    Depends,
-    FastAPI,
-    Response,
-    UploadFile,
-    WebSocket,
-    WebSocketDisconnect,
-)
+from fastapi import (Depends, FastAPI, Response, UploadFile, WebSocket,
+                     WebSocketDisconnect)
 from fastapi.websockets import WebSocketState
 from faster_whisper import WhisperModel
 from faster_whisper.vad import VadOptions, get_speech_timestamps
@@ -24,11 +18,8 @@ from speaches.audio import AudioStream, audio_samples_from_file
 from speaches.config import SAMPLES_PER_SECOND, Language, config
 from speaches.core import Transcription
 from speaches.logger import logger
-from speaches.server_models import (
-    ResponseFormat,
-    TranscriptionResponse,
-    TranscriptionVerboseResponse,
-)
+from speaches.server_models import (ResponseFormat, TranscriptionResponse,
+                                    TranscriptionVerboseResponse)
 from speaches.transcriber import audio_transcriber
 
 whisper: WhisperModel = None  # type: ignore
@@ -158,5 +149,5 @@ async def transcribe_stream(
             await ws.send_text(format_transcription(transcription, response_format))
 
     if not ws.client_state == WebSocketState.DISCONNECTED:
-        # this means that the client HASNT disconnected
+        logger.info("Closing the connection.")
         await ws.close()

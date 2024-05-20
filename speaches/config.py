@@ -10,7 +10,7 @@ BYTES_PER_SECOND = SAMPLES_PER_SECOND * BYTES_PER_SAMPLE
 # 1 SECOND OF AUDIO = 32000 BYTES = 16000 SAMPLES
 
 
-# TODO: confirm names
+# https://huggingface.co/Systran
 class Model(enum.StrEnum):
     TINY_EN = "tiny.en"
     TINY = "tiny"
