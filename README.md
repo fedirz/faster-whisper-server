@@ -1,3 +1,4 @@
+# WARN: WIP(code is ugly, may have bugs, test files aren't included, etc.)
 # Intro
 `speaches` is a webserver that supports real-time transcription using WebSockets.
 - [faster-whisper](https://github.com/SYSTRAN/faster-whisper) is used as the backend. Both GPU and CPU inference is supported.
