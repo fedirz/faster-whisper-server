@@ -92,14 +92,14 @@ class Transcription:
 
 
 def test_segment_is_eos():
-    assert Segment("Hello").is_eos == False
-    assert Segment("Hello...").is_eos == False
-    assert Segment("Hello.").is_eos == True
-    assert Segment("Hello!").is_eos == True
-    assert Segment("Hello?").is_eos == True
-    assert Segment("Hello. Yo").is_eos == False
-    assert Segment("Hello. Yo...").is_eos == False
-    assert Segment("Hello. Yo.").is_eos == True
+    assert not Segment("Hello").is_eos
+    assert not Segment("Hello...").is_eos
+    assert Segment("Hello.").is_eos
+    assert Segment("Hello!").is_eos
+    assert Segment("Hello?").is_eos
+    assert not Segment("Hello. Yo").is_eos
+    assert not Segment("Hello. Yo...").is_eos
+    assert Segment("Hello. Yo.").is_eos
 
 
 def to_full_sentences(words: list[Word]) -> list[Segment]:

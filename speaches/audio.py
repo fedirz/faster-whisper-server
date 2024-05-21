@@ -12,7 +12,7 @@ from speaches.logger import logger
 
 
 def audio_samples_from_file(file: BinaryIO) -> NDArray[np.float32]:
-    audio_and_sample_rate: tuple[NDArray[np.float32], Any] = sf.read(  # type: ignore
+    audio_and_sample_rate = sf.read(
         file,
         format="RAW",
         channels=1,
@@ -22,7 +22,7 @@ def audio_samples_from_file(file: BinaryIO) -> NDArray[np.float32]:
         endian="LITTLE",
     )
     audio = audio_and_sample_rate[0]
-    return audio
+    return audio  # type: ignore
 
 
 class Audio:
@@ -68,12 +68,12 @@ class AudioStream(Audio):
         self.modify_event = asyncio.Event()
 
     def extend(self, data: NDArray[np.float32]) -> None:
-        assert self.closed == False
+        assert not self.closed
         super().extend(data)
         self.modify_event.set()
 
     def close(self) -> None:
-        assert self.closed == False
+        assert not self.closed
         self.closed = True
         self.modify_event.set()
         logger.info("AudioStream closed")

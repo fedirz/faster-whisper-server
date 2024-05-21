@@ -26,6 +26,7 @@
               pv
               pyright
               python311
+              ruff
               websocat
             ];
             shellHook = ''
