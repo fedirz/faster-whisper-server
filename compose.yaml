@@ -4,6 +4,9 @@ services:
     build:
       dockerfile: Dockerfile.cuda
       context: .
+      platforms:
+        - linux/amd64
+        - linux/arm64
       tags:
         - fedirz/speaches:cuda
     volumes:
@@ -21,6 +24,9 @@ services:
     build:
       dockerfile: Dockerfile.cpu
       context: .
+      platforms:
+        - linux/amd64
+        - linux/arm64
       tags:
         - fedirz/speaches:cpu
     volumes:

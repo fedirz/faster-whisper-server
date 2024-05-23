@@ -14,7 +14,7 @@ tasks:
       - speaches/*.py
   build-and-push:
     cmds:
-      - docker compose build --push
+      - docker buildx bake --push
     sources:
       - Dockerfile.*
       - speaches/*.py
