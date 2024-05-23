@@ -21,6 +21,7 @@
               ffmpeg-full
               go-task
               lsyncd
+              parallel
               poetry
               pre-commit
               pv
