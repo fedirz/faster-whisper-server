@@ -7,14 +7,8 @@ from contextlib import asynccontextmanager
 from io import BytesIO
 from typing import Annotated
 
-from fastapi import (
-    Depends,
-    FastAPI,
-    Response,
-    UploadFile,
-    WebSocket,
-    WebSocketDisconnect,
-)
+from fastapi import (Depends, FastAPI, Response, UploadFile, WebSocket,
+                     WebSocketDisconnect)
 from fastapi.websockets import WebSocketState
 from faster_whisper import WhisperModel
 from faster_whisper.vad import VadOptions, get_speech_timestamps
@@ -24,11 +18,8 @@ from speaches.audio import AudioStream, audio_samples_from_file
 from speaches.config import SAMPLES_PER_SECOND, Language, config
 from speaches.core import Transcription
 from speaches.logger import logger
-from speaches.server_models import (
-    ResponseFormat,
-    TranscriptionResponse,
-    TranscriptionVerboseResponse,
-)
+from speaches.server_models import (ResponseFormat, TranscriptionJsonResponse,
+                                    TranscriptionVerboseJsonResponse)
 from speaches.transcriber import audio_transcriber
 
 whisper: WhisperModel = None  # type: ignore
@@ -132,12 +123,12 @@ def format_transcription(
     if response_format == ResponseFormat.TEXT:
         return transcription.text
     elif response_format == ResponseFormat.JSON:
-        return TranscriptionResponse(text=transcription.text).model_dump_json()
+        return TranscriptionJsonResponse.from_transcription(
+            transcription
+        ).model_dump_json()
     elif response_format == ResponseFormat.VERBOSE_JSON:
-        return TranscriptionVerboseResponse(
-            duration=transcription.duration,
-            text=transcription.text,
-            words=transcription.words,
+        return TranscriptionVerboseJsonResponse.from_transcription(
+            transcription
         ).model_dump_json()
 
 
