@@ -13,16 +13,10 @@ pydantic-settings = "^2.2.1"
 websockets = "^12.0"
 numpy = "^1.26.4"
 
-
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"
 httpx = "^0.27.0"
 pytest-xdist = "^3.6.1"
-
-
-
-[tool.poetry.group.client.dependencies]
-httpx = "^0.27.0"
 
 [tool.ruff]
 target-version = "py311"
