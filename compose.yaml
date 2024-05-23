@@ -1,3 +1,4 @@
+# NOTE: arm images haven't been tested
 services:
   speaches-cuda:
     image: fedirz/speaches:cuda

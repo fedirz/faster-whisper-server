@@ -12,9 +12,10 @@ tasks:
     sources:
       - Dockerfile.*
       - speaches/*.py
+  create-multi-arch-builder: docker buildx create --name main --driver=docker-container
   build-and-push:
     cmds:
-      - docker buildx bake --push
+      - docker compose build --builder main
     sources:
       - Dockerfile.*
       - speaches/*.py
