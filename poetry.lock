@@ -624,23 +624,6 @@ http2 = ["h2 (>=3,<5)"]
 socks = ["socksio (==1.*)"]
 
 [[package]]
-name = "httpx-ws"
-version = "0.6.0"
-description = "WebSockets support for HTTPX"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "httpx_ws-0.6.0-py3-none-any.whl", hash = "sha256:437cfca94519a4e6ae06eb5573192df6c0da85c22b1a19cc1ea0b02b05a51d25"},
-    {file = "httpx_ws-0.6.0.tar.gz", hash = "sha256:60218f531fb474a2143af38568f4b7d94ba356780973443365c8e2c87882bb8c"},
-]
-
-[package.dependencies]
-anyio = ">=4"
-httpcore = ">=1.0.4"
-httpx = ">=0.23.1"
-wsproto = "*"
-
-[[package]]
 name = "huggingface-hub"
 version = "0.23.0"
 description = "Client library to download and publish models, datasets and other repos on the huggingface.co hub"
@@ -1220,24 +1203,6 @@ pluggy = ">=1.5,<2.0"
 
 [package.extras]
 dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
-
-[[package]]
-name = "pytest-asyncio"
-version = "0.23.6"
-description = "Pytest support for asyncio"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "pytest-asyncio-0.23.6.tar.gz", hash = "sha256:ffe523a89c1c222598c76856e76852b787504ddb72dd5d9b6617ffa8aa2cde5f"},
-    {file = "pytest_asyncio-0.23.6-py3-none-any.whl", hash = "sha256:68516fdd1018ac57b846c9846b954f0393b26f094764a28c955eabb0536a4e8a"},
-]
-
-[package.dependencies]
-pytest = ">=7.0.0,<9"
-
-[package.extras]
-docs = ["sphinx (>=5.3)", "sphinx-rtd-theme (>=1.0)"]
-testing = ["coverage (>=6.2)", "hypothesis (>=5.7.1)"]
 
 [[package]]
 name = "pytest-xdist"
@@ -1984,21 +1949,7 @@ files = [
     {file = "websockets-12.0.tar.gz", hash = "sha256:81df9cbcbb6c260de1e007e58c011bfebe2dafc8435107b0537f393dd38c8b1b"},
 ]
 
-[[package]]
-name = "wsproto"
-version = "1.2.0"
-description = "WebSockets state-machine based protocol implementation"
-optional = false
-python-versions = ">=3.7.0"
-files = [
-    {file = "wsproto-1.2.0-py3-none-any.whl", hash = "sha256:b9acddd652b585d75b20477888c56642fdade28bdfd3579aa24a4d2c037dd736"},
-    {file = "wsproto-1.2.0.tar.gz", hash = "sha256:ad565f26ecb92588a3e43bc3d96164de84cd9902482b130d0ddbaa9664a85065"},
-]
-
-[package.dependencies]
-h11 = ">=0.9.0,<1"
-
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "e0b51f82f9a518d33787c9f36f5ba0dca05fb34b74c340312480a477d2da6f5d"
+content-hash = "438f35ccceac69353aa11520c5d9264d44690d7639bd224d14b582be48ead4c6"
