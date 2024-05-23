@@ -1,11 +1,17 @@
 version: "3"
 tasks:
-  speaches: poetry run uvicorn speaches.main:app {{.CLI_ARGS}}
+  speaches: poetry run uvicorn --host 0.0.0.0 speaches.main:app {{.CLI_ARGS}}
   test:
     cmds:
       - poetry run pytest -o log_cli=true -o log_cli_level=DEBUG {{.CLI_ARGS}}
     sources:
       - "**/*.py"
+  build:
+    cmds:
+      - docker compose build
+    sources:
+      - Dockerfile.*
+      - speaches/*.py
   build-and-push:
     cmds:
       - docker compose build --push
@@ -13,3 +19,19 @@ tasks:
       - Dockerfile.*
       - speaches/*.py
   sync: lsyncd -nodaemon -delay 0 -rsyncssh . gpu-box speaches
+  # Python's urllib3 takes forever when ipv6 is enabled
+  # https://support.nordvpn.com/hc/en-us/articles/20164669224337-How-to-disable-IPv6-on-Linux
+  disable-ipv6: sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1 && sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+  enable-ipv6: sudo sysctl -w net.ipv6.conf.all.disable_ipv6=0 && sudo sysctl -w net.ipv6.conf.default.disable_ipv6=0
+  download-test-data:
+    # Downlod audio files for testing into `tests/data`
+    cmds:
+      - huggingface-cli download --repo-type dataset 'google/fleurs' 'data/en_us/audio/dev.tar.gz'
+      - cp $HOME/.cache/huggingface/hub/datasets--google--fleurs/snapshots/199e4ae37915137c555b1765c01477c216287d34/data/en_us/audio/dev.tar.gz .
+      - tar xzf dev.tar.gz
+      - rm dev.tar.gz
+      - mkdir -p tests/data
+      - mv dev/* tests/data
+      - rm -r dev
+      - ls tests/data/*.wav | parallel ffmpeg -y -hide_banner -i {} -ac 1 -ar 16000 -f s16le -acodec pcm_s16le {.}.raw
+      - ls tests/data | grep -v '\.raw$' | xargs -I {} rm -rf tests/data/{}
