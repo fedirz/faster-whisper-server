@@ -67,14 +67,20 @@ async def transcribe_file(
     assert (
         model == config.whisper.model
     ), "Specifying a model that is different from the default is not supported yet."
+    start = time.perf_counter()
     segments, transcription_info = whisper.transcribe(
         file.file,
         language=language,
         initial_prompt=prompt,
         word_timestamps="words" in timestamp_granularities,
         temperature=temperature,
+        vad_filter=True,
     )
     segments = list(segments)
+    end = time.perf_counter()
+    logger.info(
+        f"Transcribed {transcription_info.duration}({transcription_info.duration_after_vad}) in {end - start:.2f} seconds"
+    )
     if response_format == ResponseFormat.TEXT:
         return utils.segments_text(segments)
     elif response_format == ResponseFormat.JSON:
