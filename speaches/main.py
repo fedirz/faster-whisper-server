@@ -9,6 +9,7 @@ from typing import Annotated, Literal
 
 from fastapi import (FastAPI, Form, Query, Response, UploadFile, WebSocket,
                      WebSocketDisconnect)
+from fastapi.responses import StreamingResponse
 from fastapi.websockets import WebSocketState
 from faster_whisper import WhisperModel
 from faster_whisper.vad import VadOptions, get_speech_timestamps
@@ -56,6 +57,7 @@ async def translate_file(
     prompt: Annotated[str | None, Form()] = None,
     response_format: Annotated[ResponseFormat, Form()] = ResponseFormat.JSON,
     temperature: Annotated[float, Form()] = 0.0,
+    stream: Annotated[bool, Form()] = False,
 ):
     assert (
         model == config.whisper.model
@@ -68,19 +70,36 @@ async def translate_file(
         temperature=temperature,
         vad_filter=True,
     )
-    segments = list(segments)
-    end = time.perf_counter()
-    logger.info(
-        f"Translated {transcription_info.duration}({transcription_info.duration_after_vad}) seconds of audio in {end - start:.2f} seconds"
-    )
-    if response_format == ResponseFormat.TEXT:
-        return utils.segments_text(segments)
-    elif response_format == ResponseFormat.JSON:
-        return TranscriptionJsonResponse.from_segments(segments)
-    elif response_format == ResponseFormat.VERBOSE_JSON:
-        return TranscriptionVerboseJsonResponse.from_segments(
-            segments, transcription_info
+
+    def segment_responses():
+        for segment in segments:
+            if response_format == ResponseFormat.TEXT:
+                yield segment.text
+            elif response_format == ResponseFormat.JSON:
+                yield TranscriptionJsonResponse.from_segments(
+                    [segment]
+                ).model_dump_json()
+            elif response_format == ResponseFormat.VERBOSE_JSON:
+                yield TranscriptionVerboseJsonResponse.from_segment(
+                    segment, transcription_info
+                ).model_dump_json()
+
+    if not stream:
+        segments = list(segments)
+        end = time.perf_counter()
+        logger.info(
+            f"Translated {transcription_info.duration}({transcription_info.duration_after_vad}) seconds of audio in {end - start:.2f} seconds"
         )
+        if response_format == ResponseFormat.TEXT:
+            return utils.segments_text(segments)
+        elif response_format == ResponseFormat.JSON:
+            return TranscriptionJsonResponse.from_segments(segments)
+        elif response_format == ResponseFormat.VERBOSE_JSON:
+            return TranscriptionVerboseJsonResponse.from_segments(
+                segments, transcription_info
+            )
+    else:
+        return StreamingResponse(segment_responses(), media_type="text/event-stream")
 
 
 # https://platform.openai.com/docs/api-reference/audio/createTranscription
@@ -97,6 +116,7 @@ async def transcribe_file(
         list[Literal["segments"] | Literal["words"]],
         Form(alias="timestamp_granularities[]"),
     ] = ["segments"],
+    stream: Annotated[bool, Form()] = False,
 ):
     assert (
         model == config.whisper.model
@@ -111,19 +131,36 @@ async def transcribe_file(
         temperature=temperature,
         vad_filter=True,
     )
-    segments = list(segments)
-    end = time.perf_counter()
-    logger.info(
-        f"Transcribed {transcription_info.duration}({transcription_info.duration_after_vad}) seconds of audio in {end - start:.2f} seconds"
-    )
-    if response_format == ResponseFormat.TEXT:
-        return utils.segments_text(segments)
-    elif response_format == ResponseFormat.JSON:
-        return TranscriptionJsonResponse.from_segments(segments)
-    elif response_format == ResponseFormat.VERBOSE_JSON:
-        return TranscriptionVerboseJsonResponse.from_segments(
-            segments, transcription_info
+
+    def segment_responses():
+        for segment in segments:
+            if response_format == ResponseFormat.TEXT:
+                yield segment.text
+            elif response_format == ResponseFormat.JSON:
+                yield TranscriptionJsonResponse.from_segments(
+                    [segment]
+                ).model_dump_json()
+            elif response_format == ResponseFormat.VERBOSE_JSON:
+                yield TranscriptionVerboseJsonResponse.from_segment(
+                    segment, transcription_info
+                ).model_dump_json()
+
+    if not stream:
+        segments = list(segments)
+        end = time.perf_counter()
+        logger.info(
+            f"Transcribed {transcription_info.duration}({transcription_info.duration_after_vad}) seconds of audio in {end - start:.2f} seconds"
         )
+        if response_format == ResponseFormat.TEXT:
+            return utils.segments_text(segments)
+        elif response_format == ResponseFormat.JSON:
+            return TranscriptionJsonResponse.from_segments(segments)
+        elif response_format == ResponseFormat.VERBOSE_JSON:
+            return TranscriptionVerboseJsonResponse.from_segments(
+                segments, transcription_info
+            )
+    else:
+        return StreamingResponse(segment_responses(), media_type="text/event-stream")
 
 
 async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:

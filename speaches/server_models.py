@@ -87,6 +87,22 @@ class TranscriptionVerboseJsonResponse(BaseModel):
     segments: list[SegmentObject]
 
     @classmethod
+    def from_segment(
+        cls, segment: Segment, transcription_info: TranscriptionInfo
+    ) -> TranscriptionVerboseJsonResponse:
+        return cls(
+            language=transcription_info.language,
+            duration=segment.end - segment.start,
+            text=segment.text,
+            words=(
+                [WordObject.from_word(word) for word in segment.words]
+                if type(segment.words) == list
+                else []
+            ),
+            segments=[SegmentObject.from_segment(segment)],
+        )
+
+    @classmethod
     def from_segments(
         cls, segments: list[Segment], transcription_info: TranscriptionInfo
     ) -> TranscriptionVerboseJsonResponse:
