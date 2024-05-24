@@ -49,6 +49,40 @@ def health() -> Response:
     return Response(status_code=200, content="Everything is peachy!")
 
 
+@app.post("/v1/audio/translations")
+async def translate_file(
+    file: Annotated[UploadFile, Form()],
+    model: Annotated[Model, Form()] = config.whisper.model,
+    prompt: Annotated[str | None, Form()] = None,
+    response_format: Annotated[ResponseFormat, Form()] = ResponseFormat.JSON,
+    temperature: Annotated[float, Form()] = 0.0,
+):
+    assert (
+        model == config.whisper.model
+    ), "Specifying a model that is different from the default is not supported yet."
+    start = time.perf_counter()
+    segments, transcription_info = whisper.transcribe(
+        file.file,
+        task="translate",
+        initial_prompt=prompt,
+        temperature=temperature,
+        vad_filter=True,
+    )
+    segments = list(segments)
+    end = time.perf_counter()
+    logger.info(
+        f"Translated {transcription_info.duration}({transcription_info.duration_after_vad}) seconds of audio in {end - start:.2f} seconds"
+    )
+    if response_format == ResponseFormat.TEXT:
+        return utils.segments_text(segments)
+    elif response_format == ResponseFormat.JSON:
+        return TranscriptionJsonResponse.from_segments(segments)
+    elif response_format == ResponseFormat.VERBOSE_JSON:
+        return TranscriptionVerboseJsonResponse.from_segments(
+            segments, transcription_info
+        )
+
+
 # https://platform.openai.com/docs/api-reference/audio/createTranscription
 # https://github.com/openai/openai-openapi/blob/master/openapi.yaml#L8915
 @app.post("/v1/audio/transcriptions")
@@ -70,6 +104,7 @@ async def transcribe_file(
     start = time.perf_counter()
     segments, transcription_info = whisper.transcribe(
         file.file,
+        task="transcribe",
         language=language,
         initial_prompt=prompt,
         word_timestamps="words" in timestamp_granularities,
@@ -79,7 +114,7 @@ async def transcribe_file(
     segments = list(segments)
     end = time.perf_counter()
     logger.info(
-        f"Transcribed {transcription_info.duration}({transcription_info.duration_after_vad}) in {end - start:.2f} seconds"
+        f"Transcribed {transcription_info.duration}({transcription_info.duration_after_vad}) seconds of audio in {end - start:.2f} seconds"
     )
     if response_format == ResponseFormat.TEXT:
         return utils.segments_text(segments)
