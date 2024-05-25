@@ -3,28 +3,20 @@ import time
 from typing import Iterable
 
 from faster_whisper import transcribe
-from pydantic import BaseModel
 
 from speaches.audio import Audio
-from speaches.config import Language
 from speaches.core import Transcription, Word
 from speaches.logger import logger
-
-
-class TranscribeOpts(BaseModel):
-    language: Language | None
-    vad_filter: bool
-    condition_on_previous_text: bool
 
 
 class FasterWhisperASR:
     def __init__(
         self,
         whisper: transcribe.WhisperModel,
-        transcribe_opts: TranscribeOpts,
+        **kwargs,
     ) -> None:
         self.whisper = whisper
-        self.transcribe_opts = transcribe_opts
+        self.transcribe_opts = kwargs
 
     def _transcribe(
         self,
@@ -36,7 +28,7 @@ class FasterWhisperASR:
             audio.data,
             initial_prompt=prompt,
             word_timestamps=True,
-            **self.transcribe_opts.model_dump(),
+            **self.transcribe_opts,
         )
         words = words_from_whisper_segments(segments)
         for word in words:
