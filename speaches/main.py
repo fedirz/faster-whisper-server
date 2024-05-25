@@ -55,7 +55,7 @@ async def translate_file(
     file: Annotated[UploadFile, Form()],
     model: Annotated[Model, Form()] = config.whisper.model,
     prompt: Annotated[str | None, Form()] = None,
-    response_format: Annotated[ResponseFormat, Form()] = ResponseFormat.JSON,
+    response_format: Annotated[ResponseFormat, Form()] = config.default_response_format,
     temperature: Annotated[float, Form()] = 0.0,
     stream: Annotated[bool, Form()] = False,
 ):
@@ -108,9 +108,9 @@ async def translate_file(
 async def transcribe_file(
     file: Annotated[UploadFile, Form()],
     model: Annotated[Model, Form()] = config.whisper.model,
-    language: Annotated[Language | None, Form()] = None,
+    language: Annotated[Language | None, Form()] = config.default_language,
     prompt: Annotated[str | None, Form()] = None,
-    response_format: Annotated[ResponseFormat, Form()] = ResponseFormat.JSON,
+    response_format: Annotated[ResponseFormat, Form()] = config.default_response_format,
     temperature: Annotated[float, Form()] = 0.0,
     timestamp_granularities: Annotated[
         list[Literal["segments"] | Literal["words"]],
@@ -223,9 +223,9 @@ def format_transcription(
 async def transcribe_stream(
     ws: WebSocket,
     model: Annotated[Model, Query()] = config.whisper.model,
-    language: Annotated[Language | None, Query()] = None,
+    language: Annotated[Language | None, Query()] = config.default_language,
     prompt: Annotated[str | None, Query()] = None,
-    response_format: Annotated[ResponseFormat, Query()] = ResponseFormat.JSON,
+    response_format: Annotated[ResponseFormat, Query()] = config.default_response_format,
     temperature: Annotated[float, Query()] = 0.0,
     timestamp_granularities: Annotated[
         list[Literal["segments"] | Literal["words"]],

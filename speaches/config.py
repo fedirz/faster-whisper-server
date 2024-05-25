@@ -3,6 +3,8 @@ import enum
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from speaches.server_models import ResponseFormat
+
 SAMPLES_PER_SECOND = 16000
 BYTES_PER_SAMPLE = 2
 BYTES_PER_SECOND = SAMPLES_PER_SECOND * BYTES_PER_SAMPLE
@@ -167,6 +169,10 @@ class Config(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="_")
 
     log_level: str = "info"  # ENV: LOG_LEVEL
+    default_language: Language | None = None  # ENV: DEFAULT_LANGUAGE
+    default_response_format: ResponseFormat = (
+        ResponseFormat.JSON
+    )  # ENV: DEFAULT_RESPONSE_FORMAT
     whisper: WhisperConfig = WhisperConfig()  # ENV: WHISPER_*
     """
     Max duration to for the next audio chunk before transcription is finilized and connection is closed.
