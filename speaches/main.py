@@ -37,8 +37,9 @@ async def lifespan(_: FastAPI):
         device=config.whisper.inference_device,
         compute_type=config.whisper.compute_type,
     )
-    end = time.perf_counter()
-    logger.debug(f"Loaded {config.whisper.model} loaded in {end - start:.2f} seconds")
+    logger.debug(
+        f"Loaded {config.whisper.model} loaded in {time.perf_counter() - start:.2f} seconds"
+    )
     yield
 
 
@@ -59,9 +60,10 @@ async def translate_file(
     temperature: Annotated[float, Form()] = 0.0,
     stream: Annotated[bool, Form()] = False,
 ):
-    assert (
-        model == config.whisper.model
-    ), "Specifying a model that is different from the default is not supported yet."
+    if model != config.whisper.model:
+        logger.warning(
+            f"Specifying a model that is different from the default is not supported yet. Using {config.whisper.model}."
+        )
     start = time.perf_counter()
     segments, transcription_info = whisper.transcribe(
         file.file,
@@ -86,9 +88,8 @@ async def translate_file(
 
     if not stream:
         segments = list(segments)
-        end = time.perf_counter()
         logger.info(
-            f"Translated {transcription_info.duration}({transcription_info.duration_after_vad}) seconds of audio in {end - start:.2f} seconds"
+            f"Translated {transcription_info.duration}({transcription_info.duration_after_vad}) seconds of audio in {time.perf_counter() - start:.2f} seconds"
         )
         if response_format == ResponseFormat.TEXT:
             return utils.segments_text(segments)
@@ -118,9 +119,10 @@ async def transcribe_file(
     ] = ["segments"],
     stream: Annotated[bool, Form()] = False,
 ):
-    assert (
-        model == config.whisper.model
-    ), "Specifying a model that is different from the default is not supported yet."
+    if model != config.whisper.model:
+        logger.warning(
+            f"Specifying a model that is different from the default is not supported yet. Using {config.whisper.model}."
+        )
     start = time.perf_counter()
     segments, transcription_info = whisper.transcribe(
         file.file,
@@ -134,6 +136,9 @@ async def transcribe_file(
 
     def segment_responses():
         for segment in segments:
+            logger.info(
+                f"Transcribed {segment.end - segment.start} seconds of audio in {time.perf_counter() - start:.2f} seconds"
+            )
             if response_format == ResponseFormat.TEXT:
                 yield segment.text
             elif response_format == ResponseFormat.JSON:
@@ -147,9 +152,8 @@ async def transcribe_file(
 
     if not stream:
         segments = list(segments)
-        end = time.perf_counter()
         logger.info(
-            f"Transcribed {transcription_info.duration}({transcription_info.duration_after_vad}) seconds of audio in {end - start:.2f} seconds"
+            f"Transcribed {transcription_info.duration}({transcription_info.duration_after_vad}) seconds of audio in {time.perf_counter() - start:.2f} seconds"
         )
         if response_format == ResponseFormat.TEXT:
             return utils.segments_text(segments)
@@ -225,7 +229,9 @@ async def transcribe_stream(
     model: Annotated[Model, Query()] = config.whisper.model,
     language: Annotated[Language | None, Query()] = config.default_language,
     prompt: Annotated[str | None, Query()] = None,
-    response_format: Annotated[ResponseFormat, Query()] = config.default_response_format,
+    response_format: Annotated[
+        ResponseFormat, Query()
+    ] = config.default_response_format,
     temperature: Annotated[float, Query()] = 0.0,
     timestamp_granularities: Annotated[
         list[Literal["segments"] | Literal["words"]],
@@ -235,9 +241,10 @@ async def transcribe_stream(
         ),
     ] = ["segments", "words"],
 ) -> None:
-    assert (
-        model == config.whisper.model
-    ), "Specifying a model that is different from the default is not supported yet."
+    if model != config.whisper.model:
+        logger.warning(
+            f"Specifying a model that is different from the default is not supported yet. Using {config.whisper.model}."
+        )
     await ws.accept()
     transcribe_opts = {
         "language": language,
