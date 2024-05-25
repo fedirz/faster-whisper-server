@@ -156,7 +156,7 @@ class Language(enum.StrEnum):
 
 
 class WhisperConfig(BaseModel):
-    model: Model = Field(default=Model.DISTIL_SMALL_EN)  # ENV: WHISPER_MODEL
+    model: Model = Field(default=Model.DISTIL_MEDIUM_EN)  # ENV: WHISPER_MODEL
     inference_device: Device = Field(
         default=Device.AUTO
     )  # ENV: WHISPER_INFERENCE_DEVICE
