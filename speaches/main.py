@@ -5,17 +5,18 @@ import logging
 import time
 from contextlib import asynccontextmanager
 from io import BytesIO
-from typing import Annotated
+from typing import Annotated, Literal
 
-from fastapi import (Depends, FastAPI, Response, UploadFile, WebSocket,
+from fastapi import (FastAPI, Form, Query, Response, UploadFile, WebSocket,
                      WebSocketDisconnect)
 from fastapi.websockets import WebSocketState
 from faster_whisper import WhisperModel
 from faster_whisper.vad import VadOptions, get_speech_timestamps
 
-from speaches.asr import FasterWhisperASR, TranscribeOpts
+from speaches import utils
+from speaches.asr import FasterWhisperASR
 from speaches.audio import AudioStream, audio_samples_from_file
-from speaches.config import SAMPLES_PER_SECOND, Language, config
+from speaches.config import SAMPLES_PER_SECOND, Language, Model, config
 from speaches.core import Transcription
 from speaches.logger import logger
 from speaches.server_models import (ResponseFormat, TranscriptionJsonResponse,
@@ -48,32 +49,40 @@ def health() -> Response:
     return Response(status_code=200, content="Everything is peachy!")
 
 
-async def transcription_parameters(
-    language: Language = Language.EN,
-    vad_filter: bool = True,
-    condition_on_previous_text: bool = False,
-) -> TranscribeOpts:
-    return TranscribeOpts(
-        language=language,
-        vad_filter=vad_filter,
-        condition_on_previous_text=condition_on_previous_text,
-    )
-
-
-TranscribeParams = Annotated[TranscribeOpts, Depends(transcription_parameters)]
-
-
+# https://platform.openai.com/docs/api-reference/audio/createTranscription
+# https://github.com/openai/openai-openapi/blob/master/openapi.yaml#L8915
 @app.post("/v1/audio/transcriptions")
 async def transcribe_file(
-    file: UploadFile,
-    transcription_opts: TranscribeParams,
-    response_format: ResponseFormat = ResponseFormat.JSON,
-) -> str:
-    asr = FasterWhisperASR(whisper, transcription_opts)
-    audio_samples = audio_samples_from_file(file.file)
-    audio = AudioStream(audio_samples)
-    transcription, _ = await asr.transcribe(audio)
-    return format_transcription(transcription, response_format)
+    file: Annotated[UploadFile, Form()],
+    model: Annotated[Model, Form()] = config.whisper.model,
+    language: Annotated[Language | None, Form()] = None,
+    prompt: Annotated[str | None, Form()] = None,
+    response_format: Annotated[ResponseFormat, Form()] = ResponseFormat.JSON,
+    temperature: Annotated[float, Form()] = 0.0,
+    timestamp_granularities: Annotated[
+        list[Literal["segments"] | Literal["words"]],
+        Form(alias="timestamp_granularities[]"),
+    ] = ["segments"],
+):
+    assert (
+        model == config.whisper.model
+    ), "Specifying a model that is different from the default is not supported yet."
+    segments, transcription_info = whisper.transcribe(
+        file.file,
+        language=language,
+        initial_prompt=prompt,
+        word_timestamps="words" in timestamp_granularities,
+        temperature=temperature,
+    )
+    segments = list(segments)
+    if response_format == ResponseFormat.TEXT:
+        return utils.segments_text(segments)
+    elif response_format == ResponseFormat.JSON:
+        return TranscriptionJsonResponse.from_segments(segments)
+    elif response_format == ResponseFormat.VERBOSE_JSON:
+        return TranscriptionVerboseJsonResponse.from_segments(
+            segments, transcription_info
+        )
 
 
 async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
@@ -135,11 +144,31 @@ def format_transcription(
 @app.websocket("/v1/audio/transcriptions")
 async def transcribe_stream(
     ws: WebSocket,
-    transcription_opts: TranscribeParams,
-    response_format: ResponseFormat = ResponseFormat.JSON,
+    model: Annotated[Model, Query()] = config.whisper.model,
+    language: Annotated[Language | None, Query()] = None,
+    prompt: Annotated[str | None, Query()] = None,
+    response_format: Annotated[ResponseFormat, Query()] = ResponseFormat.JSON,
+    temperature: Annotated[float, Query()] = 0.0,
+    timestamp_granularities: Annotated[
+        list[Literal["segments"] | Literal["words"]],
+        Query(
+            alias="timestamp_granularities[]",
+            description="No-op. Ignored. Only for compatibility.",
+        ),
+    ] = ["segments", "words"],
 ) -> None:
+    assert (
+        model == config.whisper.model
+    ), "Specifying a model that is different from the default is not supported yet."
     await ws.accept()
-    asr = FasterWhisperASR(whisper, transcription_opts)
+    transcribe_opts = {
+        "language": language,
+        "initial_prompt": prompt,
+        "temperature": temperature,
+        "vad_filter": True,
+        "condition_on_previous_text": False,
+    }
+    asr = FasterWhisperASR(whisper, **transcribe_opts)
     audio_stream = AudioStream()
     async with asyncio.TaskGroup() as tg:
         tg.create_task(audio_receiver(ws, audio_stream))
