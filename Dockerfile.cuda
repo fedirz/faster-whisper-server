@@ -8,7 +8,7 @@ RUN apt-get update && \
 RUN pip install --no-cache-dir poetry==1.8.2
 WORKDIR /root/speaches
 COPY pyproject.toml poetry.lock ./
-RUN poetry install
+RUN poetry install --only main
 COPY ./speaches ./speaches
 ENTRYPOINT ["poetry", "run"]
 CMD ["uvicorn", "speaches.main:app"]

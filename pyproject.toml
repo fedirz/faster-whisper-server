@@ -1,7 +1,7 @@
 [tool.poetry]
 package-mode = false
 
-[tool.poetry.dependencies]
+[tool.poetry.dependencies] # implicitly named main
 python = "^3.11"
 faster-whisper = "^1.0.2"
 pydantic = "^2.7.1"
