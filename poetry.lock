@@ -1938,7 +1938,22 @@ files = [
     {file = "websockets-12.0.tar.gz", hash = "sha256:81df9cbcbb6c260de1e007e58c011bfebe2dafc8435107b0537f393dd38c8b1b"},
 ]
 
+[[package]]
+name = "youtube_dl"
+version = "2021.12.17"
+description = "YouTube video downloader"
+optional = false
+python-versions = "*"
+files = []
+develop = false
+
+[package.source]
+type = "git"
+url = "https://github.com/ytdl-org/youtube-dl.git"
+reference = "HEAD"
+resolved_reference = "a08f2b7e4567cdc50c0614ee0a4ffdff49b8b6e6"
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "50d9f93490b4b8271c3a6bea9acda0d71f22ae70b13d181907d3ff29ba0eec5e"
+content-hash = "6d024a3fd67fb97b24b8bca892db7a035aacbf83c596e1e0000c55cc75188e6c"
