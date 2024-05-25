@@ -1,21 +1,10 @@
 from __future__ import annotations
 
-import enum
-
 from faster_whisper.transcribe import Segment, TranscriptionInfo, Word
 from pydantic import BaseModel
 
 from speaches import utils
 from speaches.core import Transcription
-
-
-# https://platform.openai.com/docs/api-reference/audio/createTranscription#audio-createtranscription-response_format
-class ResponseFormat(enum.StrEnum):
-    TEXT = "text"
-    JSON = "json"
-    VERBOSE_JSON = "verbose_json"
-    # VTT = "vtt"
-    # SRT = "srt"
 
 
 # https://platform.openai.com/docs/api-reference/audio/json-object

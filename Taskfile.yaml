@@ -15,7 +15,7 @@ tasks:
   create-multi-arch-builder: docker buildx create --name main --driver=docker-container
   build-and-push:
     cmds:
-      - docker compose build --builder main
+      - docker compose build --builder main --push
     sources:
       - Dockerfile.*
       - speaches/*.py

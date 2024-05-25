@@ -17,10 +17,11 @@ from faster_whisper.vad import VadOptions, get_speech_timestamps
 from speaches import utils
 from speaches.asr import FasterWhisperASR
 from speaches.audio import AudioStream, audio_samples_from_file
-from speaches.config import SAMPLES_PER_SECOND, Language, Model, config
+from speaches.config import (SAMPLES_PER_SECOND, Language, Model,
+                             ResponseFormat, config)
 from speaches.core import Transcription
 from speaches.logger import logger
-from speaches.server_models import (ResponseFormat, TranscriptionJsonResponse,
+from speaches.server_models import (TranscriptionJsonResponse,
                                     TranscriptionVerboseJsonResponse)
 from speaches.transcriber import audio_transcriber
 
