@@ -5,3 +5,4 @@ tests/data
 .task
 .secrets
 .ruff_cache
+.env

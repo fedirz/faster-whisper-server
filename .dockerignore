@@ -12,3 +12,4 @@ Taskfile.yaml
 README.md
 .secrets
 .ruff_cache
+.env
