@@ -18,6 +18,7 @@
           default = pkgs.mkShell {
             nativeBuildInputs = with pkgs; [
               (with python311Packages; huggingface-hub)
+              act
               ffmpeg-full
               go-task
               lsyncd

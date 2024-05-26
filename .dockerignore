@@ -10,3 +10,5 @@ flake.lock
 .task
 Taskfile.yaml
 README.md
+.secrets
+.ruff_cache
