@@ -237,7 +237,6 @@ async def transcribe_stream(
     ws: WebSocket,
     model: Annotated[Model, Query()] = config.whisper.model,
     language: Annotated[Language | None, Query()] = config.default_language,
-    prompt: Annotated[str | None, Query()] = None,
     response_format: Annotated[
         ResponseFormat, Query()
     ] = config.default_response_format,
@@ -246,7 +245,6 @@ async def transcribe_stream(
     await ws.accept()
     transcribe_opts = {
         "language": language,
-        "initial_prompt": prompt,
         "temperature": temperature,
         "vad_filter": True,
         "condition_on_previous_text": False,
