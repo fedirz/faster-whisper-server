@@ -9,12 +9,12 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
 RUN pip install --no-cache-dir poetry==1.8.2
-WORKDIR /root/speaches
+WORKDIR /root/faster-whisper-server
 COPY pyproject.toml poetry.lock ./
 RUN poetry install --only main
-COPY ./speaches ./speaches
+COPY ./faster_whisper_server ./faster_whisper_server
 ENTRYPOINT ["poetry", "run"]
-CMD ["uvicorn", "speaches.main:app"]
+CMD ["uvicorn", "faster_whisper_server.main:app"]
 ENV WHISPER_MODEL=distil-medium.en
 ENV WHISPER_INFERENCE_DEVICE=cpu
 ENV WHISPER_COMPUTE_TYPE=int8

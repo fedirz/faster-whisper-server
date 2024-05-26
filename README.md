@@ -1,20 +1,27 @@
-# WARN: WIP (code is ugly, bad documentation, may have bugs, test files aren't included, CPU inference was barely tested, etc.)
-# Intro
-:peach:`speaches` is a web server that supports real-time transcription using WebSockets.
+## Faster Whisper Server
+`faster-whisper-server` is a web server that supports real-time transcription using WebSockets.
 - [faster-whisper](https://github.com/SYSTRAN/faster-whisper) is used as the backend. Both GPU and CPU inference are supported.
 - LocalAgreement2 ([paper](https://aclanthology.org/2023.ijcnlp-demo.3.pdf) | [original implementation](https://github.com/ufal/whisper_streaming)) algorithm is used for real-time transcription.
 - Can be deployed using Docker (Compose configuration can be found in [compose.yaml](./compose.yaml)).
-- All configuration is done through environment variables. See [config.py](./speaches/config.py).
+- All configuration is done through environment variables. See [config.py](./faster_whisper_server/config.py).
 - NOTE: only transcription of single channel, 16000 sample rate, raw, 16-bit little-endian audio is supported.
 - NOTE: this isn't really meant to be used as a standalone tool but rather to add transcription features to other applications.
 Please create an issue if you find a bug, have a question, or a feature suggestion.
 # Quick Start
-Spinning up a `speaches` web server
+Using Docker
 ```bash
-docker run --gpus=all --publish 8000:8000 --mount type=bind,source=$HOME/.cache/huggingface,target=/root/.cache/huggingface fedirz/speaches:cuda
+docker run --gpus=all --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:cuda
 # or
-docker run --publish 8000:8000 --mount type=bind,source=$HOME/.cache/huggingface,target=/root/.cache/huggingface fedirz/speaches:cpu
+docker run --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:cpu
 ```
+Using Docker Compose
+```bash
+curl -sO https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.yaml
+docker compose up --detach up faster-whisper-server-cuda
+# or
+docker compose up --detach up faster-whisper-server-cpu
+```
+## Usage
 Streaming audio data from a microphone. [websocat](https://github.com/vi/websocat?tab=readme-ov-file#installation) installation is required.
 ```bash
 ffmpeg -loglevel quiet -f alsa -i default -ac 1 -ar 16000 -f s16le - | websocat --binary ws://0.0.0.0:8000/v1/audio/transcriptions
@@ -38,7 +45,7 @@ ffmpeg -i output.wav -ac 1 -ar 16000 -f s16le output.raw
 curl -X POST -F "file=@output.raw" http://0.0.0.0:8000/v1/audio/transcriptions
 # Output: "{\"text\":\"One,  two,  three,  four,  five.\"}"%
 ```
-# Roadmap
+## Roadmap
 - [ ] Support file transcription (non-streaming) of multiple formats.
 - [ ] CLI client.
 - [ ] Separate the web server related code from the "core", and publish "core" as a package.

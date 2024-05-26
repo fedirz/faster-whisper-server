@@ -1,6 +1,6 @@
 version: "3"
 tasks:
-  speaches: poetry run uvicorn --host 0.0.0.0 speaches.main:app {{.CLI_ARGS}}
+  server: poetry run uvicorn --host 0.0.0.0 faster_whisper_server.main:app {{.CLI_ARGS}}
   test:
     cmds:
       - poetry run pytest -o log_cli=true -o log_cli_level=DEBUG {{.CLI_ARGS}}
@@ -11,15 +11,15 @@ tasks:
       - docker compose build
     sources:
       - Dockerfile.*
-      - speaches/*.py
+      - faster_whisper_server/*.py
   create-multi-arch-builder: docker buildx create --name main --driver=docker-container
   build-and-push:
     cmds:
       - docker compose build --builder main --push
     sources:
       - Dockerfile.*
-      - speaches/*.py
-  sync: lsyncd -nodaemon -delay 0 -rsyncssh . gpu-box speaches
+      - faster_whisper_server/*.py
+  sync: lsyncd -nodaemon -delay 0 -rsyncssh . gpu-box faster-whisper-server
   # Python's urllib3 takes forever when ipv6 is enabled
   # https://support.nordvpn.com/hc/en-us/articles/20164669224337-How-to-disable-IPv6-on-Linux
   disable-ipv6: sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1 && sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1

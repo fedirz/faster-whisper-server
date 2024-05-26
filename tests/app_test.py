@@ -10,9 +10,9 @@ from fastapi import WebSocketDisconnect
 from fastapi.testclient import TestClient
 from starlette.testclient import WebSocketTestSession
 
-from speaches.config import BYTES_PER_SECOND
-from speaches.main import app
-from speaches.server_models import TranscriptionVerboseJsonResponse
+from faster_whisper_server.config import BYTES_PER_SECOND
+from faster_whisper_server.main import app
+from faster_whisper_server.server_models import TranscriptionVerboseJsonResponse
 
 SIMILARITY_THRESHOLD = 0.97
 AUDIO_FILES_LIMIT = 5

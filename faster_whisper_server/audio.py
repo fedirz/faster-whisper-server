@@ -7,8 +7,8 @@ import numpy as np
 import soundfile as sf
 from numpy.typing import NDArray
 
-from speaches.config import SAMPLES_PER_SECOND
-from speaches.logger import logger
+from faster_whisper_server.config import SAMPLES_PER_SECOND
+from faster_whisper_server.logger import logger
 
 
 def audio_samples_from_file(file: BinaryIO) -> NDArray[np.float32]:

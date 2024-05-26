@@ -20,16 +20,22 @@ from fastapi.websockets import WebSocketState
 from faster_whisper import WhisperModel
 from faster_whisper.vad import VadOptions, get_speech_timestamps
 
-from speaches import utils
-from speaches.asr import FasterWhisperASR
-from speaches.audio import AudioStream, audio_samples_from_file
-from speaches.config import SAMPLES_PER_SECOND, Language, Model, ResponseFormat, config
-from speaches.logger import logger
-from speaches.server_models import (
+from faster_whisper_server import utils
+from faster_whisper_server.asr import FasterWhisperASR
+from faster_whisper_server.audio import AudioStream, audio_samples_from_file
+from faster_whisper_server.config import (
+    SAMPLES_PER_SECOND,
+    Language,
+    Model,
+    ResponseFormat,
+    config,
+)
+from faster_whisper_server.logger import logger
+from faster_whisper_server.server_models import (
     TranscriptionJsonResponse,
     TranscriptionVerboseJsonResponse,
 )
-from speaches.transcriber import audio_transcriber
+from faster_whisper_server.transcriber import audio_transcriber
 
 models: OrderedDict[Model, WhisperModel] = OrderedDict()
 
@@ -72,7 +78,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/health")
 def health() -> Response:
-    return Response(status_code=200, content="Everything is peachy!")
+    return Response(status_code=200, content="OK")
 
 
 @app.post("/v1/audio/translations")

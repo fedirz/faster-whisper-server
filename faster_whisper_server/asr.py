@@ -4,9 +4,9 @@ from typing import Iterable
 
 from faster_whisper import transcribe
 
-from speaches.audio import Audio
-from speaches.core import Transcription, Word
-from speaches.logger import logger
+from faster_whisper_server.audio import Audio
+from faster_whisper_server.core import Transcription, Word
+from faster_whisper_server.logger import logger
 
 
 class FasterWhisperASR:

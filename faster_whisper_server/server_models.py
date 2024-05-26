@@ -3,8 +3,8 @@ from __future__ import annotations
 from faster_whisper.transcribe import Segment, TranscriptionInfo, Word
 from pydantic import BaseModel
 
-from speaches import utils
-from speaches.core import Transcription
+from faster_whisper_server import utils
+from faster_whisper_server.core import Transcription
 
 
 # https://platform.openai.com/docs/api-reference/audio/json-object

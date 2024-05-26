@@ -2,11 +2,16 @@ from __future__ import annotations
 
 from typing import AsyncGenerator
 
-from speaches.asr import FasterWhisperASR
-from speaches.audio import Audio, AudioStream
-from speaches.config import config
-from speaches.core import Transcription, Word, common_prefix, to_full_sentences
-from speaches.logger import logger
+from faster_whisper_server.asr import FasterWhisperASR
+from faster_whisper_server.audio import Audio, AudioStream
+from faster_whisper_server.config import config
+from faster_whisper_server.core import (
+    Transcription,
+    Word,
+    common_prefix,
+    to_full_sentences,
+)
+from faster_whisper_server.logger import logger
 
 
 class LocalAgreement:

@@ -28,7 +28,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            fedirz/speaches
+            fedirz/faster-whisper-server
           # https://github.com/docker/metadata-action?tab=readme-ov-file#flavor-input
           flavor: |
             latest=false
@@ -47,5 +47,5 @@ jobs:
           # platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           # TODO: cache
-          # cache-from: type=registry,ref=fedirz/speaches:buildcache
-          # cache-to: type=registry,ref=fedirz/speaches:buildcache,mode=max
+          # cache-from: type=registry,ref=fedirz/faster-whisper-server:buildcache
+          # cache-to: type=registry,ref=fedirz/faster-whisper-server:buildcache,mode=max

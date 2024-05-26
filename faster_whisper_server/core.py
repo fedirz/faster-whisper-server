@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from speaches.config import config
+from faster_whisper_server.config import config
 
 
 # TODO: use the `Segment` from `faster-whisper.transcribe` instead

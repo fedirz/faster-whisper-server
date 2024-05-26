@@ -1,8 +1,8 @@
 import logging
 
-from speaches.config import config
+from faster_whisper_server.config import config
 
-# Disables all but `speaches` logger
+# Disables all but `faster_whisper_server` logger
 
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.CRITICAL)

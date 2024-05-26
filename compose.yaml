@@ -1,7 +1,7 @@
 # NOTE: arm images haven't been tested
 services:
-  speaches-cuda:
-    image: fedirz/speaches:cuda
+  faster-whisper-server-cuda:
+    image: fedirz/faster-whisper-server:cuda
     build:
       dockerfile: Dockerfile.cuda
       context: .
@@ -9,7 +9,7 @@ services:
         - linux/amd64
         - linux/arm64
       tags:
-        - fedirz/speaches:cuda
+        - fedirz/faster-whisper-server:cuda
     volumes:
       - ~/.cache/huggingface:/root/.cache/huggingface
     restart: unless-stopped
@@ -20,8 +20,8 @@ services:
         reservations:
           devices:
             - capabilities: ["gpu"]
-  speaches-cpu:
-    image: fedirz/speaches:cpu
+  faster-whisper-server-cpu:
+    image: fedirz/faster-whisper-server:cpu
     build:
       dockerfile: Dockerfile.cpu
       context: .
@@ -29,7 +29,7 @@ services:
         - linux/amd64
         - linux/arm64
       tags:
-        - fedirz/speaches:cpu
+        - fedirz/faster-whisper-server:cpu
     volumes:
       - ~/.cache/huggingface:/root/.cache/huggingface
     restart: unless-stopped
