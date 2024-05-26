@@ -12,7 +12,7 @@ from starlette.testclient import WebSocketTestSession
 
 from speaches.config import BYTES_PER_SECOND
 from speaches.main import app
-from speaches.server_models import TranscriptionVerboseResponse
+from speaches.server_models import TranscriptionVerboseJsonResponse
 
 SIMILARITY_THRESHOLD = 0.97
 AUDIO_FILES_LIMIT = 5
@@ -54,13 +54,13 @@ def stream_audio_data(
 
 def transcribe_audio_data(
     client: TestClient, data: bytes
-) -> TranscriptionVerboseResponse:
+) -> TranscriptionVerboseJsonResponse:
     response = client.post(
         TRANSCRIBE_ENDPOINT,
         files={"file": ("audio.raw", data, "audio/raw")},
     )
     data = json.loads(response.json())  # TODO: figure this out
-    return TranscriptionVerboseResponse(**data)  # type: ignore
+    return TranscriptionVerboseJsonResponse(**data)  # type: ignore
 
 
 @pytest.mark.parametrize("file_path", file_paths)
@@ -70,14 +70,16 @@ def test_ws_audio_transcriptions(
     with open(file_path, "rb") as file:
         data = file.read()
 
-    streaming_transcription: TranscriptionVerboseResponse = None  # type: ignore
+    streaming_transcription: TranscriptionVerboseJsonResponse = None  # type: ignore
     thread = threading.Thread(
         target=stream_audio_data, args=(ws, data), kwargs={"speed": 4.0}
     )
     thread.start()
     while True:
         try:
-            streaming_transcription = TranscriptionVerboseResponse(**ws.receive_json())
+            streaming_transcription = TranscriptionVerboseJsonResponse(
+                **ws.receive_json()
+            )
         except WebSocketDisconnect:
             break
     file_transcription = transcribe_audio_data(client, data)

@@ -6,8 +6,15 @@ from contextlib import asynccontextmanager
 from io import BytesIO
 from typing import Annotated, Literal, OrderedDict
 
-from fastapi import (FastAPI, Form, Query, Response, UploadFile, WebSocket,
-                     WebSocketDisconnect)
+from fastapi import (
+    FastAPI,
+    Form,
+    Query,
+    Response,
+    UploadFile,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from fastapi.responses import StreamingResponse
 from fastapi.websockets import WebSocketState
 from faster_whisper import WhisperModel
@@ -16,11 +23,12 @@ from faster_whisper.vad import VadOptions, get_speech_timestamps
 from speaches import utils
 from speaches.asr import FasterWhisperASR
 from speaches.audio import AudioStream, audio_samples_from_file
-from speaches.config import (SAMPLES_PER_SECOND, Language, Model,
-                             ResponseFormat, config)
+from speaches.config import SAMPLES_PER_SECOND, Language, Model, ResponseFormat, config
 from speaches.logger import logger
-from speaches.server_models import (TranscriptionJsonResponse,
-                                    TranscriptionVerboseJsonResponse)
+from speaches.server_models import (
+    TranscriptionJsonResponse,
+    TranscriptionVerboseJsonResponse,
+)
 from speaches.transcriber import audio_transcriber
 
 models: OrderedDict[Model, WhisperModel] = OrderedDict()

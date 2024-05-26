@@ -8,21 +8,41 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
-  # TODO: enable
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v1.10.0
-  #   hooks:
-  #     - id: mypy
-  #       args: [--strict]
-  # TODO: enable
-  # - repo: https://github.com/RobertCraigie/pyright-python
-  #   rev: v1.1.363
-  #   hooks:
-  #   - id: pyright
-  # Disabled because it doesn't work on NixOS
-  # - repo: https://github.com/astral-sh/ruff-pre-commit
-  #   rev: v0.4.4
-  #   hooks:
-  #     - id: ruff # linter
-  #       args: [--fix]
-  #     - id: ruff-format
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.28.4
+    hooks:
+      - id: check-taskfile
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.0
+    hooks:
+      - id: actionlint
+  - repo: https://github.com/IamTheFij/docker-pre-commit
+    rev: v3.0.1
+    hooks:
+      - id: docker-compose-check
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+  # NOTE: not using https://github.com/RobertCraigie/pyright-python because it doesn't work with poetry virtual environments
+  # NOTE: not using github.com/astral-sh/ruff-pre-commit because it doesn't work on NixOS
+  - repo: local
+    hooks:
+      - id: pyright
+        name: pyright
+        entry: ./pre-commit-scripts/pyright.sh
+        language: script
+        pass_filenames: false
+      - id: ruff-lint
+        name: ruff-lint
+        entry: ./pre-commit-scripts/ruff-lint.sh
+        pass_filenames: false
+        language: script
+      - id: ruff-format
+        name: ruff-format
+        entry: ./pre-commit-scripts/ruff-format.sh
+        language: script

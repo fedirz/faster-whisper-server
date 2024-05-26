@@ -85,7 +85,7 @@ class TranscriptionVerboseJsonResponse(BaseModel):
             text=segment.text,
             words=(
                 [WordObject.from_word(word) for word in segment.words]
-                if type(segment.words) == list
+                if isinstance(segment.words, list)
                 else []
             ),
             segments=[SegmentObject.from_segment(segment)],

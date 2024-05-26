@@ -1,9 +1,12 @@
 FROM ubuntu:22.04
+# hadolint ignore=DL3008,DL4006
 RUN apt-get update && \
-    apt-get install -y curl software-properties-common && \
+    apt-get install -y --no-install-recommends curl software-properties-common && \
     add-apt-repository ppa:deadsnakes/ppa && \
     apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y install python3.11 python3.11-distutils && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3.11 python3.11-distutils && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
     curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
 RUN pip install --no-cache-dir poetry==1.8.2
 WORKDIR /root/speaches

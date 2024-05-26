@@ -22,6 +22,11 @@ youtube-dl = {git = "https://github.com/ytdl-org/youtube-dl.git"}
 [tool.ruff]
 target-version = "py311"
 
+[tool.pyright]
+# typeCheckingMode = "strict"
+pythonVersion = "3.11"
+pythonPlatform = "Linux"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
