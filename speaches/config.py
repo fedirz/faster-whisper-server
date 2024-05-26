@@ -163,39 +163,41 @@ class Language(enum.StrEnum):
 
 
 class WhisperConfig(BaseModel):
-    model: Model = Field(default=Model.DISTIL_MEDIUM_EN)  # ENV: WHISPER_MODEL
-    inference_device: Device = Field(
-        default=Device.AUTO
-    )  # ENV: WHISPER_INFERENCE_DEVICE
-    compute_type: Quantization = Field(
-        default=Quantization.DEFAULT
-    )  # ENV: WHISPER_COMPUTE_TYPE
+    model: Model = Field(default=Model.DISTIL_MEDIUM_EN)
+    inference_device: Device = Field(default=Device.AUTO)
+    compute_type: Quantization = Field(default=Quantization.DEFAULT)
 
 
 class Config(BaseSettings):
+    """
+    Configuration for the application. Values can be set via environment variables.
+    Pydantic will automatically handle mapping uppercased environment variables to the corresponding fields.
+    To populate nested, the environment should be prefixed with the nested field name and an underscore. For example,
+    the environment variable `LOG_LEVEL` will be mapped to `log_level`, `WHISPER_MODEL` to `whisper.model`, etc.
+    """
+
     model_config = SettingsConfigDict(env_nested_delimiter="_")
 
-    log_level: str = "info"  # ENV: LOG_LEVEL
-    default_language: Language | None = None  # ENV: DEFAULT_LANGUAGE
-    default_response_format: ResponseFormat = (
-        ResponseFormat.JSON
-    )  # ENV: DEFAULT_RESPONSE_FORMAT
-    whisper: WhisperConfig = WhisperConfig()  # ENV: WHISPER_*
+    log_level: str = "info"
+    default_language: Language | None = None
+    default_response_format: ResponseFormat = ResponseFormat.JSON
+    whisper: WhisperConfig = WhisperConfig()
+    max_models: int = 1
     """
     Max duration to for the next audio chunk before transcription is finilized and connection is closed.
     """
-    max_no_data_seconds: float = 1.0  # ENV: MAX_NO_DATA_SECONDS
-    min_duration: float = 1.0  # ENV: MIN_DURATION
-    word_timestamp_error_margin: float = 0.2  # ENV: WORD_TIMESTAMP_ERROR_MARGIN
+    max_no_data_seconds: float = 1.0
+    min_duration: float = 1.0
+    word_timestamp_error_margin: float = 0.2
     """
     Max allowed audio duration without any speech being detected before transcription is finilized and connection is closed.
     """
-    max_inactivity_seconds: float = 2.0  # ENV: MAX_INACTIVITY_SECONDS
+    max_inactivity_seconds: float = 2.0
     """
     Controls how many latest seconds of audio are being passed through VAD.
     Should be greater than `max_inactivity_seconds`
     """
-    inactivity_window_seconds: float = 3.0  # ENV: INACTIVITY_WINDOW_SECONDS
+    inactivity_window_seconds: float = 3.0
 
 
 config = Config()

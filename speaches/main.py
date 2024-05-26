@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import asyncio
-import logging
 import time
 from contextlib import asynccontextmanager
 from io import BytesIO
-from typing import Annotated, Literal
+from typing import Annotated, Literal, OrderedDict
 
 from fastapi import (FastAPI, Form, Query, Response, UploadFile, WebSocket,
                      WebSocketDisconnect)
@@ -19,29 +18,45 @@ from speaches.asr import FasterWhisperASR
 from speaches.audio import AudioStream, audio_samples_from_file
 from speaches.config import (SAMPLES_PER_SECOND, Language, Model,
                              ResponseFormat, config)
-from speaches.core import Transcription
 from speaches.logger import logger
 from speaches.server_models import (TranscriptionJsonResponse,
                                     TranscriptionVerboseJsonResponse)
 from speaches.transcriber import audio_transcriber
 
-whisper: WhisperModel = None  # type: ignore
+models: OrderedDict[Model, WhisperModel] = OrderedDict()
+
+
+def load_model(model_name: Model) -> WhisperModel:
+    if model_name in models:
+        logger.debug(f"{model_name} model already loaded")
+        return models[model_name]
+    if len(models) >= config.max_models:
+        oldest_model_name = next(iter(models))
+        logger.info(
+            f"Max models ({config.max_models}) reached. Unloading the oldest model: {oldest_model_name}"
+        )
+        del models[oldest_model_name]
+    logger.debug(f"Loading {model_name}")
+    start = time.perf_counter()
+    whisper = WhisperModel(
+        model_name,
+        device=config.whisper.inference_device,
+        compute_type=config.whisper.compute_type,
+    )
+    logger.info(
+        f"Loaded {model_name} loaded in {time.perf_counter() - start:.2f} seconds"
+    )
+    models[model_name] = whisper
+    return whisper
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    global whisper
-    logging.debug(f"Loading {config.whisper.model}")
-    start = time.perf_counter()
-    whisper = WhisperModel(
-        config.whisper.model,
-        device=config.whisper.inference_device,
-        compute_type=config.whisper.compute_type,
-    )
-    logger.debug(
-        f"Loaded {config.whisper.model} loaded in {time.perf_counter() - start:.2f} seconds"
-    )
+    load_model(config.whisper.model)
     yield
+    for model in models.keys():
+        logger.info(f"Unloading {model}")
+        del models[model]
 
 
 app = FastAPI(lifespan=lifespan)
@@ -53,7 +68,7 @@ def health() -> Response:
 
 
 @app.post("/v1/audio/translations")
-async def translate_file(
+def translate_file(
     file: Annotated[UploadFile, Form()],
     model: Annotated[Model, Form()] = config.whisper.model,
     prompt: Annotated[str | None, Form()] = None,
@@ -61,11 +76,8 @@ async def translate_file(
     temperature: Annotated[float, Form()] = 0.0,
     stream: Annotated[bool, Form()] = False,
 ):
-    if model != config.whisper.model:
-        logger.warning(
-            f"Specifying a model that is different from the default is not supported yet. Using {config.whisper.model}."
-        )
     start = time.perf_counter()
+    whisper = load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,
         task="translate",
@@ -107,7 +119,7 @@ async def translate_file(
 # https://platform.openai.com/docs/api-reference/audio/createTranscription
 # https://github.com/openai/openai-openapi/blob/master/openapi.yaml#L8915
 @app.post("/v1/audio/transcriptions")
-async def transcribe_file(
+def transcribe_file(
     file: Annotated[UploadFile, Form()],
     model: Annotated[Model, Form()] = config.whisper.model,
     language: Annotated[Language | None, Form()] = config.default_language,
@@ -120,11 +132,8 @@ async def transcribe_file(
     ] = ["segments"],
     stream: Annotated[bool, Form()] = False,
 ):
-    if model != config.whisper.model:
-        logger.warning(
-            f"Specifying a model that is different from the default is not supported yet. Using {config.whisper.model}."
-        )
     start = time.perf_counter()
+    whisper = load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,
         task="transcribe",
@@ -209,21 +218,6 @@ async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
     audio_stream.close()
 
 
-def format_transcription(
-    transcription: Transcription, response_format: ResponseFormat
-) -> str:
-    if response_format == ResponseFormat.TEXT:
-        return transcription.text
-    elif response_format == ResponseFormat.JSON:
-        return TranscriptionJsonResponse.from_transcription(
-            transcription
-        ).model_dump_json()
-    elif response_format == ResponseFormat.VERBOSE_JSON:
-        return TranscriptionVerboseJsonResponse.from_transcription(
-            transcription
-        ).model_dump_json()
-
-
 @app.websocket("/v1/audio/transcriptions")
 async def transcribe_stream(
     ws: WebSocket,
@@ -234,18 +228,7 @@ async def transcribe_stream(
         ResponseFormat, Query()
     ] = config.default_response_format,
     temperature: Annotated[float, Query()] = 0.0,
-    timestamp_granularities: Annotated[
-        list[Literal["segments"] | Literal["words"]],
-        Query(
-            alias="timestamp_granularities[]",
-            description="No-op. Ignored. Only for compatibility.",
-        ),
-    ] = ["segments", "words"],
 ) -> None:
-    if model != config.whisper.model:
-        logger.warning(
-            f"Specifying a model that is different from the default is not supported yet. Using {config.whisper.model}."
-        )
     await ws.accept()
     transcribe_opts = {
         "language": language,
@@ -254,6 +237,7 @@ async def transcribe_stream(
         "vad_filter": True,
         "condition_on_previous_text": False,
     }
+    whisper = load_model(model)
     asr = FasterWhisperASR(whisper, **transcribe_opts)
     audio_stream = AudioStream()
     async with asyncio.TaskGroup() as tg:
@@ -262,7 +246,21 @@ async def transcribe_stream(
             logger.debug(f"Sending transcription: {transcription.text}")
             if ws.client_state == WebSocketState.DISCONNECTED:
                 break
-            await ws.send_text(format_transcription(transcription, response_format))
+
+            if response_format == ResponseFormat.TEXT:
+                await ws.send_text(transcription.text)
+            elif response_format == ResponseFormat.JSON:
+                await ws.send_json(
+                    TranscriptionJsonResponse.from_transcription(
+                        transcription
+                    ).model_dump()
+                )
+            elif response_format == ResponseFormat.VERBOSE_JSON:
+                await ws.send_json(
+                    TranscriptionVerboseJsonResponse.from_transcription(
+                        transcription
+                    ).model_dump()
+                )
 
     if not ws.client_state == WebSocketState.DISCONNECTED:
         logger.info("Closing the connection.")
