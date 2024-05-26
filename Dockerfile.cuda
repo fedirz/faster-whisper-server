@@ -1,13 +1,13 @@
 FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
-# hadolint ignore=DL3008,DL4006
+# hadolint ignore=DL3008,DL3015,DL4006
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl software-properties-common && \
+    apt-get install -y curl software-properties-common && \
     add-apt-repository ppa:deadsnakes/ppa && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3.11 python3.11-distutils && \
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11 && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
+    rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir poetry==1.8.2
 WORKDIR /root/faster-whisper-server
 COPY pyproject.toml poetry.lock ./

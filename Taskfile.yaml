@@ -13,9 +13,9 @@ tasks:
       - Dockerfile.*
       - faster_whisper_server/*.py
   create-multi-arch-builder: docker buildx create --name main --driver=docker-container
-  build-and-push:
+  docker-build:
     cmds:
-      - docker compose build --builder main --push
+      - docker compose build --builder main {{.CLI_ARGS}}
     sources:
       - Dockerfile.*
       - faster_whisper_server/*.py
