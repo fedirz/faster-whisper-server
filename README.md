@@ -68,19 +68,13 @@ curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav" -F "stre
 curl http://localhost:8000/v1/audio/translations -F "file=@audio.wav"
 ```
 
-### Live Transcription
+### Live Transcription (using Web Socket)
+From [live-audio](./examples/live-audio) example
+
+https://github.com/fedirz/faster-whisper-server/assets/76551385/e334c124-af61-41d4-839c-874be150598f
+
 [websocat](https://github.com/vi/websocat?tab=readme-ov-file#installation) installation is required.
 Live transcribing audio data from a microphone.
 ```bash
 ffmpeg -loglevel quiet -f alsa -i default -ac 1 -ar 16000 -f s16le - | websocat --binary ws://localhost:8000/v1/audio/transcriptions
-```
-Streaming audio data from a file.
-```bash
-ffmpeg -loglevel quiet -f alsa -i default -ac 1 -ar 16000 -f s16le - > audio.raw
-# send all data at once
-cat audio.raw | websocat --no-close --binary ws://localhost:8000/v1/audio/transcriptions
-# Output: {"text":"One,"}{"text":"One,  two,  three,  four,  five."}{"text":"One,  two,  three,  four,  five."}%
-# streaming 16000 samples per second. each sample is 2 bytes
-cat audio.raw | pv -qL 32000 | websocat --no-close --binary ws://localhost:8000/v1/audio/transcriptions
-# Output: {"text":"One,"}{"text":"One,  two,"}{"text":"One,  two,  three,"}{"text":"One,  two,  three,  four,  five."}{"text":"One,  two,  three,  four,  five.  one."}%
 ```
