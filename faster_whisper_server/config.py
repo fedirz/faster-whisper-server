@@ -163,7 +163,7 @@ class Language(enum.StrEnum):
 
 
 class WhisperConfig(BaseModel):
-    model: Model = Field(default=Model.DISTIL_MEDIUM_EN)
+    model: Model = Field(default=Model.MEDIUM_EN)
     inference_device: Device = Field(default=Device.AUTO)
     compute_type: Quantization = Field(default=Quantization.DEFAULT)
 

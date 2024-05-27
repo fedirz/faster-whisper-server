@@ -58,7 +58,7 @@ def load_model(model_name: Model) -> WhisperModel:
         compute_type=config.whisper.compute_type,
     )
     logger.info(
-        f"Loaded {model_name} loaded in {time.perf_counter() - start:.2f} seconds"
+        f"Loaded {model_name} loaded in {time.perf_counter() - start:.2f} seconds. {config.whisper.inference_device}({config.whisper.compute_type}) will be used for inference."
     )
     models[model_name] = whisper
     return whisper

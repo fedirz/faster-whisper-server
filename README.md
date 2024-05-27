@@ -60,10 +60,10 @@ print(transcript.text)
 # If `model` isn't specified, the default model is used
 curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav"
 curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.mp3"
-curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav" -F "streaming=true"
-curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav" -F "streaming=true" -F "model=distil-large-v3"
+curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav" -F "stream=true"
+curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav" -F "stream=true" -F "model=distil-large-v3"
 # It's recommended that you always specify the language as that will reduce the transcription time
-curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav" -F "streaming=true" -F "model=distil-large-v3" -F "language=en"
+curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav" -F "stream=true" -F "model=distil-large-v3" -F "language=en"
 
 curl http://localhost:8000/v1/audio/translations -F "file=@audio.wav"
 ```
