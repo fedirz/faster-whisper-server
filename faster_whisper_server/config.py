@@ -192,12 +192,12 @@ class Config(BaseSettings):
     """
     Max allowed audio duration without any speech being detected before transcription is finilized and connection is closed.
     """
-    max_inactivity_seconds: float = 2.0
+    max_inactivity_seconds: float = 5.0
     """
     Controls how many latest seconds of audio are being passed through VAD.
     Should be greater than `max_inactivity_seconds`
     """
-    inactivity_window_seconds: float = 3.0
+    inactivity_window_seconds: float = 10.0
 
 
 config = Config()
