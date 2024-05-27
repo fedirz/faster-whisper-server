@@ -7,6 +7,8 @@ on:
       - "master"
     tags:
       - 'v*'
+  release:
+    types: [published]
 
 jobs:
   docker:
@@ -50,6 +52,5 @@ jobs:
           # TODO:
           # platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
-          # TODO:
-          # cache-from: type=registry,ref=fedirz/faster-whisper-server:buildcache
-          # cache-to: type=registry,ref=fedirz/faster-whisper-server:buildcache,mode=max
+          cache-from: type=registry,ref=fedirz/faster-whisper-server:buildcache
+          cache-to: type=registry,ref=fedirz/faster-whisper-server:buildcache,mode=max
