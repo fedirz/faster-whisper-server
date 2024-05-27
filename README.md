@@ -38,9 +38,9 @@ export OPENAI_API_KEY="cant-be-empty"
 export OPENAI_BASE_URL=http://localhost:8000/v1/
 ```
 ```bash
-openai api audio.transcriptions.create -m distil-medium.en -f audio.wav --response-format text
+openai api audio.transcriptions.create -m distil-large-v3 -f audio.wav --response-format text
 
-openai api audio.translations.create -m distil-medium.en -f audio.wav --response-format verbose_json
+openai api audio.translations.create -m distil-large-v3 -f audio.wav --response-format verbose_json
 ```
 ### OpenAI API Python SDK
 ```python
@@ -50,7 +50,7 @@ client = OpenAI(api_key="cant-be-empty", base_url="http://localhost:8000/v1/")
 
 audio_file = open("audio.wav", "rb")
 transcript = client.audio.transcriptions.create(
-    model="distil-medium.en", file=audio_file
+    model="distil-large-v3", file=audio_file
 )
 print(transcript.text)
 ```
