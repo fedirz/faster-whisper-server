@@ -1,10 +1,12 @@
 name: docker-build-and-push
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - "master"
-# TODO: releases
+    tags:
+      - 'v*'
 
 jobs:
   docker:
@@ -35,6 +37,8 @@ jobs:
             prefix=${{ matrix.tag-prefix }}
           tags: |
             type=sha
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build and push
@@ -42,10 +46,10 @@ jobs:
         with:
           context: .
           file: ${{ matrix.dockerfile }}
-          # push: true
-          # TODO: multi-platform
+          push: true
+          # TODO:
           # platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
-          # TODO: cache
+          # TODO:
           # cache-from: type=registry,ref=fedirz/faster-whisper-server:buildcache
           # cache-to: type=registry,ref=fedirz/faster-whisper-server:buildcache,mode=max
