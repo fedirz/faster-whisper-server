@@ -1,7 +1,7 @@
 # NOTE: arm images haven't been tested
 services:
   faster-whisper-server-cuda:
-    image: fedirz/faster-whisper-server:cuda-0.1
+    image: fedirz/faster-whisper-server:0.1-cuda
     build:
       dockerfile: Dockerfile.cuda
       context: .
@@ -19,7 +19,7 @@ services:
           devices:
             - capabilities: ["gpu"]
   faster-whisper-server-cpu:
-    image: fedirz/faster-whisper-server:cpu-0.1
+    image: fedirz/faster-whisper-server:0.1-cpu
     build:
       dockerfile: Dockerfile.cpu
       context: .
