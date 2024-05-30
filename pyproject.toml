@@ -1,9 +1,8 @@
 [tool.poetry]
 package-mode = false
 
-[tool.poetry.dependencies] # implicitly named main
+[tool.poetry.dependencies] # main dependency group
 python = "^3.11"
-faster-whisper = "^1.0.2"
 pydantic = "^2.7.1"
 fastapi = "^0.111.0"
 uvicorn = "^0.29.0"
@@ -12,6 +11,7 @@ soundfile = "^0.12.1"
 pydantic-settings = "^2.2.1"
 websockets = "^12.0"
 numpy = "^1.26.4"
+faster-whisper = "^1.0.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"
