@@ -15,7 +15,7 @@ RUN poetry install --only main
 COPY ./faster_whisper_server ./faster_whisper_server
 ENTRYPOINT ["poetry", "run"]
 CMD ["uvicorn", "faster_whisper_server.main:app"]
-ENV WHISPER_MODEL=distil-large-v3
+ENV WHISPER_MODEL=Systran/faster-distil-whisper-large-v3
 ENV WHISPER_INFERENCE_DEVICE=cuda
 ENV UVICORN_HOST=0.0.0.0
 ENV UVICORN_PORT=8000
