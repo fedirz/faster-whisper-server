@@ -20,6 +20,7 @@ httpx = "^0.27.0"
 pytest-xdist = "^3.6.1"
 youtube-dl = {git = "https://github.com/ytdl-org/youtube-dl.git"}
 openai = "^1.30.3"
+httpx-sse = "^0.4.0"
 
 [tool.ruff]
 target-version = "py312"
