@@ -17,7 +17,7 @@
         devShells = {
           default = pkgs.mkShell {
             nativeBuildInputs = with pkgs; [
-              (with python311Packages; huggingface-hub)
+              (with python312Packages; huggingface-hub)
               act
               ffmpeg-full
               go-task
@@ -27,7 +27,7 @@
               pre-commit
               pv
               pyright
-              python311
+              python312
               rsync
               ruff
               websocat
