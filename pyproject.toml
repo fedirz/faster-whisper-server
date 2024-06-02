@@ -2,7 +2,7 @@
 package-mode = false
 
 [tool.poetry.dependencies] # main dependency group
-python = "^3.11"
+python = "^3.12"
 pydantic = "^2.7.1"
 fastapi = "^0.111.0"
 uvicorn = "^0.29.0"
@@ -21,11 +21,11 @@ youtube-dl = {git = "https://github.com/ytdl-org/youtube-dl.git"}
 openai = "^1.30.3"
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py312"
 
 [tool.pyright]
 # typeCheckingMode = "strict"
-pythonVersion = "3.11"
+pythonVersion = "3.12"
 pythonPlatform = "Linux"
 
 [build-system]
