@@ -26,7 +26,6 @@ from faster_whisper_server.audio import AudioStream, audio_samples_from_file
 from faster_whisper_server.config import (
     SAMPLES_PER_SECOND,
     Language,
-    Model,
     ResponseFormat,
     config,
 )
@@ -37,10 +36,10 @@ from faster_whisper_server.server_models import (
 )
 from faster_whisper_server.transcriber import audio_transcriber
 
-models: OrderedDict[Model, WhisperModel] = OrderedDict()
+models: OrderedDict[str, WhisperModel] = OrderedDict()
 
 
-def load_model(model_name: Model) -> WhisperModel:
+def load_model(model_name: str) -> WhisperModel:
     if model_name in models:
         logger.debug(f"{model_name} model already loaded")
         return models[model_name]
@@ -50,8 +49,9 @@ def load_model(model_name: Model) -> WhisperModel:
             f"Max models ({config.max_models}) reached. Unloading the oldest model: {oldest_model_name}"
         )
         del models[oldest_model_name]
-    logger.debug(f"Loading {model_name}")
+    logger.debug(f"Loading {model_name}...")
     start = time.perf_counter()
+    # NOTE: will raise an exception if the model name isn't valid
     whisper = WhisperModel(
         model_name,
         device=config.whisper.inference_device,
@@ -84,7 +84,7 @@ def health() -> Response:
 @app.post("/v1/audio/translations")
 def translate_file(
     file: Annotated[UploadFile, Form()],
-    model: Annotated[Model, Form()] = config.whisper.model,
+    model: Annotated[str, Form()] = config.whisper.model,
     prompt: Annotated[str | None, Form()] = None,
     response_format: Annotated[ResponseFormat, Form()] = config.default_response_format,
     temperature: Annotated[float, Form()] = 0.0,
@@ -135,7 +135,7 @@ def translate_file(
 @app.post("/v1/audio/transcriptions")
 def transcribe_file(
     file: Annotated[UploadFile, Form()],
-    model: Annotated[Model, Form()] = config.whisper.model,
+    model: Annotated[str, Form()] = config.whisper.model,
     language: Annotated[Language | None, Form()] = config.default_language,
     prompt: Annotated[str | None, Form()] = None,
     response_format: Annotated[ResponseFormat, Form()] = config.default_response_format,
@@ -235,7 +235,7 @@ async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
 @app.websocket("/v1/audio/transcriptions")
 async def transcribe_stream(
     ws: WebSocket,
-    model: Annotated[Model, Query()] = config.whisper.model,
+    model: Annotated[str, Query()] = config.whisper.model,
     language: Annotated[Language | None, Query()] = config.default_language,
     response_format: Annotated[
         ResponseFormat, Query()

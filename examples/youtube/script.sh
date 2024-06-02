@@ -3,7 +3,7 @@
 set -e
 
 # NOTE: do not use any distil-* model other than the large ones as they don't work on long audio files for some reason.
-export WHISPER_MODEL=distil-large-v3 # or tiny.en if you are running on a CPU for a faster inference.
+export WHISPER_MODEL=Systran/faster-distil-whisper-large-v3 # or Systran/faster-whisper-tiny.en if you are running on a CPU for a faster inference.
 
 # Ensure you have `faster-whisper-server` running. If this is your first time running it expect to wait up-to a minute for the model to be downloaded and loaded into memory. You can run `curl localhost:8000/health` to check if the server is ready or watch the logs with `docker logs -f <container_id>`.
 docker run --detach --gpus=all --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface --env WHISPER_MODEL=$WHISPER_MODEL fedirz/faster-whisper-server:0.1-cuda
@@ -13,7 +13,7 @@ docker run --detach --gpus=all --publish 8000:8000 --volume ~/.cache/huggingface
 # Download the audio from a YouTube video. In this example I'm downloading "The Evolution of the Operating System" by Asionometry YouTube channel. I highly checking this channel out, the guy produces very high content. If you don't have `youtube-dl`, you'll have to install it. https://github.com/ytdl-org/youtube-dl
 youtube-dl --extract-audio --audio-format mp3 -o the-evolution-of-the-operating-system.mp3 'https://www.youtube.com/watch?v=1lG7lFLXBIs'
 
-# Make a request to the API to transcribe the audio. The response will be streamed to the terminal and saved to a file. The video is 30 minutes long, so it might take a while to transcribe, especially if you are running this on a CPU. `distil-large-v3` takes ~30 seconds on Nvidia L4. `tiny.en` takes ~1 minute on Ryzen 7 7700X. The .txt file in the example was transcribed using `distil-large-v3`.
+# Make a request to the API to transcribe the audio. The response will be streamed to the terminal and saved to a file. The video is 30 minutes long, so it might take a while to transcribe, especially if you are running this on a CPU. `Systran/faster-distil-whisper-large-v3` takes ~30 seconds on Nvidia L4. `Systran/faster-whisper-tiny.en` takes ~1 minute on Ryzen 7 7700X. The .txt file in the example was transcribed using `Systran/faster-distil-whisper-large-v3`.
 curl -s http://localhost:8000/v1/audio/transcriptions -F "file=@the-evolution-of-the-operating-system.mp3" -F "stream=true" -F "language=en" -F "response_format=text" | tee the-evolution-of-the-operating-system.txt
 
 # Here I'm using `aichat` which is a CLI LLM client. You could use any other client that supports attaching/uploading files. https://github.com/sigoden/aichat
