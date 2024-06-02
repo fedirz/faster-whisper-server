@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from faster_whisper.transcribe import Segment, TranscriptionInfo, Word
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 from faster_whisper_server import utils
 from faster_whisper_server.core import Transcription
@@ -125,3 +127,16 @@ class TranscriptionVerboseJsonResponse(BaseModel):
             ],
             segments=[],  # FIX: hardcoded
         )
+
+
+class ModelObject(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    """The model identifier, which can be referenced in the API endpoints."""
+    created: int
+    """The Unix timestamp (in seconds) when the model was created."""
+    object_: Literal["model"] = Field(serialization_alias="object")
+    """The object type, which is always "model"."""
+    owned_by: str
+    """The organization that owns the model."""
