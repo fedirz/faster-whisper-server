@@ -2005,4 +2005,4 @@ resolved_reference = "21924742f79ccbd62d16ef4120518c6a5da8614e"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "a88bde1facc86d4277e8dee76db3da1907716500b91ffcac8cad583075113d0a"
+content-hash = "446d88a0b7136e722f39609774cc7778dd5a31eb9eb57eb8f7c1596781648587"
