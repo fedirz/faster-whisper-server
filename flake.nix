@@ -17,7 +17,6 @@
         devShells = {
           default = pkgs.mkShell {
             nativeBuildInputs = with pkgs; [
-              (with python312Packages; huggingface-hub)
               act
               ffmpeg-full
               go-task
