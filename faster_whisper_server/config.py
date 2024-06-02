@@ -46,26 +46,6 @@ class ResponseFormat(enum.StrEnum):
     # I see a lot of equivalence between this new LLM OS and operating systems of today.
 
 
-# https://huggingface.co/Systran
-class Model(enum.StrEnum):
-    TINY_EN = "tiny.en"
-    TINY = "tiny"
-    BASE_EN = "base.en"
-    BASE = "base"
-    SMALL_EN = "small.en"
-    SMALL = "small"
-    MEDIUM_EN = "medium.en"
-    MEDIUM = "medium"
-    LARGE = "large"
-    LARGE_V1 = "large-v1"
-    LARGE_V2 = "large-v2"
-    LARGE_V3 = "large-v3"
-    DISTIL_SMALL_EN = "distil-small.en"
-    DISTIL_MEDIUM_EN = "distil-medium.en"
-    DISTIL_LARGE_V2 = "distil-large-v2"
-    DISTIL_LARGE_V3 = "distil-large-v3"
-
-
 class Device(enum.StrEnum):
     CPU = "cpu"
     CUDA = "cuda"
@@ -189,7 +169,12 @@ class Language(enum.StrEnum):
 
 
 class WhisperConfig(BaseModel):
-    model: Model = Field(default=Model.MEDIUM_EN)
+    model: str = Field(default="Systran/faster-whisper-medium.en")
+    """
+    Huggingface model to use for transcription. Note, the model must support being ran using CTranslate2.
+    Models created by authors of `faster-whisper` can be found at https://huggingface.co/Systran
+    You can find other supported models at https://huggingface.co/models?p=2&sort=trending&search=ctranslate2 and https://huggingface.co/models?sort=trending&search=ct2
+    """
     inference_device: Device = Field(default=Device.AUTO)
     compute_type: Quantization = Field(default=Quantization.DEFAULT)
 
@@ -209,21 +194,21 @@ class Config(BaseSettings):
     default_response_format: ResponseFormat = ResponseFormat.JSON
     whisper: WhisperConfig = WhisperConfig()
     max_models: int = 1
+    max_no_data_seconds: float = 1.0
     """
     Max duration to for the next audio chunk before transcription is finilized and connection is closed.
     """
-    max_no_data_seconds: float = 1.0
     min_duration: float = 1.0
     word_timestamp_error_margin: float = 0.2
+    max_inactivity_seconds: float = 5.0
     """
     Max allowed audio duration without any speech being detected before transcription is finilized and connection is closed.
     """
-    max_inactivity_seconds: float = 5.0
+    inactivity_window_seconds: float = 10.0
     """
     Controls how many latest seconds of audio are being passed through VAD.
     Should be greater than `max_inactivity_seconds`
     """
-    inactivity_window_seconds: float = 10.0
 
 
 config = Config()
