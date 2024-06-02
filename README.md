@@ -38,9 +38,9 @@ export OPENAI_API_KEY="cant-be-empty"
 export OPENAI_BASE_URL=http://localhost:8000/v1/
 ```
 ```bash
-openai api audio.transcriptions.create -m distil-large-v3 -f audio.wav --response-format text
+openai api audio.transcriptions.create -m Systran/faster-distil-whisper-large-v3 -f audio.wav --response-format text
 
-openai api audio.translations.create -m distil-large-v3 -f audio.wav --response-format verbose_json
+openai api audio.translations.create -m Systran/faster-distil-whisper-large-v3 -f audio.wav --response-format verbose_json
 ```
 ### OpenAI API Python SDK
 ```python
@@ -50,7 +50,7 @@ client = OpenAI(api_key="cant-be-empty", base_url="http://localhost:8000/v1/")
 
 audio_file = open("audio.wav", "rb")
 transcript = client.audio.transcriptions.create(
-    model="distil-large-v3", file=audio_file
+    model="Systran/faster-distil-whisper-large-v3", file=audio_file
 )
 print(transcript.text)
 ```
@@ -61,9 +61,9 @@ print(transcript.text)
 curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav"
 curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.mp3"
 curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav" -F "stream=true"
-curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav" -F "stream=true" -F "model=distil-large-v3"
+curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav" -F "model=Systran/faster-distil-whisper-large-v3"
 # It's recommended that you always specify the language as that will reduce the transcription time
-curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav" -F "stream=true" -F "model=distil-large-v3" -F "language=en"
+curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav" -F "language=en"
 
 curl http://localhost:8000/v1/audio/translations -F "file=@audio.wav"
 ```
