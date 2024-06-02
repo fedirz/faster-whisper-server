@@ -6,9 +6,11 @@ from contextlib import asynccontextmanager
 from io import BytesIO
 from typing import Annotated, Literal, OrderedDict
 
+import huggingface_hub
 from fastapi import (
     FastAPI,
     Form,
+    HTTPException,
     Query,
     Response,
     UploadFile,
@@ -19,6 +21,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.websockets import WebSocketState
 from faster_whisper import WhisperModel
 from faster_whisper.vad import VadOptions, get_speech_timestamps
+from huggingface_hub.hf_api import ModelInfo
 
 from faster_whisper_server import utils
 from faster_whisper_server.asr import FasterWhisperASR
@@ -31,24 +34,25 @@ from faster_whisper_server.config import (
 )
 from faster_whisper_server.logger import logger
 from faster_whisper_server.server_models import (
+    ModelObject,
     TranscriptionJsonResponse,
     TranscriptionVerboseJsonResponse,
 )
 from faster_whisper_server.transcriber import audio_transcriber
 
-models: OrderedDict[str, WhisperModel] = OrderedDict()
+loaded_models: OrderedDict[str, WhisperModel] = OrderedDict()
 
 
 def load_model(model_name: str) -> WhisperModel:
-    if model_name in models:
+    if model_name in loaded_models:
         logger.debug(f"{model_name} model already loaded")
-        return models[model_name]
-    if len(models) >= config.max_models:
-        oldest_model_name = next(iter(models))
+        return loaded_models[model_name]
+    if len(loaded_models) >= config.max_models:
+        oldest_model_name = next(iter(loaded_models))
         logger.info(
             f"Max models ({config.max_models}) reached. Unloading the oldest model: {oldest_model_name}"
         )
-        del models[oldest_model_name]
+        del loaded_models[oldest_model_name]
     logger.debug(f"Loading {model_name}...")
     start = time.perf_counter()
     # NOTE: will raise an exception if the model name isn't valid
@@ -60,7 +64,7 @@ def load_model(model_name: str) -> WhisperModel:
     logger.info(
         f"Loaded {model_name} loaded in {time.perf_counter() - start:.2f} seconds. {config.whisper.inference_device}({config.whisper.compute_type}) will be used for inference."
     )
-    models[model_name] = whisper
+    loaded_models[model_name] = whisper
     return whisper
 
 
@@ -68,9 +72,9 @@ def load_model(model_name: str) -> WhisperModel:
 async def lifespan(_: FastAPI):
     load_model(config.whisper.model)
     yield
-    for model in models.keys():
+    for model in loaded_models.keys():
         logger.info(f"Unloading {model}")
-        del models[model]
+        del loaded_models[model]
 
 
 app = FastAPI(lifespan=lifespan)
@@ -79,6 +83,48 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/health")
 def health() -> Response:
     return Response(status_code=200, content="OK")
+
+
+@app.get("/v1/models", response_model=list[ModelObject])
+def get_models() -> list[ModelObject]:
+    models = huggingface_hub.list_models(library="ctranslate2")
+    models = [
+        ModelObject(
+            id=model.id,
+            created=int(model.created_at.timestamp()),
+            object_="model",
+            owned_by=model.id.split("/")[0],
+        )
+        for model in models
+        if model.created_at is not None
+    ]
+    return models
+
+
+@app.get("/v1/models/{model_name:path}", response_model=ModelObject)
+def get_model(model_name: str) -> ModelObject:
+    models = list(
+        huggingface_hub.list_models(model_name=model_name, library="ctranslate2")
+    )
+    if len(models) == 0:
+        raise HTTPException(status_code=404, detail="Model doesn't exists")
+    exact_match: ModelInfo | None = None
+    for model in models:
+        if model.id == model_name:
+            exact_match = model
+            break
+    if exact_match is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Model doesn't exists. Possible matches: {", ".join([model.id for model in models])}",
+        )
+    assert exact_match.created_at is not None
+    return ModelObject(
+        id=exact_match.id,
+        created=int(exact_match.created_at.timestamp()),
+        object_="model",
+        owned_by=exact_match.id.split("/")[0],
+    )
 
 
 @app.post("/v1/audio/translations")
