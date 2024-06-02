@@ -4,7 +4,7 @@ import asyncio
 import time
 from contextlib import asynccontextmanager
 from io import BytesIO
-from typing import Annotated, Literal, OrderedDict
+from typing import Annotated, Generator, Literal, OrderedDict
 
 import huggingface_hub
 from fastapi import (
@@ -127,6 +127,10 @@ def get_model(model_name: str) -> ModelObject:
     )
 
 
+def format_as_sse(data: str) -> str:
+    return f"data: {data}\n\n"
+
+
 @app.post("/v1/audio/translations")
 def translate_file(
     file: Annotated[UploadFile, Form()],
@@ -146,19 +150,6 @@ def translate_file(
         vad_filter=True,
     )
 
-    def segment_responses():
-        for segment in segments:
-            if response_format == ResponseFormat.TEXT:
-                yield segment.text
-            elif response_format == ResponseFormat.JSON:
-                yield TranscriptionJsonResponse.from_segments(
-                    [segment]
-                ).model_dump_json()
-            elif response_format == ResponseFormat.VERBOSE_JSON:
-                yield TranscriptionVerboseJsonResponse.from_segment(
-                    segment, transcription_info
-                ).model_dump_json()
-
     if not stream:
         segments = list(segments)
         logger.info(
@@ -173,6 +164,21 @@ def translate_file(
                 segments, transcription_info
             )
     else:
+
+        def segment_responses() -> Generator[str, None, None]:
+            for segment in segments:
+                if response_format == ResponseFormat.TEXT:
+                    data = segment.text
+                elif response_format == ResponseFormat.JSON:
+                    data = TranscriptionJsonResponse.from_segments(
+                        [segment]
+                    ).model_dump_json()
+                elif response_format == ResponseFormat.VERBOSE_JSON:
+                    data = TranscriptionVerboseJsonResponse.from_segment(
+                        segment, transcription_info
+                    ).model_dump_json()
+                yield format_as_sse(data)
+
         return StreamingResponse(segment_responses(), media_type="text/event-stream")
 
 
@@ -204,22 +210,6 @@ def transcribe_file(
         vad_filter=True,
     )
 
-    def segment_responses():
-        for segment in segments:
-            logger.info(
-                f"Transcribed {segment.end - segment.start} seconds of audio in {time.perf_counter() - start:.2f} seconds"
-            )
-            if response_format == ResponseFormat.TEXT:
-                yield segment.text
-            elif response_format == ResponseFormat.JSON:
-                yield TranscriptionJsonResponse.from_segments(
-                    [segment]
-                ).model_dump_json()
-            elif response_format == ResponseFormat.VERBOSE_JSON:
-                yield TranscriptionVerboseJsonResponse.from_segment(
-                    segment, transcription_info
-                ).model_dump_json()
-
     if not stream:
         segments = list(segments)
         logger.info(
@@ -234,6 +224,24 @@ def transcribe_file(
                 segments, transcription_info
             )
     else:
+
+        def segment_responses() -> Generator[str, None, None]:
+            for segment in segments:
+                logger.info(
+                    f"Transcribed {segment.end - segment.start} seconds of audio in {time.perf_counter() - start:.2f} seconds"
+                )
+                if response_format == ResponseFormat.TEXT:
+                    data = segment.text
+                elif response_format == ResponseFormat.JSON:
+                    data = TranscriptionJsonResponse.from_segments(
+                        [segment]
+                    ).model_dump_json()
+                elif response_format == ResponseFormat.VERBOSE_JSON:
+                    data = TranscriptionVerboseJsonResponse.from_segment(
+                        segment, transcription_info
+                    ).model_dump_json()
+                yield format_as_sse(data)
+
         return StreamingResponse(segment_responses(), media_type="text/event-stream")
 
 
