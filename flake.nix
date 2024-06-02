@@ -28,6 +28,7 @@
               pv
               pyright
               python311
+              rsync
               ruff
               websocat
             ];
