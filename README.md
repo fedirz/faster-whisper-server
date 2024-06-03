@@ -20,9 +20,9 @@ See [OpenAI API reference](https://platform.openai.com/docs/api-reference/audio)
 ## Quick Start
 Using Docker
 ```bash
-docker run --gpus=all --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:0.1-cuda
+docker run --gpus=all --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:latest-cuda
 # or
-docker run --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:0.1-cpu
+docker run --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:latest-cpu
 ```
 Using Docker Compose
 ```bash
