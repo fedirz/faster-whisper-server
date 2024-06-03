@@ -20,6 +20,9 @@ tasks:
       - Dockerfile.*
       - faster_whisper_server/*.py
   sync: lsyncd lsyncd.conf
+  cii:
+    cmds:
+      - act --rm --action-offline-mode --secret-file .secrets {{.CLI_ARGS}}
   # Python's urllib3 takes forever when ipv6 is enabled
   # https://support.nordvpn.com/hc/en-us/articles/20164669224337-How-to-disable-IPv6-on-Linux
   disable-ipv6: sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1 && sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
