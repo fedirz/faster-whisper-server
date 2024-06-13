@@ -130,8 +130,6 @@ class TranscriptionVerboseJsonResponse(BaseModel):
 
 
 class ModelObject(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
     id: str
     """The model identifier, which can be referenced in the API endpoints."""
     created: int
@@ -140,3 +138,29 @@ class ModelObject(BaseModel):
     """The object type, which is always "model"."""
     owned_by: str
     """The organization that owns the model."""
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_schema_extra={
+            "examples": [
+                {
+                    "id": "Systran/faster-whisper-large-v3",
+                    "created": 1700732060,
+                    "object": "model",
+                    "owned_by": "Systran",
+                },
+                {
+                    "id": "Systran/faster-distil-whisper-large-v3",
+                    "created": 1711378296,
+                    "object": "model",
+                    "owned_by": "Systran",
+                },
+                {
+                    "id": "bofenghuang/whisper-large-v2-cv11-french-ct2",
+                    "created": 1687968011,
+                    "object": "model",
+                    "owned_by": "bofenghuang",
+                },
+            ]
+        },
+    )
