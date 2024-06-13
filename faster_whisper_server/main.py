@@ -104,7 +104,10 @@ def get_models() -> list[ModelObject]:
 
 
 @app.get("/v1/models/{model_name:path}")
-def get_model(model_name: Annotated[str, Path()]) -> ModelObject:
+# NOTE: `examples` doesn't work https://github.com/tiangolo/fastapi/discussions/10537
+def get_model(
+    model_name: Annotated[str, Path(example="Systran/faster-distil-whisper-large-v3")],
+) -> ModelObject:
     models = list(
         huggingface_hub.list_models(model_name=model_name, library="ctranslate2")
     )
@@ -148,7 +151,10 @@ def handle_default_openai_model(model_name: str) -> str:
 ModelName = Annotated[str, AfterValidator(handle_default_openai_model)]
 
 
-@app.post("/v1/audio/translations")
+@app.post(
+    "/v1/audio/translations",
+    response_model=str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse,
+)
 def translate_file(
     file: Annotated[UploadFile, Form()],
     model: Annotated[ModelName, Form()] = config.whisper.model,
@@ -156,6 +162,11 @@ def translate_file(
     response_format: Annotated[ResponseFormat, Form()] = config.default_response_format,
     temperature: Annotated[float, Form()] = 0.0,
     stream: Annotated[bool, Form()] = False,
+) -> (
+    str
+    | TranscriptionJsonResponse
+    | TranscriptionVerboseJsonResponse
+    | StreamingResponse
 ):
     start = time.perf_counter()
     whisper = load_model(model)
@@ -201,7 +212,10 @@ def translate_file(
 
 # https://platform.openai.com/docs/api-reference/audio/createTranscription
 # https://github.com/openai/openai-openapi/blob/master/openapi.yaml#L8915
-@app.post("/v1/audio/transcriptions")
+@app.post(
+    "/v1/audio/transcriptions",
+    response_model=str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse,
+)
 def transcribe_file(
     file: Annotated[UploadFile, Form()],
     model: Annotated[ModelName, Form()] = config.whisper.model,
@@ -214,6 +228,11 @@ def transcribe_file(
         Form(alias="timestamp_granularities[]"),
     ] = ["segment"],
     stream: Annotated[bool, Form()] = False,
+) -> (
+    str
+    | TranscriptionJsonResponse
+    | TranscriptionVerboseJsonResponse
+    | StreamingResponse
 ):
     start = time.perf_counter()
     whisper = load_model(model)
