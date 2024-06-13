@@ -210,9 +210,9 @@ def transcribe_file(
     response_format: Annotated[ResponseFormat, Form()] = config.default_response_format,
     temperature: Annotated[float, Form()] = 0.0,
     timestamp_granularities: Annotated[
-        list[Literal["segments"] | Literal["words"]],
+        list[Literal["segment"] | Literal["word"]],
         Form(alias="timestamp_granularities[]"),
-    ] = ["segments"],
+    ] = ["segment"],
     stream: Annotated[bool, Form()] = False,
 ):
     start = time.perf_counter()
@@ -222,7 +222,7 @@ def transcribe_file(
         task="transcribe",
         language=language,
         initial_prompt=prompt,
-        word_timestamps="words" in timestamp_granularities,
+        word_timestamps="word" in timestamp_granularities,
         temperature=temperature,
         vad_filter=True,
     )
