@@ -1,23 +1,14 @@
 import json
 import os
-from typing import Generator
 
 import pytest
 from fastapi.testclient import TestClient
 from httpx_sse import connect_sse
 
-from faster_whisper_server.main import app
 from faster_whisper_server.server_models import (
     TranscriptionJsonResponse,
     TranscriptionVerboseJsonResponse,
 )
-
-
-@pytest.fixture()
-def client() -> Generator[TestClient, None, None]:
-    with TestClient(app) as client:
-        yield client
-
 
 FILE_PATHS = ["audio.wav"]  # HACK
 ENDPOINTS = [
