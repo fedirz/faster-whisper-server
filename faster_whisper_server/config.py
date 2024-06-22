@@ -168,6 +168,11 @@ class Language(enum.StrEnum):
     ZH = "zh"
 
 
+class Task(enum.StrEnum):
+    TRANSCRIPTION = "transcription"
+    TRANSLATION = "translation"
+
+
 class WhisperConfig(BaseModel):
     model: str = Field(default="Systran/faster-whisper-medium.en")
     """

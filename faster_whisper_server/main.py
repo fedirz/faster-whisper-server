@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import asyncio
 import time
-from contextlib import asynccontextmanager
 from io import BytesIO
 from typing import Annotated, Generator, Iterable, Literal, OrderedDict
 
+import gradio as gr
 import huggingface_hub
 from fastapi import (
     FastAPI,
@@ -33,8 +33,10 @@ from faster_whisper_server.config import (
     SAMPLES_PER_SECOND,
     Language,
     ResponseFormat,
+    Task,
     config,
 )
+from faster_whisper_server.gradio_app import create_gradio_demo
 from faster_whisper_server.logger import logger
 from faster_whisper_server.server_models import (
     ModelObject,
@@ -71,16 +73,7 @@ def load_model(model_name: str) -> WhisperModel:
     return whisper
 
 
-@asynccontextmanager
-async def lifespan(_: FastAPI):
-    load_model(config.whisper.model)
-    yield
-    for model in loaded_models.keys():
-        logger.info(f"Unloading {model}")
-        del loaded_models[model]
-
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 
 @app.get("/health")
@@ -210,7 +203,7 @@ def translate_file(
     whisper = load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,
-        task="translate",
+        task=Task.TRANSLATION,
         initial_prompt=prompt,
         temperature=temperature,
         vad_filter=True,
@@ -251,7 +244,7 @@ def transcribe_file(
     whisper = load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,
-        task="transcribe",
+        task=Task.TRANSCRIPTION,
         language=language,
         initial_prompt=prompt,
         word_timestamps="word" in timestamp_granularities,
@@ -353,3 +346,6 @@ async def transcribe_stream(
     if not ws.client_state == WebSocketState.DISCONNECTED:
         logger.info("Closing the connection.")
         await ws.close()
+
+
+app = gr.mount_gradio_app(app, create_gradio_demo(config), path="/")
