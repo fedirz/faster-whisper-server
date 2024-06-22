@@ -28,8 +28,16 @@ repos:
     rev: v0.10.0.1
     hooks:
       - id: shellcheck
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.4.10
+    hooks:
+      # Run the linter.
+      - id: ruff
+        args: [ --fix ]
+      # Run the formatter.
+      - id: ruff-format
   # NOTE: not using https://github.com/RobertCraigie/pyright-python because it doesn't work with poetry virtual environments
-  # NOTE: not using github.com/astral-sh/ruff-pre-commit because it doesn't work on NixOS
   - repo: local
     hooks:
       - id: pyright
@@ -37,12 +45,3 @@ repos:
         entry: ./pre-commit-scripts/pyright.sh
         language: script
         pass_filenames: false
-      - id: ruff-lint
-        name: ruff-lint
-        entry: ./pre-commit-scripts/ruff-lint.sh
-        pass_filenames: false
-        language: script
-      - id: ruff-format
-        name: ruff-format
-        entry: ./pre-commit-scripts/ruff-format.sh
-        language: script
