@@ -6,3 +6,4 @@ tests/data
 .secrets
 .ruff_cache
 .env
+.aider*
