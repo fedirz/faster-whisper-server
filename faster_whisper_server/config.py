@@ -169,8 +169,8 @@ class Language(enum.StrEnum):
 
 
 class Task(enum.StrEnum):
-    TRANSCRIPTION = "transcription"
-    TRANSLATION = "translation"
+    TRANSCRIBE = "transcribe"
+    TRANSLATE = "translate"
 
 
 class WhisperConfig(BaseModel):
@@ -192,7 +192,7 @@ class Config(BaseSettings):
     the environment variable `LOG_LEVEL` will be mapped to `log_level`, `WHISPER_MODEL` to `whisper.model`, etc.
     """
 
-    model_config = SettingsConfigDict(env_nested_delimiter="_")
+    model_config = SettingsConfigDict(env_nested_delimiter="__")
 
     log_level: str = "info"
     default_language: Language | None = None
