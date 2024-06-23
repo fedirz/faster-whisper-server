@@ -203,7 +203,7 @@ def translate_file(
     whisper = load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,
-        task=Task.TRANSLATION,
+        task=Task.TRANSLATE,
         initial_prompt=prompt,
         temperature=temperature,
         vad_filter=True,
@@ -244,7 +244,7 @@ def transcribe_file(
     whisper = load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,
-        task=Task.TRANSCRIPTION,
+        task=Task.TRANSCRIBE,
         language=language,
         initial_prompt=prompt,
         word_timestamps="word" in timestamp_granularities,

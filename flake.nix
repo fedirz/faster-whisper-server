@@ -30,6 +30,7 @@
               rsync
               ruff
               websocat
+              uv
             ];
             shellHook = ''
               poetry env use python3.12
