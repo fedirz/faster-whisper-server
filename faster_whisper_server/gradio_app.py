@@ -18,21 +18,24 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
     http_client = httpx.Client(base_url=f"http://{host}:{port}", timeout=None)
 
     def handler(
-        file_path: str | None, model: str, task: Task, temperature: float, stream: bool
+        file_path: str, model: str, task: Task, temperature: float, stream: bool
     ) -> Generator[str, None, None]:
-        if file_path is None:
-            yield ""
-            return
         if stream:
-            yield from transcribe_audio_streaming(file_path, task, temperature, model)
-        yield transcribe_audio(file_path, task, temperature, model)
+            previous_transcription = ""
+            for transcription in transcribe_audio_streaming(
+                file_path, task, temperature, model
+            ):
+                previous_transcription += transcription
+                yield previous_transcription
+        else:
+            yield transcribe_audio(file_path, task, temperature, model)
 
     def transcribe_audio(
         file_path: str, task: Task, temperature: float, model: str
     ) -> str:
-        if task == Task.TRANSCRIPTION:
+        if task == Task.TRANSCRIBE:
             endpoint = TRANSCRIPTION_ENDPOINT
-        elif task == Task.TRANSLATION:
+        elif task == Task.TRANSLATE:
             endpoint = TRANSLATION_ENDPOINT
 
         with open(file_path, "rb") as file:
@@ -64,15 +67,32 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
             }
             endpoint = (
                 TRANSCRIPTION_ENDPOINT
-                if task == Task.TRANSCRIPTION
+                if task == Task.TRANSCRIBE
                 else TRANSLATION_ENDPOINT
             )
             with connect_sse(http_client, "POST", endpoint, **kwargs) as event_source:
                 for event in event_source.iter_sse():
                     yield event.data
 
+    def update_model_dropdown() -> gr.Dropdown:
+        res = http_client.get("/v1/models")
+        res_data = res.json()
+        models: list[str] = [model["id"] for model in res_data]
+        assert config.whisper.model in models
+        recommended_models = set(
+            model for model in models if model.startswith("Systran")
+        )
+        other_models = [model for model in models if model not in recommended_models]
+        models = list(recommended_models) + other_models
+        model_dropdown = gr.Dropdown(
+            # no idea why it's complaining
+            choices=models,  # type: ignore
+            label="Model",
+            value=config.whisper.model,
+        )
+        return model_dropdown
+
     model_dropdown = gr.Dropdown(
-        # TODO: use output from /v1/models
         choices=[config.whisper.model],
         label="Model",
         value=config.whisper.model,
@@ -80,13 +100,13 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
     task_dropdown = gr.Dropdown(
         choices=[task.value for task in Task],
         label="Task",
-        value=Task.TRANSCRIPTION,
+        value=Task.TRANSCRIBE,
     )
     temperature_slider = gr.Slider(
         minimum=0.0, maximum=1.0, step=0.1, label="Temperature", value=0.0
     )
     stream_checkbox = gr.Checkbox(label="Stream", value=True)
-    demo = gr.Interface(
+    with gr.Interface(
         title="Whisper Playground",
         description="""Consider supporting the project by starring the <a href="https://github.com/fedirz/faster-whisper-server">repository on GitHub</a>.""",
         inputs=[
@@ -98,5 +118,6 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
         ],
         fn=handler,
         outputs="text",
-    )
+    ) as demo:
+        demo.load(update_model_dropdown, inputs=None, outputs=model_dropdown)
     return demo
