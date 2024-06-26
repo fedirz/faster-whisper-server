@@ -32,6 +32,8 @@ docker compose up --detach faster-whisper-server-cuda
 docker compose up --detach faster-whisper-server-cpu
 ```
 ## Usage
+If you are looking for a step-by-step walkthrough, checkout [this](https://www.youtube.com/watch?app=desktop&v=vSN-oAl6LVs) YouTube video.
+
 ### OpenAI API CLI
 ```bash
 export OPENAI_API_KEY="cant-be-empty"
