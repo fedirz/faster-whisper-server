@@ -27,3 +27,6 @@ target-version = "py312"
 # typeCheckingMode = "strict"
 pythonVersion = "3.12"
 pythonPlatform = "Linux"
+# https://github.com/RobertCraigie/pyright-python/tree/804dafbe7ab1b9c8766c2b4755fb29db37959ab7?tab=readme-ov-file#pre-commit
+venvPath = "."
+venv = ".venv"

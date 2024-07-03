@@ -1,5 +1,4 @@
 name: docker-build-and-push
-
 on:
   workflow_dispatch:
   push:
@@ -7,10 +6,8 @@ on:
       - 'v*'
   release:
     types: [published]
-
 env:
   IMAGE_NAME: fedirz/faster-whisper-server
-
 jobs:
   docker:
     runs-on: ubuntu-22.04
