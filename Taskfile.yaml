@@ -1,9 +1,9 @@
 version: "3"
 tasks:
-  server: poetry run uvicorn --host 0.0.0.0 faster_whisper_server.main:app {{.CLI_ARGS}}
+  server: uvicorn --host 0.0.0.0 faster_whisper_server.main:app {{.CLI_ARGS}}
   test:
     cmds:
-      - poetry run pytest -o log_cli=true -o log_cli_level=DEBUG {{.CLI_ARGS}}
+      - pytest -o log_cli=true -o log_cli_level=DEBUG {{.CLI_ARGS}}
     sources:
       - "**/*.py"
   build:
@@ -12,6 +12,13 @@ tasks:
     sources:
       - Dockerfile.*
       - faster_whisper_server/*.py
+  compile:
+    cmds:
+      - uv pip compile --output-file requirements.txt pyproject.toml
+      - uv pip compile --extra dev --output-file requirements-dev.txt pyproject.toml
+      - uv pip compile --all-extras --output-file requirements-all.txt pyproject.toml
+    sources:
+      - pyproject.toml
   create-multi-arch-builder: docker buildx create --name main --driver=docker-container
   docker-build:
     cmds:
