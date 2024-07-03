@@ -10,7 +10,7 @@ env:
   IMAGE_NAME: fedirz/faster-whisper-server
 jobs:
   docker:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         dockerfile: [Dockerfile.cuda, Dockerfile.cpu]
