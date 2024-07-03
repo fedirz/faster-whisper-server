@@ -2,6 +2,7 @@ from collections.abc import Generator
 import logging
 
 from fastapi.testclient import TestClient
+from openai import OpenAI
 import pytest
 
 from faster_whisper_server.main import app
@@ -19,3 +20,8 @@ def pytest_configure() -> None:
 def client() -> Generator[TestClient, None, None]:
     with TestClient(app) as client:
         yield client
+
+
+@pytest.fixture()
+def openai_client(client: TestClient) -> OpenAI:
+    return OpenAI(api_key="cant-be-empty", http_client=client)

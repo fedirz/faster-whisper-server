@@ -38,6 +38,7 @@ from faster_whisper_server.config import (
 from faster_whisper_server.gradio_app import create_gradio_demo
 from faster_whisper_server.logger import logger
 from faster_whisper_server.server_models import (
+    ModelListResponse,
     ModelObject,
     TranscriptionJsonResponse,
     TranscriptionVerboseJsonResponse,
@@ -85,7 +86,7 @@ def health() -> Response:
 
 
 @app.get("/v1/models")
-def get_models() -> list[ModelObject]:
+def get_models() -> ModelListResponse:
     models = huggingface_hub.list_models(library="ctranslate2", tags="automatic-speech-recognition")
     models = [
         ModelObject(
@@ -97,7 +98,7 @@ def get_models() -> list[ModelObject]:
         for model in models
         if model.created_at is not None
     ]
-    return models
+    return ModelListResponse(data=models)
 
 
 @app.get("/v1/models/{model_name:path}")
