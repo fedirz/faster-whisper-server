@@ -28,18 +28,35 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "D10",  # disabled required docstrings
+    "FIX",
+    "TD", # disable todo warnings
     "ERA",  # allow commented out code
-    "TD", # disable TODO warnings
-    "FIX002", # disable TODO warnings
+    "PTH",
 
-    "COM812", # trailing comma
-    "T201", # print
-    "S101", # allow assert
-    "PTH123", # Path.open
-    "S603", # subprocess untrusted input
-
+    "ANN003", # missing kwargs
     "ANN101", # missing self type
+    "ANN102", # missing cls
+    "B006",
+    "B008",
+    "COM812", # trailing comma
+    "D10",  # disabled required docstrings
+    "D401",
+    "EM102",
+    "FBT001",
+    "FBT002",
+    "PLR0913",
+    "PLR2004", # magic
+    "RET504",
+    "RET505",
+    "RET508",
+    "S101", # allow assert
+    "S104",
+    "S603", # subprocess untrusted input
+    "SIM102",
+    "T201", # print
+    "TRY003",
+    "W505",
+    "ISC001" # recommended to disable for formatting
 ]
 
 [tool.ruff.lint.isort]

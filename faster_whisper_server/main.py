@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import asyncio
-import time
+from collections import OrderedDict
 from io import BytesIO
-from typing import Annotated, Generator, Iterable, Literal, OrderedDict
+import time
+from typing import TYPE_CHECKING, Annotated, Literal
 
-import gradio as gr
-import huggingface_hub
 from fastapi import (
     FastAPI,
     Form,
@@ -21,9 +20,9 @@ from fastapi import (
 from fastapi.responses import StreamingResponse
 from fastapi.websockets import WebSocketState
 from faster_whisper import WhisperModel
-from faster_whisper.transcribe import Segment, TranscriptionInfo
 from faster_whisper.vad import VadOptions, get_speech_timestamps
-from huggingface_hub.hf_api import ModelInfo
+import gradio as gr
+import huggingface_hub
 from pydantic import AfterValidator
 
 from faster_whisper_server import utils
@@ -45,6 +44,12 @@ from faster_whisper_server.server_models import (
 )
 from faster_whisper_server.transcriber import audio_transcriber
 
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterable
+
+    from faster_whisper.transcribe import Segment, TranscriptionInfo
+    from huggingface_hub.hf_api import ModelInfo
+
 loaded_models: OrderedDict[str, WhisperModel] = OrderedDict()
 
 
@@ -54,9 +59,7 @@ def load_model(model_name: str) -> WhisperModel:
         return loaded_models[model_name]
     if len(loaded_models) >= config.max_models:
         oldest_model_name = next(iter(loaded_models))
-        logger.info(
-            f"Max models ({config.max_models}) reached. Unloading the oldest model: {oldest_model_name}"
-        )
+        logger.info(f"Max models ({config.max_models}) reached. Unloading the oldest model: {oldest_model_name}")
         del loaded_models[oldest_model_name]
     logger.debug(f"Loading {model_name}...")
     start = time.perf_counter()
@@ -67,7 +70,7 @@ def load_model(model_name: str) -> WhisperModel:
         compute_type=config.whisper.compute_type,
     )
     logger.info(
-        f"Loaded {model_name} loaded in {time.perf_counter() - start:.2f} seconds. {config.whisper.inference_device}({config.whisper.compute_type}) will be used for inference."
+        f"Loaded {model_name} loaded in {time.perf_counter() - start:.2f} seconds. {config.whisper.inference_device}({config.whisper.compute_type}) will be used for inference."  # noqa: E501
     )
     loaded_models[model_name] = whisper
     return whisper
@@ -102,9 +105,7 @@ def get_models() -> list[ModelObject]:
 def get_model(
     model_name: Annotated[str, Path(example="Systran/faster-distil-whisper-large-v3")],
 ) -> ModelObject:
-    models = list(
-        huggingface_hub.list_models(model_name=model_name, library="ctranslate2")
-    )
+    models = list(huggingface_hub.list_models(model_name=model_name, library="ctranslate2"))
     if len(models) == 0:
         raise HTTPException(status_code=404, detail="Model doesn't exists")
     exact_match: ModelInfo | None = None
@@ -132,14 +133,12 @@ def segments_to_response(
     response_format: ResponseFormat,
 ) -> str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse:
     segments = list(segments)
-    if response_format == ResponseFormat.TEXT:
+    if response_format == ResponseFormat.TEXT:  # noqa: RET503
         return utils.segments_text(segments)
     elif response_format == ResponseFormat.JSON:
         return TranscriptionJsonResponse.from_segments(segments)
     elif response_format == ResponseFormat.VERBOSE_JSON:
-        return TranscriptionVerboseJsonResponse.from_segments(
-            segments, transcription_info
-        )
+        return TranscriptionVerboseJsonResponse.from_segments(segments, transcription_info)
 
 
 def format_as_sse(data: str) -> str:
@@ -156,26 +155,21 @@ def segments_to_streaming_response(
             if response_format == ResponseFormat.TEXT:
                 data = segment.text
             elif response_format == ResponseFormat.JSON:
-                data = TranscriptionJsonResponse.from_segments(
-                    [segment]
-                ).model_dump_json()
+                data = TranscriptionJsonResponse.from_segments([segment]).model_dump_json()
             elif response_format == ResponseFormat.VERBOSE_JSON:
-                data = TranscriptionVerboseJsonResponse.from_segment(
-                    segment, transcription_info
-                ).model_dump_json()
+                data = TranscriptionVerboseJsonResponse.from_segment(segment, transcription_info).model_dump_json()
             yield format_as_sse(data)
 
     return StreamingResponse(segment_responses(), media_type="text/event-stream")
 
 
 def handle_default_openai_model(model_name: str) -> str:
-    """This exists because some callers may not be able override the default("whisper-1") model name.
+    """Exists because some callers may not be able override the default("whisper-1") model name.
+
     For example, https://github.com/open-webui/open-webui/issues/2248#issuecomment-2162997623.
     """
     if model_name == "whisper-1":
-        logger.info(
-            f"{model_name} is not a valid model name. Using {config.whisper.model} instead."
-        )
+        logger.info(f"{model_name} is not a valid model name. Using {config.whisper.model} instead.")
         return config.whisper.model
     return model_name
 
@@ -194,12 +188,7 @@ def translate_file(
     response_format: Annotated[ResponseFormat, Form()] = config.default_response_format,
     temperature: Annotated[float, Form()] = 0.0,
     stream: Annotated[bool, Form()] = False,
-) -> (
-    str
-    | TranscriptionJsonResponse
-    | TranscriptionVerboseJsonResponse
-    | StreamingResponse
-):
+) -> str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse | StreamingResponse:
     whisper = load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,
@@ -210,9 +199,7 @@ def translate_file(
     )
 
     if stream:
-        return segments_to_streaming_response(
-            segments, transcription_info, response_format
-        )
+        return segments_to_streaming_response(segments, transcription_info, response_format)
     else:
         return segments_to_response(segments, transcription_info, response_format)
 
@@ -231,16 +218,11 @@ def transcribe_file(
     response_format: Annotated[ResponseFormat, Form()] = config.default_response_format,
     temperature: Annotated[float, Form()] = 0.0,
     timestamp_granularities: Annotated[
-        list[Literal["segment"] | Literal["word"]],
+        list[Literal["segment", "word"]],
         Form(alias="timestamp_granularities[]"),
     ] = ["segment"],
     stream: Annotated[bool, Form()] = False,
-) -> (
-    str
-    | TranscriptionJsonResponse
-    | TranscriptionVerboseJsonResponse
-    | StreamingResponse
-):
+) -> str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse | StreamingResponse:
     whisper = load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,
@@ -253,9 +235,7 @@ def transcribe_file(
     )
 
     if stream:
-        return segments_to_streaming_response(
-            segments, transcription_info, response_format
-        )
+        return segments_to_streaming_response(segments, transcription_info, response_format)
     else:
         return segments_to_response(segments, transcription_info, response_format)
 
@@ -263,39 +243,28 @@ def transcribe_file(
 async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
     try:
         while True:
-            bytes_ = await asyncio.wait_for(
-                ws.receive_bytes(), timeout=config.max_no_data_seconds
-            )
+            bytes_ = await asyncio.wait_for(ws.receive_bytes(), timeout=config.max_no_data_seconds)
             logger.debug(f"Received {len(bytes_)} bytes of audio data")
             audio_samples = audio_samples_from_file(BytesIO(bytes_))
             audio_stream.extend(audio_samples)
             if audio_stream.duration - config.inactivity_window_seconds >= 0:
-                audio = audio_stream.after(
-                    audio_stream.duration - config.inactivity_window_seconds
-                )
+                audio = audio_stream.after(audio_stream.duration - config.inactivity_window_seconds)
                 vad_opts = VadOptions(min_silence_duration_ms=500, speech_pad_ms=0)
                 # NOTE: This is a synchronous operation that runs every time new data is received.
-                # This shouldn't be an issue unless data is being received in tiny chunks or the user's machine is a potato.
+                # This shouldn't be an issue unless data is being received in tiny chunks or the user's machine is a potato.  # noqa: E501
                 timestamps = get_speech_timestamps(audio.data, vad_opts)
                 if len(timestamps) == 0:
-                    logger.info(
-                        f"No speech detected in the last {config.inactivity_window_seconds} seconds."
-                    )
+                    logger.info(f"No speech detected in the last {config.inactivity_window_seconds} seconds.")
                     break
                 elif (
                     # last speech end time
-                    config.inactivity_window_seconds
-                    - timestamps[-1]["end"] / SAMPLES_PER_SECOND
+                    config.inactivity_window_seconds - timestamps[-1]["end"] / SAMPLES_PER_SECOND
                     >= config.max_inactivity_seconds
                 ):
-                    logger.info(
-                        f"Not enough speech in the last {config.inactivity_window_seconds} seconds."
-                    )
+                    logger.info(f"Not enough speech in the last {config.inactivity_window_seconds} seconds.")
                     break
-    except asyncio.TimeoutError:
-        logger.info(
-            f"No data received in {config.max_no_data_seconds} seconds. Closing the connection."
-        )
+    except TimeoutError:
+        logger.info(f"No data received in {config.max_no_data_seconds} seconds. Closing the connection.")
     except WebSocketDisconnect as e:
         logger.info(f"Client disconnected: {e}")
     audio_stream.close()
@@ -306,9 +275,7 @@ async def transcribe_stream(
     ws: WebSocket,
     model: Annotated[ModelName, Query()] = config.whisper.model,
     language: Annotated[Language | None, Query()] = config.default_language,
-    response_format: Annotated[
-        ResponseFormat, Query()
-    ] = config.default_response_format,
+    response_format: Annotated[ResponseFormat, Query()] = config.default_response_format,
     temperature: Annotated[float, Query()] = 0.0,
 ) -> None:
     await ws.accept()
@@ -331,19 +298,11 @@ async def transcribe_stream(
             if response_format == ResponseFormat.TEXT:
                 await ws.send_text(transcription.text)
             elif response_format == ResponseFormat.JSON:
-                await ws.send_json(
-                    TranscriptionJsonResponse.from_transcription(
-                        transcription
-                    ).model_dump()
-                )
+                await ws.send_json(TranscriptionJsonResponse.from_transcription(transcription).model_dump())
             elif response_format == ResponseFormat.VERBOSE_JSON:
-                await ws.send_json(
-                    TranscriptionVerboseJsonResponse.from_transcription(
-                        transcription
-                    ).model_dump()
-                )
+                await ws.send_json(TranscriptionVerboseJsonResponse.from_transcription(transcription).model_dump())
 
-    if not ws.client_state == WebSocketState.DISCONNECTED:
+    if ws.client_state != WebSocketState.DISCONNECTED:
         logger.info("Closing the connection.")
         await ws.close()
 
