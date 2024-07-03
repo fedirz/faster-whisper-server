@@ -247,6 +247,7 @@ def transcribe_file(
         Form(alias="timestamp_granularities[]"),
     ] = ["segment"],
     stream: Annotated[bool, Form()] = False,
+    hotwords: Annotated[str | None, Form()] = None,
 ) -> str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse | StreamingResponse:
     whisper = load_model(model)
     segments, transcription_info = whisper.transcribe(
@@ -257,6 +258,7 @@ def transcribe_file(
         word_timestamps="word" in timestamp_granularities,
         temperature=temperature,
         vad_filter=True,
+        hotwords=hotwords,
     )
 
     if stream:
