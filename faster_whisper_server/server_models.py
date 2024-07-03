@@ -133,6 +133,8 @@ class ModelObject(BaseModel):
     """The object type, which is always "model"."""
     owned_by: str
     """The organization that owns the model."""
+    language: list[str] = Field(default_factory=list)
+    """List of ISO 639-3 supported by the model. It's possible that the list will be empty. This field is not a part of the OpenAI API spec and is added for convenience."""  # noqa: E501
 
     model_config = ConfigDict(
         populate_by_name=True,
