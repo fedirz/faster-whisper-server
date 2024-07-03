@@ -2,18 +2,18 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v4.6.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.28.4
+    rev: 0.28.6
     hooks:
       - id: check-taskfile
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.0
+    rev: v1.7.1
     hooks:
       - id: actionlint
   - repo: https://github.com/IamTheFij/docker-pre-commit
@@ -21,27 +21,23 @@ repos:
     hooks:
       - id: docker-compose-check
   - repo: https://github.com/hadolint/hadolint
-    rev: v2.12.0
+    rev: v2.13.0-beta
     hooks:
       - id: hadolint
-  - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
-    hooks:
-      - id: shellcheck
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.4.10
+    rev: v0.5.0
     hooks:
       # Run the linter.
       - id: ruff
-        args: [ --fix ]
+        args: [--fix]
       # Run the formatter.
       - id: ruff-format
-  # NOTE: not using https://github.com/RobertCraigie/pyright-python because it doesn't work with poetry virtual environments
-  - repo: local
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.13.0
+    hooks:
+      - id: yamlfmt
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.369
     hooks:
       - id: pyright
-        name: pyright
-        entry: ./pre-commit-scripts/pyright.sh
-        language: script
-        pass_filenames: false
