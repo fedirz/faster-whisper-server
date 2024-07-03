@@ -1,10 +1,10 @@
+from collections.abc import Generator
 import json
 import os
 import time
-from typing import Generator
 
-import pytest
 from fastapi.testclient import TestClient
+import pytest
 from starlette.testclient import WebSocketTestSession
 
 from faster_whisper_server.config import BYTES_PER_SECOND
@@ -22,35 +22,31 @@ def ws(client: TestClient) -> Generator[WebSocketTestSession, None, None]:
         yield ws
 
 
-def get_audio_file_paths():
-    file_paths = []
+def get_audio_file_paths() -> list[str]:
+    file_paths: list[str] = []
     directory = "tests/data"
     for filename in sorted(os.listdir(directory)[:AUDIO_FILES_LIMIT]):
-        file_paths.append(os.path.join(directory, filename))
+        file_paths.append(os.path.join(directory, filename))  # noqa: PERF401
     return file_paths
 
 
 file_paths = get_audio_file_paths()
 
 
-def stream_audio_data(
-    ws: WebSocketTestSession, data: bytes, *, chunk_size: int = 4000, speed: float = 1.0
-):
+def stream_audio_data(ws: WebSocketTestSession, data: bytes, *, chunk_size: int = 4000, speed: float = 1.0) -> None:
     for i in range(0, len(data), chunk_size):
         ws.send_bytes(data[i : i + chunk_size])
         delay = len(data[i : i + chunk_size]) / BYTES_PER_SECOND / speed
         time.sleep(delay)
 
 
-def transcribe_audio_data(
-    client: TestClient, data: bytes
-) -> TranscriptionVerboseJsonResponse:
+def transcribe_audio_data(client: TestClient, data: bytes) -> TranscriptionVerboseJsonResponse:
     response = client.post(
         TRANSCRIBE_ENDPOINT,
         files={"file": ("audio.raw", data, "audio/raw")},
     )
     data = json.loads(response.json())  # TODO: figure this out
-    return TranscriptionVerboseJsonResponse(**data)  # type: ignore
+    return TranscriptionVerboseJsonResponse(**data)  # pyright: ignore[reportCallIssue]
 
 
 # @pytest.mark.parametrize("file_path", file_paths)
@@ -60,7 +56,7 @@ def transcribe_audio_data(
 #     with open(file_path, "rb") as file:
 #         data = file.read()
 #
-#     streaming_transcription: TranscriptionVerboseJsonResponse = None  # type: ignore
+#     streaming_transcription: TranscriptionVerboseJsonResponse = None  # type: ignore  # noqa: PGH003
 #     thread = threading.Thread(
 #         target=stream_audio_data, args=(ws, data), kwargs={"speed": 4.0}
 #     )

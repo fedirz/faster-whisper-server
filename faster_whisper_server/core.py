@@ -1,8 +1,8 @@
 # TODO: rename module
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
+import re
 
 from faster_whisper_server.config import config
 
@@ -18,10 +18,7 @@ class Segment:
     def is_eos(self) -> bool:
         if self.text.endswith("..."):
             return False
-        for punctuation_symbol in ".?!":
-            if self.text.endswith(punctuation_symbol):
-                return True
-        return False
+        return any(self.text.endswith(punctuation_symbol) for punctuation_symbol in ".?!")
 
     def offset(self, seconds: float) -> None:
         self.start += seconds
@@ -36,11 +33,7 @@ class Word(Segment):
     @classmethod
     def common_prefix(cls, a: list[Word], b: list[Word]) -> list[Word]:
         i = 0
-        while (
-            i < len(a)
-            and i < len(b)
-            and canonicalize_word(a[i].text) == canonicalize_word(b[i].text)
-        ):
+        while i < len(a) and i < len(b) and canonicalize_word(a[i].text) == canonicalize_word(b[i].text):
             i += 1
         return a[:i]
 
@@ -67,9 +60,7 @@ class Transcription:
         return self.end - self.start
 
     def after(self, seconds: float) -> Transcription:
-        return Transcription(
-            words=[word for word in self.words if word.start > seconds]
-        )
+        return Transcription(words=[word for word in self.words if word.start > seconds])
 
     def extend(self, words: list[Word]) -> None:
         self._ensure_no_word_overlap(words)
@@ -77,21 +68,16 @@ class Transcription:
 
     def _ensure_no_word_overlap(self, words: list[Word]) -> None:
         if len(self.words) > 0 and len(words) > 0:
-            if (
-                words[0].start + config.word_timestamp_error_margin
-                <= self.words[-1].end
-            ):
+            if words[0].start + config.word_timestamp_error_margin <= self.words[-1].end:
                 raise ValueError(
-                    f"Words overlap: {self.words[-1]} and {words[0]}. Error margin: {config.word_timestamp_error_margin}"
+                    f"Words overlap: {self.words[-1]} and {words[0]}. Error margin: {config.word_timestamp_error_margin}"  # noqa: E501
                 )
         for i in range(1, len(words)):
             if words[i].start + config.word_timestamp_error_margin <= words[i - 1].end:
-                raise ValueError(
-                    f"Words overlap: {words[i - 1]} and {words[i]}. All words: {words}"
-                )
+                raise ValueError(f"Words overlap: {words[i - 1]} and {words[i]}. All words: {words}")
 
 
-def test_segment_is_eos():
+def test_segment_is_eos() -> None:
     assert not Segment("Hello").is_eos
     assert not Segment("Hello...").is_eos
     assert Segment("Hello.").is_eos
@@ -117,16 +103,14 @@ def to_full_sentences(words: list[Word]) -> list[Segment]:
     return sentences
 
 
-def tests_to_full_sentences():
+def tests_to_full_sentences() -> None:
     assert to_full_sentences([]) == []
     assert to_full_sentences([Word(text="Hello")]) == []
     assert to_full_sentences([Word(text="Hello..."), Word(" world")]) == []
-    assert to_full_sentences([Word(text="Hello..."), Word(" world.")]) == [
+    assert to_full_sentences([Word(text="Hello..."), Word(" world.")]) == [Segment(text="Hello... world.")]
+    assert to_full_sentences([Word(text="Hello..."), Word(" world."), Word(" How")]) == [
         Segment(text="Hello... world.")
     ]
-    assert to_full_sentences(
-        [Word(text="Hello..."), Word(" world."), Word(" How")]
-    ) == [Segment(text="Hello... world.")]
 
 
 def to_text(words: list[Word]) -> str:
@@ -144,7 +128,7 @@ def canonicalize_word(text: str) -> str:
     return text.lower().strip().strip(".,?!")
 
 
-def test_canonicalize_word():
+def test_canonicalize_word() -> None:
     assert canonicalize_word("ABC") == "abc"
     assert canonicalize_word("...ABC?") == "abc"
     assert canonicalize_word("... AbC  ...") == "abc"
@@ -152,16 +136,12 @@ def test_canonicalize_word():
 
 def common_prefix(a: list[Word], b: list[Word]) -> list[Word]:
     i = 0
-    while (
-        i < len(a)
-        and i < len(b)
-        and canonicalize_word(a[i].text) == canonicalize_word(b[i].text)
-    ):
+    while i < len(a) and i < len(b) and canonicalize_word(a[i].text) == canonicalize_word(b[i].text):
         i += 1
     return a[:i]
 
 
-def test_common_prefix():
+def test_common_prefix() -> None:
     def word(text: str) -> Word:
         return Word(text=text, start=0.0, end=0.0, probability=0.0)
 
@@ -194,7 +174,7 @@ def test_common_prefix():
     assert common_prefix(a, b) == []
 
 
-def test_common_prefix_and_canonicalization():
+def test_common_prefix_and_canonicalization() -> None:
     def word(text: str) -> Word:
         return Word(text=text, start=0.0, end=0.0, probability=0.0)
 

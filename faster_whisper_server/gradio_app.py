@@ -1,5 +1,5 @@
+from collections.abc import Generator
 import os
-from typing import Generator
 
 import gradio as gr
 import httpx
@@ -13,26 +13,20 @@ TRANSLATION_ENDPOINT = "/v1/audio/translations"
 
 def create_gradio_demo(config: Config) -> gr.Blocks:
     host = os.getenv("UVICORN_HOST", "0.0.0.0")
-    port = os.getenv("UVICORN_PORT", 8000)
+    port = int(os.getenv("UVICORN_PORT", "8000"))
     # NOTE: worth looking into generated clients
     http_client = httpx.Client(base_url=f"http://{host}:{port}", timeout=None)
 
-    def handler(
-        file_path: str, model: str, task: Task, temperature: float, stream: bool
-    ) -> Generator[str, None, None]:
+    def handler(file_path: str, model: str, task: Task, temperature: float, stream: bool) -> Generator[str, None, None]:
         if stream:
             previous_transcription = ""
-            for transcription in transcribe_audio_streaming(
-                file_path, task, temperature, model
-            ):
+            for transcription in transcribe_audio_streaming(file_path, task, temperature, model):
                 previous_transcription += transcription
                 yield previous_transcription
         else:
             yield transcribe_audio(file_path, task, temperature, model)
 
-    def transcribe_audio(
-        file_path: str, task: Task, temperature: float, model: str
-    ) -> str:
+    def transcribe_audio(file_path: str, task: Task, temperature: float, model: str) -> str:
         if task == Task.TRANSCRIBE:
             endpoint = TRANSCRIPTION_ENDPOINT
         elif task == Task.TRANSLATE:
@@ -65,11 +59,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
                     "stream": True,
                 },
             }
-            endpoint = (
-                TRANSCRIPTION_ENDPOINT
-                if task == Task.TRANSCRIBE
-                else TRANSLATION_ENDPOINT
-            )
+            endpoint = TRANSCRIPTION_ENDPOINT if task == Task.TRANSCRIBE else TRANSLATION_ENDPOINT
             with connect_sse(http_client, "POST", endpoint, **kwargs) as event_source:
                 for event in event_source.iter_sse():
                     yield event.data
@@ -79,18 +69,15 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
         res_data = res.json()
         models: list[str] = [model["id"] for model in res_data]
         assert config.whisper.model in models
-        recommended_models = set(
-            model for model in models if model.startswith("Systran")
-        )
+        recommended_models = {model for model in models if model.startswith("Systran")}
         other_models = [model for model in models if model not in recommended_models]
         models = list(recommended_models) + other_models
-        model_dropdown = gr.Dropdown(
+        return gr.Dropdown(
             # no idea why it's complaining
-            choices=models,  # type: ignore
+            choices=models,  # pyright: ignore[reportArgumentType]
             label="Model",
             value=config.whisper.model,
         )
-        return model_dropdown
 
     model_dropdown = gr.Dropdown(
         choices=[config.whisper.model],
@@ -102,13 +89,11 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
         label="Task",
         value=Task.TRANSCRIBE,
     )
-    temperature_slider = gr.Slider(
-        minimum=0.0, maximum=1.0, step=0.1, label="Temperature", value=0.0
-    )
+    temperature_slider = gr.Slider(minimum=0.0, maximum=1.0, step=0.1, label="Temperature", value=0.0)
     stream_checkbox = gr.Checkbox(label="Stream", value=True)
     with gr.Interface(
         title="Whisper Playground",
-        description="""Consider supporting the project by starring the <a href="https://github.com/fedirz/faster-whisper-server">repository on GitHub</a>.""",
+        description="""Consider supporting the project by starring the <a href="https://github.com/fedirz/faster-whisper-server">repository on GitHub</a>.""",  # noqa: E501
         inputs=[
             gr.Audio(type="filepath"),
             model_dropdown,

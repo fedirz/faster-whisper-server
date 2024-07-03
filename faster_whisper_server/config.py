@@ -15,7 +15,7 @@ class ResponseFormat(enum.StrEnum):
     TEXT = "text"
     JSON = "json"
     VERBOSE_JSON = "verbose_json"
-    # NOTE: While inspecting outputs of these formats with `curl`, I noticed there's one or two "\n" inserted at the end of the response.
+    # NOTE: While inspecting outputs of these formats with `curl`, I noticed there's one or two "\n" inserted at the end of the response. # noqa: E501
 
     # VTT = "vtt" # TODO
     # 1
@@ -185,8 +185,8 @@ class WhisperConfig(BaseModel):
 
 
 class Config(BaseSettings):
-    """
-    Configuration for the application. Values can be set via environment variables.
+    """Configuration for the application. Values can be set via environment variables.
+
     Pydantic will automatically handle mapping uppercased environment variables to the corresponding fields.
     To populate nested, the environment should be prefixed with the nested field name and an underscore. For example,
     the environment variable `LOG_LEVEL` will be mapped to `log_level`, `WHISPER_MODEL` to `whisper.model`, etc.
@@ -208,7 +208,7 @@ class Config(BaseSettings):
     max_inactivity_seconds: float = 5.0
     """
     Max allowed audio duration without any speech being detected before transcription is finilized and connection is closed.
-    """
+    """  # noqa: E501
     inactivity_window_seconds: float = 10.0
     """
     Controls how many latest seconds of audio are being passed through VAD.

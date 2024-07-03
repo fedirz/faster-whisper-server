@@ -1,14 +1,18 @@
 from __future__ import annotations
 
 import asyncio
-from typing import AsyncGenerator, BinaryIO
+from typing import TYPE_CHECKING, BinaryIO
 
 import numpy as np
 import soundfile as sf
-from numpy.typing import NDArray
 
 from faster_whisper_server.config import SAMPLES_PER_SECOND
 from faster_whisper_server.logger import logger
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
+    from numpy.typing import NDArray
 
 
 def audio_samples_from_file(file: BinaryIO) -> NDArray[np.float32]:
@@ -22,7 +26,7 @@ def audio_samples_from_file(file: BinaryIO) -> NDArray[np.float32]:
         endian="LITTLE",
     )
     audio = audio_and_sample_rate[0]
-    return audio  # type: ignore
+    return audio  # pyright: ignore[reportReturnType]
 
 
 class Audio:
@@ -78,9 +82,7 @@ class AudioStream(Audio):
         self.modify_event.set()
         logger.info("AudioStream closed")
 
-    async def chunks(
-        self, min_duration: float
-    ) -> AsyncGenerator[NDArray[np.float32], None]:
+    async def chunks(self, min_duration: float) -> AsyncGenerator[NDArray[np.float32], None]:
         i = 0.0  # end time of last chunk
         while True:
             await self.modify_event.wait()
