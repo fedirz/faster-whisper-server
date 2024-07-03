@@ -48,7 +48,7 @@ fastapi==0.111.0
     #   gradio
 fastapi-cli==0.0.4
     # via fastapi
-faster-whisper==1.0.2
+faster-whisper==1.0.3
     # via faster-whisper-server (pyproject.toml)
 ffmpy==0.3.2
     # via gradio
