@@ -86,7 +86,7 @@ def health() -> Response:
 
 @app.get("/v1/models")
 def get_models() -> list[ModelObject]:
-    models = huggingface_hub.list_models(library="ctranslate2")
+    models = huggingface_hub.list_models(library="ctranslate2", tags="automatic-speech-recognition")
     models = [
         ModelObject(
             id=model.id,
@@ -105,7 +105,9 @@ def get_models() -> list[ModelObject]:
 def get_model(
     model_name: Annotated[str, Path(example="Systran/faster-distil-whisper-large-v3")],
 ) -> ModelObject:
-    models = list(huggingface_hub.list_models(model_name=model_name, library="ctranslate2"))
+    models = list(
+        huggingface_hub.list_models(model_name=model_name, library="ctranslate2", tags="automatic-speech-recognition")
+    )
     if len(models) == 0:
         raise HTTPException(status_code=404, detail="Model doesn't exists")
     exact_match: ModelInfo | None = None
