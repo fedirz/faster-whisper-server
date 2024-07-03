@@ -22,7 +22,6 @@
               go-task
               lsyncd
               parallel
-              poetry
               pre-commit
               pv
               pyright
@@ -33,8 +32,6 @@
               uv
             ];
             shellHook = ''
-              poetry env use python3.12
-              source $(poetry env info --path)/bin/activate
               export LD_LIBRARY_PATH=${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH
               export LD_LIBRARY_PATH=${pkgs.zlib}/lib:$LD_LIBRARY_PATH
               source .env
