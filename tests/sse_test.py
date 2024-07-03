@@ -1,9 +1,9 @@
 import json
 import os
 
-import pytest
 from fastapi.testclient import TestClient
 from httpx_sse import connect_sse
+import pytest
 
 from faster_whisper_server.server_models import (
     TranscriptionJsonResponse,
@@ -17,15 +17,11 @@ ENDPOINTS = [
 ]
 
 
-parameters = [
-    (file_path, endpoint) for endpoint in ENDPOINTS for file_path in FILE_PATHS
-]
+parameters = [(file_path, endpoint) for endpoint in ENDPOINTS for file_path in FILE_PATHS]
 
 
-@pytest.mark.parametrize("file_path,endpoint", parameters)
-def test_streaming_transcription_text(
-    client: TestClient, file_path: str, endpoint: str
-):
+@pytest.mark.parametrize(("file_path", "endpoint"), parameters)
+def test_streaming_transcription_text(client: TestClient, file_path: str, endpoint: str) -> None:
     extension = os.path.splitext(file_path)[1]
     with open(file_path, "rb") as f:
         data = f.read()
@@ -36,15 +32,11 @@ def test_streaming_transcription_text(
     with connect_sse(client, "POST", endpoint, **kwargs) as event_source:
         for event in event_source.iter_sse():
             print(event)
-            assert (
-                len(event.data) > 1
-            )  # HACK: 1 because of the space character that's always prepended
+            assert len(event.data) > 1  # HACK: 1 because of the space character that's always prepended
 
 
-@pytest.mark.parametrize("file_path,endpoint", parameters)
-def test_streaming_transcription_json(
-    client: TestClient, file_path: str, endpoint: str
-):
+@pytest.mark.parametrize(("file_path", "endpoint"), parameters)
+def test_streaming_transcription_json(client: TestClient, file_path: str, endpoint: str) -> None:
     extension = os.path.splitext(file_path)[1]
     with open(file_path, "rb") as f:
         data = f.read()
@@ -57,10 +49,8 @@ def test_streaming_transcription_json(
             TranscriptionJsonResponse(**json.loads(event.data))
 
 
-@pytest.mark.parametrize("file_path,endpoint", parameters)
-def test_streaming_transcription_verbose_json(
-    client: TestClient, file_path: str, endpoint: str
-):
+@pytest.mark.parametrize(("file_path", "endpoint"), parameters)
+def test_streaming_transcription_verbose_json(client: TestClient, file_path: str, endpoint: str) -> None:
     extension = os.path.splitext(file_path)[1]
     with open(file_path, "rb") as f:
         data = f.read()

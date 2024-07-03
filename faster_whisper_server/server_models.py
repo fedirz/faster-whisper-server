@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
-from faster_whisper.transcribe import Segment, TranscriptionInfo, Word
 from pydantic import BaseModel, ConfigDict, Field
 
 from faster_whisper_server import utils
-from faster_whisper_server.core import Transcription
+
+if TYPE_CHECKING:
+    from faster_whisper.transcribe import Segment, TranscriptionInfo, Word
+
+    from faster_whisper_server.core import Transcription
 
 
 # https://platform.openai.com/docs/api-reference/audio/json-object
@@ -18,9 +21,7 @@ class TranscriptionJsonResponse(BaseModel):
         return cls(text=utils.segments_text(segments))
 
     @classmethod
-    def from_transcription(
-        cls, transcription: Transcription
-    ) -> TranscriptionJsonResponse:
+    def from_transcription(cls, transcription: Transcription) -> TranscriptionJsonResponse:
         return cls(text=transcription.text)
 
 
@@ -78,18 +79,12 @@ class TranscriptionVerboseJsonResponse(BaseModel):
     segments: list[SegmentObject]
 
     @classmethod
-    def from_segment(
-        cls, segment: Segment, transcription_info: TranscriptionInfo
-    ) -> TranscriptionVerboseJsonResponse:
+    def from_segment(cls, segment: Segment, transcription_info: TranscriptionInfo) -> TranscriptionVerboseJsonResponse:
         return cls(
             language=transcription_info.language,
             duration=segment.end - segment.start,
             text=segment.text,
-            words=(
-                [WordObject.from_word(word) for word in segment.words]
-                if isinstance(segment.words, list)
-                else []
-            ),
+            words=([WordObject.from_word(word) for word in segment.words] if isinstance(segment.words, list) else []),
             segments=[SegmentObject.from_segment(segment)],
         )
 
@@ -102,16 +97,11 @@ class TranscriptionVerboseJsonResponse(BaseModel):
             duration=transcription_info.duration,
             text=utils.segments_text(segments),
             segments=[SegmentObject.from_segment(segment) for segment in segments],
-            words=[
-                WordObject.from_word(word)
-                for word in utils.words_from_segments(segments)
-            ],
+            words=[WordObject.from_word(word) for word in utils.words_from_segments(segments)],
         )
 
     @classmethod
-    def from_transcription(
-        cls, transcription: Transcription
-    ) -> TranscriptionVerboseJsonResponse:
+    def from_transcription(cls, transcription: Transcription) -> TranscriptionVerboseJsonResponse:
         return cls(
             language="english",  # FIX: hardcoded
             duration=transcription.duration,
