@@ -1,21 +1,10 @@
-from fastapi.testclient import TestClient
+import openai
 from openai import OpenAI
-
-from faster_whisper_server.server_models import ModelObject
+import pytest
 
 MODEL_THAT_EXISTS = "Systran/faster-whisper-tiny.en"
 MODEL_THAT_DOES_NOT_EXIST = "i-do-not-exist"
 MIN_EXPECTED_NUMBER_OF_MODELS = 70  # At the time of the test creation there are 89 models
-
-
-# HACK: because ModelObject(**data) doesn't work
-def model_dict_to_object(model_dict: dict) -> ModelObject:
-    return ModelObject(
-        id=model_dict["id"],
-        created=model_dict["created"],
-        object_=model_dict["object"],
-        owned_by=model_dict["owned_by"],
-    )
 
 
 def test_list_models(openai_client: OpenAI) -> None:
@@ -23,13 +12,11 @@ def test_list_models(openai_client: OpenAI) -> None:
     assert len(models) > MIN_EXPECTED_NUMBER_OF_MODELS
 
 
-def test_model_exists(client: TestClient) -> None:
-    response = client.get(f"/v1/models/{MODEL_THAT_EXISTS}")
-    data = response.json()
-    model = model_dict_to_object(data)
+def test_model_exists(openai_client: OpenAI) -> None:
+    model = openai_client.models.retrieve(MODEL_THAT_EXISTS)
     assert model.id == MODEL_THAT_EXISTS
 
 
-def test_model_does_not_exist(client: TestClient) -> None:
-    response = client.get(f"/v1/models/{MODEL_THAT_DOES_NOT_EXIST}")
-    assert response.status_code == 404
+def test_model_does_not_exist(openai_client: OpenAI) -> None:
+    with pytest.raises(openai.NotFoundError):
+        openai_client.models.retrieve(MODEL_THAT_DOES_NOT_EXIST)
