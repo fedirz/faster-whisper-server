@@ -17,8 +17,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["ruff", "pytest", "pytest-xdist"]
-other = ["youtube-dl@git+https://github.com/ytdl-org/youtube-dl.git", "openai", "aider-chat"]
+dev = ["ruff", "pytest", "pytest-xdist", "openai"]
+other = ["youtube-dl@git+https://github.com/ytdl-org/youtube-dl.git", "aider-chat"]
 
 # https://docs.astral.sh/ruff/configuration/
 [tool.ruff]

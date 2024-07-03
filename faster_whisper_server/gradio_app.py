@@ -67,7 +67,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
     def update_model_dropdown() -> gr.Dropdown:
         res = http_client.get("/v1/models")
         res_data = res.json()
-        models: list[str] = [model["id"] for model in res_data]
+        models: list[str] = [model["id"] for model in res_data["data"]]
         assert config.whisper.model in models
         recommended_models = {model for model in models if model.startswith("Systran")}
         other_models = [model for model in models if model not in recommended_models]

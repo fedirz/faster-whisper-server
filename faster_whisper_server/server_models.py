@@ -119,6 +119,11 @@ class TranscriptionVerboseJsonResponse(BaseModel):
         )
 
 
+class ModelListResponse(BaseModel):
+    data: list[ModelObject]
+    object: Literal["list"] = "list"
+
+
 class ModelObject(BaseModel):
     id: str
     """The model identifier, which can be referenced in the API endpoints."""
