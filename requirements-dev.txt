@@ -130,7 +130,7 @@ mdurl==0.1.2
     # via markdown-it-py
 mpmath==1.3.0
     # via sympy
-numpy==2.0.0
+numpy==1.26.4
     # via
     #   faster-whisper-server (pyproject.toml)
     #   altair
