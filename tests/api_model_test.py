@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from openai import OpenAI
 
 from faster_whisper_server.server_models import ModelObject
 
@@ -17,10 +18,8 @@ def model_dict_to_object(model_dict: dict) -> ModelObject:
     )
 
 
-def test_list_models(client: TestClient) -> None:
-    response = client.get("/v1/models")
-    data = response.json()
-    models = [model_dict_to_object(model_dict) for model_dict in data]
+def test_list_models(openai_client: OpenAI) -> None:
+    models = openai_client.models.list().data
     assert len(models) > MIN_EXPECTED_NUMBER_OF_MODELS
 
 
