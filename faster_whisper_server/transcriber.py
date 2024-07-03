@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import AsyncGenerator
+from typing import TYPE_CHECKING
 
-from faster_whisper_server.asr import FasterWhisperASR
 from faster_whisper_server.audio import Audio, AudioStream
 from faster_whisper_server.config import config
 from faster_whisper_server.core import (
@@ -12,6 +11,11 @@ from faster_whisper_server.core import (
     to_full_sentences,
 )
 from faster_whisper_server.logger import logger
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
+    from faster_whisper_server.asr import FasterWhisperASR
 
 
 class LocalAgreement:

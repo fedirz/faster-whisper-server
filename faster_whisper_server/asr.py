@@ -1,6 +1,6 @@
 import asyncio
+from collections.abc import Iterable
 import time
-from typing import Iterable
 
 from faster_whisper import transcribe
 
@@ -45,7 +45,7 @@ class FasterWhisperASR:
         audio: Audio,
         prompt: str | None = None,
     ) -> tuple[Transcription, transcribe.TranscriptionInfo]:
-        """Wrapper around _transcribe so it can be used in async context"""
+        """Wrapper around _transcribe so it can be used in async context."""
         # is this the optimal way to execute a blocking call in an async context?
         # TODO: verify performance when running inference on a CPU
         return await asyncio.get_running_loop().run_in_executor(

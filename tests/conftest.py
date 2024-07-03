@@ -1,18 +1,15 @@
+from collections.abc import Generator
 import logging
-import os
-from typing import Generator
 
-import pytest
 from fastapi.testclient import TestClient
+import pytest
 
-# HACK
-os.environ["WHISPER_MODEL"] = "Systran/faster-whisper-tiny.en"
-from faster_whisper_server.main import app  # noqa: E402
+from faster_whisper_server.main import app
 
 disable_loggers = ["multipart.multipart", "faster_whisper"]
 
 
-def pytest_configure():
+def pytest_configure() -> None:
     for logger_name in disable_loggers:
         logger = logging.getLogger(logger_name)
         logger.disabled = True
