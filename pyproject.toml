@@ -20,8 +20,40 @@ dependencies = [
 dev = ["ruff", "pytest", "pytest-xdist"]
 other = ["youtube-dl@git+https://github.com/ytdl-org/youtube-dl.git", "openai", "aider-chat"]
 
+# https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
+line-length = 120
 target-version = "py312"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D10",  # disabled required docstrings
+    "ERA",  # allow commented out code
+    "TD", # disable TODO warnings
+    "FIX002", # disable TODO warnings
+
+    "COM812", # trailing comma
+    "T201", # print
+    "S101", # allow assert
+    "PTH123", # Path.open
+    "S603", # subprocess untrusted input
+
+    "ANN101", # missing self type
+]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
 
 [tool.pyright]
 # typeCheckingMode = "strict"
