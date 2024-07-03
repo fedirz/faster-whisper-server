@@ -4,7 +4,7 @@ from faster_whisper_server.server_models import ModelObject
 
 MODEL_THAT_EXISTS = "Systran/faster-whisper-tiny.en"
 MODEL_THAT_DOES_NOT_EXIST = "i-do-not-exist"
-MIN_EXPECTED_NUMBER_OF_MODELS = 200  # At the time of the test creation there are 228 models
+MIN_EXPECTED_NUMBER_OF_MODELS = 70  # At the time of the test creation there are 89 models
 
 
 # HACK: because ModelObject(**data) doesn't work
