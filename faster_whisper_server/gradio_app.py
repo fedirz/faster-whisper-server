@@ -4,6 +4,7 @@ import os
 import gradio as gr
 import httpx
 from httpx_sse import connect_sse
+from openai import OpenAI
 
 from faster_whisper_server.config import Config, Task
 
@@ -16,6 +17,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
     port = int(os.getenv("UVICORN_PORT", "8000"))
     # NOTE: worth looking into generated clients
     http_client = httpx.Client(base_url=f"http://{host}:{port}", timeout=None)
+    openai_client = OpenAI(base_url=f"http://{host}:{port}/v1", api_key="cant-be-empty")
 
     def handler(file_path: str, model: str, task: Task, temperature: float, stream: bool) -> Generator[str, None, None]:
         if stream:
@@ -65,16 +67,15 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
                     yield event.data
 
     def update_model_dropdown() -> gr.Dropdown:
-        res = http_client.get("/v1/models")
-        res_data = res.json()
-        models: list[str] = [model["id"] for model in res_data["data"]]
-        assert config.whisper.model in models
-        recommended_models = {model for model in models if model.startswith("Systran")}
-        other_models = [model for model in models if model not in recommended_models]
-        models = list(recommended_models) + other_models
+        models = openai_client.models.list().data
+        model_names: list[str] = [model.id for model in models]
+        assert config.whisper.model in model_names
+        recommended_models = {model for model in model_names if model.startswith("Systran")}
+        other_models = [model for model in model_names if model not in recommended_models]
+        model_names = list(recommended_models) + other_models
         return gr.Dropdown(
             # no idea why it's complaining
-            choices=models,  # pyright: ignore[reportArgumentType]
+            choices=model_names,  # pyright: ignore[reportArgumentType]
             label="Model",
             value=config.whisper.model,
         )
