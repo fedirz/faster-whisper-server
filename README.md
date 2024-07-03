@@ -18,6 +18,10 @@ See [OpenAI API reference](https://platform.openai.com/docs/api-reference/audio)
     - Only transcription of single channel, 16000 sample rate, raw, 16-bit little-endian audio is supported.
 
 ## Quick Start
+[Hugging Face Space](https://huggingface.co/spaces/Iatalking/fast-whisper-server)
+
+![image](https://github.com/fedirz/faster-whisper-server/assets/76551385/6d215c52-ded5-41d2-89a5-03a6fd113aa0)
+
 Using Docker
 ```bash
 docker run --gpus=all --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:latest-cuda
