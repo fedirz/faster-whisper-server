@@ -88,6 +88,8 @@ def health() -> Response:
 @app.get("/v1/models")
 def get_models() -> ModelListResponse:
     models = huggingface_hub.list_models(library="ctranslate2", tags="automatic-speech-recognition", cardData=True)
+    models = list(models)
+    models.sort(key=lambda model: model.downloads, reverse=True)
     transformed_models: list[ModelObject] = []
     for model in models:
         assert model.created_at is not None
@@ -115,11 +117,11 @@ def get_models() -> ModelListResponse:
 def get_model(
     model_name: Annotated[str, Path(example="Systran/faster-distil-whisper-large-v3")],
 ) -> ModelObject:
-    models = list(
-        huggingface_hub.list_models(
-            model_name=model_name, library="ctranslate2", tags="automatic-speech-recognition", cardData=True
-        )
+    models = huggingface_hub.list_models(
+        model_name=model_name, library="ctranslate2", tags="automatic-speech-recognition", cardData=True
     )
+    models = list(models)
+    models.sort(key=lambda model: model.downloads, reverse=True)
     if len(models) == 0:
         raise HTTPException(status_code=404, detail="Model doesn't exists")
     exact_match: ModelInfo | None = None
