@@ -132,7 +132,7 @@ def get_model(
     if exact_match is None:
         raise HTTPException(
             status_code=404,
-            detail=f"Model doesn't exists. Possible matches: {", ".join([model.id for model in models])}",
+            detail=f"Model doesn't exists. Possible matches: {', '.join([model.id for model in models])}",
         )
     assert exact_match.created_at is not None
     assert exact_match.card_data is not None
