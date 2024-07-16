@@ -10,13 +10,14 @@ from faster_whisper_server.config import Config, Task
 
 TRANSCRIPTION_ENDPOINT = "/v1/audio/transcriptions"
 TRANSLATION_ENDPOINT = "/v1/audio/translations"
+TIMEOUT_SECONDS = 180
 
 
 def create_gradio_demo(config: Config) -> gr.Blocks:
     host = os.getenv("UVICORN_HOST", "0.0.0.0")
     port = int(os.getenv("UVICORN_PORT", "8000"))
     # NOTE: worth looking into generated clients
-    http_client = httpx.Client(base_url=f"http://{host}:{port}", timeout=None)
+    http_client = httpx.Client(base_url=f"http://{host}:{port}", timeout=httpx.Timeout(timeout=TIMEOUT_SECONDS))
     openai_client = OpenAI(base_url=f"http://{host}:{port}/v1", api_key="cant-be-empty")
 
     def handler(file_path: str, model: str, task: Task, temperature: float, stream: bool) -> Generator[str, None, None]:
