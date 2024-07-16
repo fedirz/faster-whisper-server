@@ -32,6 +32,7 @@
               uv
             ];
             shellHook = ''
+              source .venv/bin/activate
               export LD_LIBRARY_PATH=${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH
               export LD_LIBRARY_PATH=${pkgs.zlib}/lib:$LD_LIBRARY_PATH
               source .env

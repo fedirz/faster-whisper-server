@@ -14,11 +14,13 @@ dependencies = [
     "httpx-sse",
     "httpx",
     "gradio",
+    "openai"
 ]
 
 [project.optional-dependencies]
-dev = ["ruff", "pytest", "pytest-xdist", "openai"]
-other = ["youtube-dl@git+https://github.com/ytdl-org/youtube-dl.git", "aider-chat"]
+dev = ["ruff", "pytest", "pytest-xdist"]
+
+other = ["youtube-dl @ git+https://github.com/ytdl-org/youtube-dl.git@37cea84f775129ad715b9bcd617251c831fcc980", "aider-chat==0.39.0"]
 
 # https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
