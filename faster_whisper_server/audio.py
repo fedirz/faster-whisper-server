@@ -87,12 +87,15 @@ class AudioStream(Audio):
         while True:
             await self.modify_event.wait()
             self.modify_event.clear()
-            if self.closed or self.duration - i >= min_duration:
+
+            if self.closed:
+                if self.duration > i:
+                    yield self.after(i).data
+                return
+            if self.duration - i >= min_duration:
                 # If `i` shouldn't be set to `duration` after the yield
                 # because by the time assignment would happen more data might have been added
                 i_ = i
                 i = self.duration
                 # NOTE: probably better to just to a slice
                 yield self.after(i_).data
-            if self.closed:
-                return
