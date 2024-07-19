@@ -24,10 +24,8 @@
               parallel
               pre-commit
               pv
-              pyright
               python312
               rsync
-              ruff
               websocat
               uv
             ];
