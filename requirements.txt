@@ -86,7 +86,7 @@ httpx==0.27.0
     #   openai
 httpx-sse==0.4.0
     # via faster-whisper-server (pyproject.toml)
-huggingface-hub==0.23.5
+huggingface-hub==0.24.0
     # via
     #   faster-whisper-server (pyproject.toml)
     #   faster-whisper
@@ -138,7 +138,7 @@ numpy==1.26.4
     #   pandas
 onnxruntime==1.18.1
     # via faster-whisper
-openai==1.35.14
+openai==1.35.15
     # via faster-whisper-server (pyproject.toml)
 orjson==3.10.6
     # via gradio
@@ -212,11 +212,11 @@ rpds-py==0.19.0
     # via
     #   jsonschema
     #   referencing
-ruff==0.5.2
+ruff==0.5.3
     # via gradio
 semantic-version==2.10.0
     # via gradio
-setuptools==70.3.0
+setuptools==71.0.3
     # via ctranslate2
 shellingham==1.5.4
     # via typer

@@ -38,6 +38,8 @@ av==12.2.0
     # via faster-whisper
 backoff==2.2.1
     # via aider-chat
+basedpyright==1.13.0
+    # via faster-whisper-server (pyproject.toml)
 beautifulsoup4==4.12.3
     # via aider-chat
 blinker==1.8.2
@@ -285,6 +287,8 @@ multidict==6.0.5
     #   yarl
 networkx==3.2.1
     # via aider-chat
+nodejs-wheel-binaries==20.15.1
+    # via basedpyright
 numpy==1.26.4
     # via
     #   faster-whisper-server (pyproject.toml)
@@ -484,7 +488,7 @@ rsa==4.9
     # via
     #   aider-chat
     #   google-auth
-ruff==0.5.2
+ruff==0.5.3
     # via
     #   faster-whisper-server (pyproject.toml)
     #   gradio
@@ -492,7 +496,7 @@ scipy==1.13.1
     # via aider-chat
 semantic-version==2.10.0
     # via gradio
-setuptools==70.3.0
+setuptools==71.0.3
     # via ctranslate2
 shellingham==1.5.4
     # via typer
