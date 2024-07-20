@@ -198,6 +198,11 @@ class Config(BaseSettings):
     host: str = Field(alias="UVICORN_HOST", default="0.0.0.0")
     port: int = Field(alias="UVICORN_PORT", default=8000)
 
+    enable_ui: bool = True
+    """
+    Whether to enable the Gradio UI. You may want to disable this if you want to minimize the dependencies.
+    """
+
     default_language: Language | None = None
     default_response_format: ResponseFormat = ResponseFormat.JSON
     whisper: WhisperConfig = WhisperConfig()
