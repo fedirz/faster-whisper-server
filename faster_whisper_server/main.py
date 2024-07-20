@@ -21,7 +21,6 @@ from fastapi.responses import StreamingResponse
 from fastapi.websockets import WebSocketState
 from faster_whisper import WhisperModel
 from faster_whisper.vad import VadOptions, get_speech_timestamps
-import gradio as gr
 import huggingface_hub
 from pydantic import AfterValidator
 
@@ -35,7 +34,6 @@ from faster_whisper_server.config import (
     Task,
     config,
 )
-from faster_whisper_server.gradio_app import create_gradio_demo
 from faster_whisper_server.logger import logger
 from faster_whisper_server.server_models import (
     ModelListResponse,
@@ -334,4 +332,9 @@ async def transcribe_stream(
         await ws.close()
 
 
-app = gr.mount_gradio_app(app, create_gradio_demo(config), path="/")
+if config.enable_ui:
+    import gradio as gr
+
+    from faster_whisper_server.gradio_app import create_gradio_demo
+
+    app = gr.mount_gradio_app(app, create_gradio_demo(config), path="/")
