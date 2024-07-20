@@ -1,11 +1,10 @@
 import asyncio
-from collections.abc import Iterable
 import time
 
 from faster_whisper import transcribe
 
 from faster_whisper_server.audio import Audio
-from faster_whisper_server.core import Transcription, Word
+from faster_whisper_server.core import Segment, Transcription, Word
 from faster_whisper_server.logger import logger
 
 
@@ -30,7 +29,8 @@ class FasterWhisperASR:
             word_timestamps=True,
             **self.transcribe_opts,
         )
-        words = words_from_whisper_segments(segments)
+        segments = Segment.from_faster_whisper_segments(segments)
+        words = Word.from_segments(segments)
         for word in words:
             word.offset(audio.start)
         transcription = Transcription(words)
@@ -54,19 +54,3 @@ class FasterWhisperASR:
             audio,
             prompt,
         )
-
-
-def words_from_whisper_segments(segments: Iterable[transcribe.Segment]) -> list[Word]:
-    words: list[Word] = []
-    for segment in segments:
-        assert segment.words is not None
-        words.extend(
-            Word(
-                start=word.start,
-                end=word.end,
-                text=word.word,
-                probability=word.probability,
-            )
-            for word in segment.words
-        )
-    return words
