@@ -24,7 +24,6 @@ from faster_whisper.vad import VadOptions, get_speech_timestamps
 import huggingface_hub
 from pydantic import AfterValidator
 
-from faster_whisper_server import utils
 from faster_whisper_server.asr import FasterWhisperASR
 from faster_whisper_server.audio import AudioStream, audio_samples_from_file
 from faster_whisper_server.config import (
@@ -34,6 +33,7 @@ from faster_whisper_server.config import (
     Task,
     config,
 )
+from faster_whisper_server.core import Segment, segments_to_text
 from faster_whisper_server.logger import logger
 from faster_whisper_server.server_models import (
     ModelListResponse,
@@ -46,7 +46,7 @@ from faster_whisper_server.transcriber import audio_transcriber
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable
 
-    from faster_whisper.transcribe import Segment, TranscriptionInfo
+    from faster_whisper.transcribe import TranscriptionInfo
     from huggingface_hub.hf_api import ModelInfo
 
 loaded_models: OrderedDict[str, WhisperModel] = OrderedDict()
@@ -157,7 +157,7 @@ def segments_to_response(
 ) -> str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse:
     segments = list(segments)
     if response_format == ResponseFormat.TEXT:  # noqa: RET503
-        return utils.segments_text(segments)
+        return segments_to_text(segments)
     elif response_format == ResponseFormat.JSON:
         return TranscriptionJsonResponse.from_segments(segments)
     elif response_format == ResponseFormat.VERBOSE_JSON:
@@ -220,6 +220,7 @@ def translate_file(
         temperature=temperature,
         vad_filter=True,
     )
+    segments = Segment.from_faster_whisper_segments(segments)
 
     if stream:
         return segments_to_streaming_response(segments, transcription_info, response_format)
@@ -258,6 +259,7 @@ def transcribe_file(
         vad_filter=True,
         hotwords=hotwords,
     )
+    segments = Segment.from_faster_whisper_segments(segments)
 
     if stream:
         return segments_to_streaming_response(segments, transcription_info, response_format)
