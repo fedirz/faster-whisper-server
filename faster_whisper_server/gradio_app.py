@@ -1,5 +1,4 @@
 from collections.abc import Generator
-import os
 
 import gradio as gr
 import httpx
@@ -11,30 +10,29 @@ from faster_whisper_server.config import Config, Task
 TRANSCRIPTION_ENDPOINT = "/v1/audio/transcriptions"
 TRANSLATION_ENDPOINT = "/v1/audio/translations"
 TIMEOUT_SECONDS = 180
+TIMEOUT = httpx.Timeout(timeout=TIMEOUT_SECONDS)
 
 
 def create_gradio_demo(config: Config) -> gr.Blocks:
-    host = os.getenv("UVICORN_HOST", "0.0.0.0")
-    port = int(os.getenv("UVICORN_PORT", "8000"))
-    # NOTE: worth looking into generated clients
-    http_client = httpx.Client(base_url=f"http://{host}:{port}", timeout=httpx.Timeout(timeout=TIMEOUT_SECONDS))
-    openai_client = OpenAI(base_url=f"http://{host}:{port}/v1", api_key="cant-be-empty")
+    base_url = f"http://{config.host}:{config.port}"
+    http_client = httpx.Client(base_url=base_url, timeout=TIMEOUT)
+    openai_client = OpenAI(base_url=f"{base_url}/v1", api_key="cant-be-empty")
 
     def handler(file_path: str, model: str, task: Task, temperature: float, stream: bool) -> Generator[str, None, None]:
-        if stream:
-            previous_transcription = ""
-            for transcription in transcribe_audio_streaming(file_path, task, temperature, model):
-                previous_transcription += transcription
-                yield previous_transcription
-        else:
-            yield transcribe_audio(file_path, task, temperature, model)
-
-    def transcribe_audio(file_path: str, task: Task, temperature: float, model: str) -> str:
         if task == Task.TRANSCRIBE:
             endpoint = TRANSCRIPTION_ENDPOINT
         elif task == Task.TRANSLATE:
             endpoint = TRANSLATION_ENDPOINT
 
+        if stream:
+            previous_transcription = ""
+            for transcription in streaming_audio_task(file_path, endpoint, temperature, model):
+                previous_transcription += transcription
+                yield previous_transcription
+        else:
+            yield audio_task(file_path, endpoint, temperature, model)
+
+    def audio_task(file_path: str, endpoint: str, temperature: float, model: str) -> str:
         with open(file_path, "rb") as file:
             response = http_client.post(
                 endpoint,
@@ -49,8 +47,8 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
         response.raise_for_status()
         return response.text
 
-    def transcribe_audio_streaming(
-        file_path: str, task: Task, temperature: float, model: str
+    def streaming_audio_task(
+        file_path: str, endpoint: str, temperature: float, model: str
     ) -> Generator[str, None, None]:
         with open(file_path, "rb") as file:
             kwargs = {
@@ -62,7 +60,6 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
                     "stream": True,
                 },
             }
-            endpoint = TRANSCRIPTION_ENDPOINT if task == Task.TRANSCRIBE else TRANSLATION_ENDPOINT
             with connect_sse(http_client, "POST", endpoint, **kwargs) as event_source:
                 for event in event_source.iter_sse():
                     yield event.data
