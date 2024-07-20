@@ -1,10 +1,12 @@
 from collections.abc import Generator
 import logging
+import os
 
 from fastapi.testclient import TestClient
 from openai import OpenAI
 import pytest
 
+os.environ["WHISPER__MODEL"] = "Systran/faster-whisper-tiny.en"
 from faster_whisper_server.main import app
 
 disable_loggers = ["multipart.multipart", "faster_whisper"]
