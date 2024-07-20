@@ -15,35 +15,8 @@ class ResponseFormat(enum.StrEnum):
     TEXT = "text"
     JSON = "json"
     VERBOSE_JSON = "verbose_json"
-    # NOTE: While inspecting outputs of these formats with `curl`, I noticed there's one or two "\n" inserted at the end of the response. # noqa: E501
-
-    # VTT = "vtt" # TODO
-    # 1
-    # 00:00:00,000 --> 00:00:09,220
-    # In his video on Large Language Models or LLMs, OpenAI co-founder and YouTuber Andrej Karpathy
-    #
-    # 2
-    # 00:00:09,220 --> 00:00:12,280
-    # likened LLMs to operating systems.
-    #
-    # 3
-    # 00:00:12,280 --> 00:00:13,280
-    # Karpathy said,
-    #
-    # SRT = "srt" # TODO
-    # WEBVTT
-    #
-    # 00:00:00.000 --> 00:00:09.220
-    # In his video on Large Language Models or LLMs, OpenAI co-founder and YouTuber Andrej Karpathy
-    #
-    # 00:00:09.220 --> 00:00:12.280
-    # likened LLMs to operating systems.
-    #
-    # 00:00:12.280 --> 00:00:13.280
-    # Karpathy said,
-    #
-    # 00:00:13.280 --> 00:00:19.799
-    # I see a lot of equivalence between this new LLM OS and operating systems of today.
+    SRT = "srt"
+    VTT = "vtt"
 
 
 class Device(enum.StrEnum):
