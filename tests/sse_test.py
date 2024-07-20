@@ -4,6 +4,9 @@ import os
 from fastapi.testclient import TestClient
 from httpx_sse import connect_sse
 import pytest
+import srt
+import webvtt
+import webvtt.vtt
 
 from faster_whisper_server.server_models import (
     TranscriptionJsonResponse,
@@ -61,3 +64,38 @@ def test_streaming_transcription_verbose_json(client: TestClient, file_path: str
     with connect_sse(client, "POST", endpoint, **kwargs) as event_source:
         for event in event_source.iter_sse():
             TranscriptionVerboseJsonResponse(**json.loads(event.data))
+
+
+def test_transcription_vtt(client: TestClient) -> None:
+    with open("audio.wav", "rb") as f:
+        data = f.read()
+    kwargs = {
+        "files": {"file": ("audio.wav", data, "audio/wav")},
+        "data": {"response_format": "vtt", "stream": False},
+    }
+    response = client.post("/v1/audio/transcriptions", **kwargs)
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "text/vtt; charset=utf-8"
+    text = response.text
+    webvtt.from_string(text)
+    text = text.replace("WEBVTT", "YO")
+    with pytest.raises(webvtt.vtt.MalformedFileError):
+        webvtt.from_string(text)
+
+
+def test_transcription_srt(client: TestClient) -> None:
+    with open("audio.wav", "rb") as f:
+        data = f.read()
+    kwargs = {
+        "files": {"file": ("audio.wav", data, "audio/wav")},
+        "data": {"response_format": "srt", "stream": False},
+    }
+    response = client.post("/v1/audio/transcriptions", **kwargs)
+    assert response.status_code == 200
+    assert "text/plain" in response.headers["content-type"]
+
+    text = response.text
+    list(srt.parse(text))
+    text = text.replace("1", "YO")
+    with pytest.raises(srt.SRTParseError):
+        list(srt.parse(text))

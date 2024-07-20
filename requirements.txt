@@ -138,7 +138,7 @@ numpy==1.26.4
     #   pandas
 onnxruntime==1.18.1
     # via faster-whisper
-openai==1.35.15
+openai==1.36.0
     # via faster-whisper-server (pyproject.toml)
 orjson==3.10.6
     # via gradio
@@ -216,7 +216,7 @@ ruff==0.5.3
     # via gradio
 semantic-version==2.10.0
     # via gradio
-setuptools==71.0.3
+setuptools==71.0.4
     # via ctranslate2
 shellingham==1.5.4
     # via typer
@@ -231,7 +231,7 @@ soundfile==0.12.1
     # via faster-whisper-server (pyproject.toml)
 starlette==0.37.2
     # via fastapi
-sympy==1.13.0
+sympy==1.13.1
     # via onnxruntime
 tokenizers==0.19.1
     # via faster-whisper
