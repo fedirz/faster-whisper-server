@@ -33,7 +33,7 @@ from faster_whisper_server.config import (
     Task,
     config,
 )
-from faster_whisper_server.core import Segment, segments_to_text
+from faster_whisper_server.core import Segment, segments_to_srt, segments_to_text, segments_to_vtt
 from faster_whisper_server.logger import logger
 from faster_whisper_server.server_models import (
     ModelListResponse,
@@ -154,14 +154,28 @@ def segments_to_response(
     segments: Iterable[Segment],
     transcription_info: TranscriptionInfo,
     response_format: ResponseFormat,
-) -> str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse:
+) -> Response:
     segments = list(segments)
     if response_format == ResponseFormat.TEXT:  # noqa: RET503
-        return segments_to_text(segments)
+        return Response(segments_to_text(segments), media_type="text/plain")
     elif response_format == ResponseFormat.JSON:
-        return TranscriptionJsonResponse.from_segments(segments)
+        return Response(
+            TranscriptionJsonResponse.from_segments(segments).model_dump_json(),
+            media_type="application/json",
+        )
     elif response_format == ResponseFormat.VERBOSE_JSON:
-        return TranscriptionVerboseJsonResponse.from_segments(segments, transcription_info)
+        return Response(
+            TranscriptionVerboseJsonResponse.from_segments(segments, transcription_info).model_dump_json(),
+            media_type="application/json",
+        )
+    elif response_format == ResponseFormat.VTT:
+        return Response(
+            "".join(segments_to_vtt(segment, i) for i, segment in enumerate(segments)), media_type="text/vtt"
+        )
+    elif response_format == ResponseFormat.SRT:
+        return Response(
+            "".join(segments_to_srt(segment, i) for i, segment in enumerate(segments)), media_type="text/plain"
+        )
 
 
 def format_as_sse(data: str) -> str:
@@ -174,13 +188,17 @@ def segments_to_streaming_response(
     response_format: ResponseFormat,
 ) -> StreamingResponse:
     def segment_responses() -> Generator[str, None, None]:
-        for segment in segments:
+        for i, segment in enumerate(segments):
             if response_format == ResponseFormat.TEXT:
                 data = segment.text
             elif response_format == ResponseFormat.JSON:
                 data = TranscriptionJsonResponse.from_segments([segment]).model_dump_json()
             elif response_format == ResponseFormat.VERBOSE_JSON:
                 data = TranscriptionVerboseJsonResponse.from_segment(segment, transcription_info).model_dump_json()
+            elif response_format == ResponseFormat.VTT:
+                data = segments_to_vtt(segment, i)
+            elif response_format == ResponseFormat.SRT:
+                data = segments_to_srt(segment, i)
             yield format_as_sse(data)
 
     return StreamingResponse(segment_responses(), media_type="text/event-stream")
@@ -211,7 +229,7 @@ def translate_file(
     response_format: Annotated[ResponseFormat, Form()] = config.default_response_format,
     temperature: Annotated[float, Form()] = 0.0,
     stream: Annotated[bool, Form()] = False,
-) -> str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse | StreamingResponse:
+) -> Response | StreamingResponse:
     whisper = load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,
@@ -247,7 +265,7 @@ def transcribe_file(
     ] = ["segment"],
     stream: Annotated[bool, Form()] = False,
     hotwords: Annotated[str | None, Form()] = None,
-) -> str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse | StreamingResponse:
+) -> Response | StreamingResponse:
     whisper = load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,

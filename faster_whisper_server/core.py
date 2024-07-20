@@ -172,6 +172,62 @@ def segments_to_text(segments: Iterable[Segment]) -> str:
     return "".join(segment.text for segment in segments).strip()
 
 
+def srt_format_timestamp(ts: float) -> str:
+    hours = ts // 3600
+    minutes = (ts % 3600) // 60
+    seconds = ts % 60
+    milliseconds = (ts * 1000) % 1000
+    return f"{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d},{int(milliseconds):03d}"
+
+
+def test_srt_format_timestamp() -> None:
+    assert srt_format_timestamp(0.0) == "00:00:00,000"
+    assert srt_format_timestamp(1.0) == "00:00:01,000"
+    assert srt_format_timestamp(1.234) == "00:00:01,234"
+    assert srt_format_timestamp(60.0) == "00:01:00,000"
+    assert srt_format_timestamp(61.0) == "00:01:01,000"
+    assert srt_format_timestamp(61.234) == "00:01:01,234"
+    assert srt_format_timestamp(3600.0) == "01:00:00,000"
+    assert srt_format_timestamp(3601.0) == "01:00:01,000"
+    assert srt_format_timestamp(3601.234) == "01:00:01,234"
+    assert srt_format_timestamp(23423.4234) == "06:30:23,423"
+
+
+def vtt_format_timestamp(ts: float) -> str:
+    hours = ts // 3600
+    minutes = (ts % 3600) // 60
+    seconds = ts % 60
+    milliseconds = (ts * 1000) % 1000
+    return f"{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d}.{int(milliseconds):03d}"
+
+
+def test_vtt_format_timestamp() -> None:
+    assert vtt_format_timestamp(0.0) == "00:00:00.000"
+    assert vtt_format_timestamp(1.0) == "00:00:01.000"
+    assert vtt_format_timestamp(1.234) == "00:00:01.234"
+    assert vtt_format_timestamp(60.0) == "00:01:00.000"
+    assert vtt_format_timestamp(61.0) == "00:01:01.000"
+    assert vtt_format_timestamp(61.234) == "00:01:01.234"
+    assert vtt_format_timestamp(3600.0) == "01:00:00.000"
+    assert vtt_format_timestamp(3601.0) == "01:00:01.000"
+    assert vtt_format_timestamp(3601.234) == "01:00:01.234"
+    assert vtt_format_timestamp(23423.4234) == "06:30:23.423"
+
+
+def segments_to_vtt(segment: Segment, i: int) -> str:
+    start = segment.start if i > 0 else 0.0
+    result = f"{vtt_format_timestamp(start)} --> {vtt_format_timestamp(segment.end)}\n{segment.text}\n\n"
+
+    if i == 0:
+        return f"WEBVTT\n\n{result}"
+    else:
+        return result
+
+
+def segments_to_srt(segment: Segment, i: int) -> str:
+    return f"{i + 1}\n{srt_format_timestamp(segment.start)} --> {srt_format_timestamp(segment.end)}\n{segment.text}\n\n"
+
+
 def canonicalize_word(text: str) -> str:
     text = text.lower()
     # Remove non-alphabetic characters using regular expression

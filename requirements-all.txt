@@ -496,7 +496,7 @@ scipy==1.13.1
     # via aider-chat
 semantic-version==2.10.0
     # via gradio
-setuptools==71.0.3
+setuptools==71.0.4
     # via ctranslate2
 shellingham==1.5.4
     # via typer
@@ -524,11 +524,13 @@ soupsieve==2.5
     # via
     #   aider-chat
     #   beautifulsoup4
+srt==3.5.3
+    # via faster-whisper-server (pyproject.toml)
 starlette==0.37.2
     # via fastapi
 streamlit==1.35.0
     # via aider-chat
-sympy==1.13.0
+sympy==1.13.1
     # via onnxruntime
 tenacity==8.3.0
     # via
@@ -623,6 +625,8 @@ websockets==11.0.3
     # via
     #   gradio-client
     #   uvicorn
+webvtt-py==0.5.1
+    # via faster-whisper-server (pyproject.toml)
 yarl==1.9.4
     # via
     #   aider-chat
