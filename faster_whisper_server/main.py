@@ -77,6 +77,17 @@ def load_model(model_name: str) -> WhisperModel:
 
 app = FastAPI()
 
+cors_origins = os.environ.get("CORS_ORIGINS", "").split(",")
+if cors_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+
 
 @app.get("/health")
 def health() -> Response:
