@@ -170,6 +170,13 @@ class Config(BaseSettings):
     log_level: str = "info"
     host: str = Field(alias="UVICORN_HOST", default="0.0.0.0")
     port: int = Field(alias="UVICORN_PORT", default=8000)
+    allow_origins: list[str] | None = None
+    """
+    https://docs.pydantic.dev/latest/concepts/pydantic_settings/#parsing-environment-variable-values
+    Usage:
+        `export ALLOW_ORIGINS='["http://localhost:3000", "http://localhost:3001"]'`
+        `export ALLOW_ORIGINS='["*"]'`
+    """
 
     enable_ui: bool = True
     """
