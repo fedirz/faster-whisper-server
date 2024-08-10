@@ -17,6 +17,7 @@ from fastapi import (
     WebSocket,
     WebSocketDisconnect,
 )
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.websockets import WebSocketState
 from faster_whisper import WhisperModel
@@ -77,16 +78,14 @@ def load_model(model_name: str) -> WhisperModel:
 
 app = FastAPI()
 
-cors_origins = os.environ.get("CORS_ORIGINS", "").split(",")
-if cors_origins:
+if config.allow_origins is not None:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=cors_origins,
+        allow_origins=config.allow_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
 
 
 @app.get("/health")
