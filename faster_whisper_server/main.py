@@ -76,6 +76,8 @@ def load_model(model_name: str) -> WhisperModel:
     return whisper
 
 
+logger.debug(f"Config: {config}")
+
 app = FastAPI()
 
 if config.allow_origins is not None:
