@@ -162,8 +162,8 @@ class Config(BaseSettings):
 
     Pydantic will automatically handle mapping uppercased environment variables to the corresponding fields.
     To populate nested, the environment should be prefixed with the nested field name and an underscore. For example,
-    the environment variable `LOG_LEVEL` will be mapped to `log_level`, `WHISPER_MODEL` to `whisper.model`, etc.
-    """
+    the environment variable `LOG_LEVEL` will be mapped to `log_level`, `WHISPER__MODEL`(note the double underscore) to `whisper.model`, etc.
+    """  # noqa: E501
 
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
