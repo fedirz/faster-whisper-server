@@ -25,7 +25,7 @@ other = ["youtube-dl @ git+https://github.com/ytdl-org/youtube-dl.git@37cea84f77
 # https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
 line-length = 120
-target-version = "py312"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["ALL"]
