@@ -296,11 +296,25 @@ def transcribe_file(
     else:
         return segments_to_response(segments, transcription_info, response_format)
 
+async def ws_combined_receive(ws: WebSocket, max_wait: float = 0.4, max_size: int = 65535) -> bytes:
+    max_wait_to = time.time() + max_wait
+    chunks = bytearray()
+    while time.time() < max_wait_to and len(chunks) < max_size:
+        try:
+            chunk = await asyncio.wait_for(ws.receive_bytes(),
+                                           timeout=config.max_no_data_seconds if len(chunks) == 0 else max_wait_to - time.time())
+        except TimeoutError:
+            if len(chunks) == 0:
+                raise
+            break
+        chunks += chunk
+    return chunks
+
 
 async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
     try:
         while True:
-            bytes_ = await asyncio.wait_for(ws.receive_bytes(), timeout=config.max_no_data_seconds)
+            bytes_ = await asyncio.wait_for(ws_combined_receive(ws), timeout=config.max_no_data_seconds)
             logger.debug(f"Received {len(bytes_)} bytes of audio data")
             audio_samples = audio_samples_from_file(BytesIO(bytes_))
             audio_stream.extend(audio_samples)
