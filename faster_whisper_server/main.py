@@ -67,7 +67,10 @@ def load_model(model_name: str) -> WhisperModel:
     whisper = WhisperModel(
         model_name,
         device=config.whisper.inference_device,
+        device_index=config.whisper.device_index,
         compute_type=config.whisper.compute_type,
+        cpu_threads=config.whisper.cpu_threads,
+        num_workers=config.whisper.num_workers,
     )
     logger.info(
         f"Loaded {model_name} loaded in {time.perf_counter() - start:.2f} seconds. {config.whisper.inference_device}({config.whisper.compute_type}) will be used for inference."  # noqa: E501
