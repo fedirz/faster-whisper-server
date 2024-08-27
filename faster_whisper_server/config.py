@@ -156,9 +156,9 @@ class WhisperConfig(BaseModel):
     You can find other supported models at https://huggingface.co/models?p=2&sort=trending&search=ctranslate2 and https://huggingface.co/models?sort=trending&search=ct2
     """
     inference_device: Device = Field(default=Device.AUTO)
-    compute_type: Quantization = Field(default=Quantization.DEFAULT)
     device_index: int | list[int] = 0
-    cpu_threads: int = 16
+    compute_type: Quantization = Field(default=Quantization.DEFAULT)
+    cpu_threads: int = 0
     num_workers: int = 1
 
 
