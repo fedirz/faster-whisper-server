@@ -23,7 +23,11 @@ class Word(BaseModel):
     def from_segments(cls, segments: Iterable[Segment]) -> list[Word]:
         words: list[Word] = []
         for segment in segments:
-            assert segment.words is not None
+            # NOTE: a temporary "fix" for https://github.com/fedirz/faster-whisper-server/issues/58.
+            # TODO: properly address the issue
+            assert (
+                segment.words is not None
+            ), "Segment must have words. If you are using an API ensure `timestamp_granularities[]=word` is set"
             words.extend(segment.words)
         return words
 
