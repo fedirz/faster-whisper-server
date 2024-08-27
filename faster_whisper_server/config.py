@@ -184,20 +184,30 @@ class Config(BaseSettings):
     """
 
     default_language: Language | None = None
+    """
+    Default language to use for transcription. If not set, the language will be detected automatically.
+    It is recommended to set this as it will improve the performance.
+    """
     default_response_format: ResponseFormat = ResponseFormat.JSON
     whisper: WhisperConfig = WhisperConfig()
     max_models: int = 1
+    """
+    Maximum number of models that can be loaded at a time.
+    """
     max_no_data_seconds: float = 1.0
     """
-    Max duration to for the next audio chunk before transcription is finilized and connection is closed.
+    Max duration to wait for the next audio chunk before transcription is finilized and connection is closed.
     """
     min_duration: float = 1.0
+    """
+    Minimum duration of an audio chunk that will be transcribed.
+    """
     word_timestamp_error_margin: float = 0.2
-    max_inactivity_seconds: float = 5.0
+    max_inactivity_seconds: float = 2.5
     """
     Max allowed audio duration without any speech being detected before transcription is finilized and connection is closed.
     """  # noqa: E501
-    inactivity_window_seconds: float = 10.0
+    inactivity_window_seconds: float = 5.0
     """
     Controls how many latest seconds of audio are being passed through VAD.
     Should be greater than `max_inactivity_seconds`
