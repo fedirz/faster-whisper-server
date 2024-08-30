@@ -26,6 +26,9 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
         temperature: float,
         stream: bool,
         language: Optional[str] = None,
+        format: Optional[str] = None,
+        prompt: Optional[str] = None,
+        hotwords: Optional[str] = None,
     ) -> Generator[str, None, None]:
         if task == Task.TRANSCRIBE:
             endpoint = TRANSCRIPTION_ENDPOINT
@@ -35,12 +38,24 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
         if stream:
             previous_transcription = ""
             for transcription in streaming_audio_task(
-                file_path, endpoint, temperature, model, language=language
+                file_path,
+                endpoint,
+                temperature,
+                model,
+                language=language,
+                format=format,
             ):
                 previous_transcription += transcription
                 yield previous_transcription
         else:
-            yield audio_task(file_path, endpoint, temperature, model, language=language)
+            yield audio_task(
+                file_path,
+                endpoint,
+                temperature,
+                model,
+                language=language,
+                format=format,
+            )
 
     def audio_task(
         file_path: str,
@@ -49,6 +64,8 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
         model: str,
         language: Optional[str] = None,
         format: Optional[str] = None,
+        prompt: Optional[str] = None,
+        hotwords: Optional[str] = None,
     ) -> str:
         with open(file_path, "rb") as file:
             response = http_client.post(
@@ -72,6 +89,8 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
         model: str,
         language: Optional[str] = None,
         format: Optional[str] = None,
+        prompt: Optional[str] = None,
+        hotwords: Optional[str] = None,
     ) -> Generator[str, None, None]:
         with open(file_path, "rb") as file:
             kwargs = {
@@ -105,17 +124,26 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
             label="Model",
             value=config.whisper.model,
         )
-
+ 
+    languages_dropdown = gr.Dropdown(
+        choices=[str(l) for l in Language],
+        label="Language",
+        value=config.default_language,
+    )
     format_dropdown = gr.Dropdown(
         choices=["text", "json", "verbose_json", "srt", "vtt"],
         label="Response Format",
         value="text",
     )
-
-    languages_dropdown = gr.Dropdown(
-        choices=[str(l) for l in Language],
-        label="Language",
-        value=config.default_language,
+    prompt_input = gr.Textbox(
+        lines=2,
+        placeholder="Enter your prompt here",
+        label="Prompt"
+    )
+    hotwords_list = gr.Textbox(
+        lines=2,
+        placeholder="Enter hotwords separated by commas",
+        label="Hotwords"
     )
 
     model_dropdown = gr.Dropdown(
@@ -145,6 +173,8 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
         additional_inputs=[
             languages_dropdown,
             format_dropdown,
+            prompt_input,
+            hotwords_list,
         ],
         fn=handler,
         outputs="text",
