@@ -5,7 +5,8 @@ import httpx
 from httpx_sse import connect_sse
 from openai import OpenAI
 
-from faster_whisper_server.config import Config, Task
+from faster_whisper_server.config import Config, Task, Language
+from typing import Optional
 
 TRANSCRIPTION_ENDPOINT = "/v1/audio/transcriptions"
 TRANSLATION_ENDPOINT = "/v1/audio/translations"
@@ -18,7 +19,14 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
     http_client = httpx.Client(base_url=base_url, timeout=TIMEOUT)
     openai_client = OpenAI(base_url=f"{base_url}/v1", api_key="cant-be-empty")
 
-    def handler(file_path: str, model: str, task: Task, temperature: float, stream: bool) -> Generator[str, None, None]:
+    def handler(
+        file_path: str,
+        model: str,
+        task: Task,
+        temperature: float,
+        stream: bool,
+        language: Optional[str] = None,
+    ) -> Generator[str, None, None]:
         if task == Task.TRANSCRIBE:
             endpoint = TRANSCRIPTION_ENDPOINT
         elif task == Task.TRANSLATE:
@@ -26,21 +34,31 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
 
         if stream:
             previous_transcription = ""
-            for transcription in streaming_audio_task(file_path, endpoint, temperature, model):
+            for transcription in streaming_audio_task(
+                file_path, endpoint, temperature, model, language=language
+            ):
                 previous_transcription += transcription
                 yield previous_transcription
         else:
-            yield audio_task(file_path, endpoint, temperature, model)
+            yield audio_task(file_path, endpoint, temperature, model, language=language)
 
-    def audio_task(file_path: str, endpoint: str, temperature: float, model: str) -> str:
+    def audio_task(
+        file_path: str,
+        endpoint: str,
+        temperature: float,
+        model: str,
+        language: Optional[str] = None,
+        format: Optional[str] = None,
+    ) -> str:
         with open(file_path, "rb") as file:
             response = http_client.post(
                 endpoint,
                 files={"file": file},
                 data={
                     "model": model,
-                    "response_format": "text",
+                    "response_format": "text" if not format else format,
                     "temperature": temperature,
+                    **({"language": language} if language else {}),
                 },
             )
 
@@ -48,16 +66,22 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
         return response.text
 
     def streaming_audio_task(
-        file_path: str, endpoint: str, temperature: float, model: str
+        file_path: str,
+        endpoint: str,
+        temperature: float,
+        model: str,
+        language: Optional[str] = None,
+        format: Optional[str] = None,
     ) -> Generator[str, None, None]:
         with open(file_path, "rb") as file:
             kwargs = {
                 "files": {"file": file},
                 "data": {
-                    "response_format": "text",
+                    "response_format": "text" if not format else format,
                     "temperature": temperature,
                     "model": model,
                     "stream": True,
+                    **({"language": language} if language else {}),
                 },
             }
             with connect_sse(http_client, "POST", endpoint, **kwargs) as event_source:
@@ -68,8 +92,12 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
         models = openai_client.models.list().data
         model_names: list[str] = [model.id for model in models]
         assert config.whisper.model in model_names
-        recommended_models = {model for model in model_names if model.startswith("Systran")}
-        other_models = [model for model in model_names if model not in recommended_models]
+        recommended_models = {
+            model for model in model_names if model.startswith("Systran")
+        }
+        other_models = [
+            model for model in model_names if model not in recommended_models
+        ]
         model_names = list(recommended_models) + other_models
         return gr.Dropdown(
             # no idea why it's complaining
@@ -77,6 +105,18 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
             label="Model",
             value=config.whisper.model,
         )
+
+    format_dropdown = gr.Dropdown(
+        choices=["text", "json", "verbose_json", "srt", "vtt"],
+        label="Response Format",
+        value="text",
+    )
+
+    languages_dropdown = gr.Dropdown(
+        choices=[str(l) for l in Language],
+        label="Language",
+        value=config.default_language,
+    )
 
     model_dropdown = gr.Dropdown(
         choices=[config.whisper.model],
@@ -88,7 +128,9 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
         label="Task",
         value=Task.TRANSCRIBE,
     )
-    temperature_slider = gr.Slider(minimum=0.0, maximum=1.0, step=0.1, label="Temperature", value=0.0)
+    temperature_slider = gr.Slider(
+        minimum=0.0, maximum=1.0, step=0.1, label="Temperature", value=0.0
+    )
     stream_checkbox = gr.Checkbox(label="Stream", value=True)
     with gr.Interface(
         title="Whisper Playground",
@@ -99,6 +141,10 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
             task_dropdown,
             temperature_slider,
             stream_checkbox,
+        ],
+        additional_inputs=[
+            languages_dropdown,
+            format_dropdown,
         ],
         fn=handler,
         outputs="text",

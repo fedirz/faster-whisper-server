@@ -51,32 +51,33 @@ if TYPE_CHECKING:
     from huggingface_hub.hf_api import ModelInfo
 
 loaded_models: OrderedDict[str, WhisperModel] = OrderedDict()
+model_load_lock = asyncio.Lock()
 
-
-def load_model(model_name: str) -> WhisperModel:
-    if model_name in loaded_models:
-        logger.debug(f"{model_name} model already loaded")
-        return loaded_models[model_name]
-    if len(loaded_models) >= config.max_models:
-        oldest_model_name = next(iter(loaded_models))
-        logger.info(f"Max models ({config.max_models}) reached. Unloading the oldest model: {oldest_model_name}")
-        del loaded_models[oldest_model_name]
-    logger.debug(f"Loading {model_name}...")
-    start = time.perf_counter()
-    # NOTE: will raise an exception if the model name isn't valid
-    whisper = WhisperModel(
-        model_name,
-        device=config.whisper.inference_device,
-        device_index=config.whisper.device_index,
-        compute_type=config.whisper.compute_type,
-        cpu_threads=config.whisper.cpu_threads,
-        num_workers=config.whisper.num_workers,
-    )
-    logger.info(
-        f"Loaded {model_name} loaded in {time.perf_counter() - start:.2f} seconds. {config.whisper.inference_device}({config.whisper.compute_type}) will be used for inference."  # noqa: E501
-    )
-    loaded_models[model_name] = whisper
-    return whisper
+async def load_model(model_name: str) -> WhisperModel:
+    async with model_load_lock:
+        if model_name in loaded_models:
+            logger.debug(f"{model_name} model already loaded")
+            return loaded_models[model_name]
+        if len(loaded_models) >= config.max_models:
+            oldest_model_name = next(iter(loaded_models))
+            logger.info(f"Max models ({config.max_models}) reached. Unloading the oldest model: {oldest_model_name}")
+            del loaded_models[oldest_model_name]
+        logger.debug(f"Loading {model_name}...")
+        start = time.perf_counter()
+        # NOTE: will raise an exception if the model name isn't valid
+        whisper = WhisperModel(
+            model_name,
+            device=config.whisper.inference_device,
+            device_index=config.whisper.device_index,
+            compute_type=config.whisper.compute_type,
+            cpu_threads=config.whisper.cpu_threads,
+            num_workers=config.whisper.num_workers,
+        )
+        logger.info(
+            f"Loaded {model_name} loaded in {time.perf_counter() - start:.2f} seconds. {config.whisper.inference_device}({config.whisper.compute_type}) will be used for inference."  # noqa: E501
+        )
+        loaded_models[model_name] = whisper
+        return whisper
 
 
 logger.debug(f"Config: {config}")
@@ -237,7 +238,7 @@ ModelName = Annotated[str, AfterValidator(handle_default_openai_model)]
     "/v1/audio/translations",
     response_model=str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse,
 )
-def translate_file(
+async def translate_file(
     file: Annotated[UploadFile, Form()],
     model: Annotated[ModelName, Form()] = config.whisper.model,
     prompt: Annotated[str | None, Form()] = None,
@@ -245,7 +246,7 @@ def translate_file(
     temperature: Annotated[float, Form()] = 0.0,
     stream: Annotated[bool, Form()] = False,
 ) -> Response | StreamingResponse:
-    whisper = load_model(model)
+    whisper = await load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,
         task=Task.TRANSLATE,
@@ -267,7 +268,7 @@ def translate_file(
     "/v1/audio/transcriptions",
     response_model=str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse,
 )
-def transcribe_file(
+async def transcribe_file(
     file: Annotated[UploadFile, Form()],
     model: Annotated[ModelName, Form()] = config.whisper.model,
     language: Annotated[Language | None, Form()] = config.default_language,
@@ -281,7 +282,7 @@ def transcribe_file(
     stream: Annotated[bool, Form()] = False,
     hotwords: Annotated[str | None, Form()] = None,
 ) -> Response | StreamingResponse:
-    whisper = load_model(model)
+    whisper = await load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,
         task=Task.TRANSCRIBE,
