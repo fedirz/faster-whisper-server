@@ -14,6 +14,6 @@ docker run --detach --gpus=all --publish 8000:8000 --volume ~/.cache/huggingface
 # or you can run it on a CPU
 # docker run --detach --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface --env WHISPER__MODEL=$WHISPER__MODEL fedirz/faster-whisper-server:latest-cpu
 
-# `pv` is used to limit the rate at which the audio is streamed to the server. Audio is being streamed at a rate of 32kb/s(16000 sample rate * 16-bit sample / 8 bits per byte = 32000 bytes per second). This emulutes live audio input from a microphone: `ffmpeg -loglevel quiet -f alsa -i default -ac 1 -ar 16000 -f s16le`
+# `pv` is used to limit the rate at which the audio is streamed to the server. Audio is being streamed at a rate of 32kb/s(16000 sample rate * 16-bit sample / 8 bits per byte = 32000 bytes per second). This emulutes live audio input from a microphone: `ffmpeg -loglevel quiet -f alsa -i default -ac 1 -ar 16000 -f s16le -`
 # shellcheck disable=SC2002
 cat audio.pcm | pv -qL 32000 | websocat --no-close --binary 'ws://localhost:8000/v1/audio/transcriptions?language=en'
