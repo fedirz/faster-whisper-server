@@ -70,6 +70,7 @@ ignore = [
     "W505",
     "ISC001", # recommended to disable for formatting
     "INP001",
+    "PT018",
 ]
 
 [tool.ruff.lint.isort]
