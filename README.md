@@ -35,6 +35,9 @@ docker compose up --detach faster-whisper-server-cuda
 # or
 docker compose up --detach faster-whisper-server-cpu
 ```
+
+Using Kubernetes: [tutorial](https://substratus.ai/blog/deploying-faster-whisper-on-k8s)
+
 ## Usage
 If you are looking for a step-by-step walkthrough, checkout [this](https://www.youtube.com/watch?app=desktop&v=vSN-oAl6LVs) YouTube video.
 
