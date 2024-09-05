@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from collections import OrderedDict
 from contextlib import asynccontextmanager
+import gc
 from io import BytesIO
 import time
 from typing import TYPE_CHECKING, Annotated, Literal
@@ -105,6 +106,29 @@ if config.allow_origins is not None:
 @app.get("/health")
 def health() -> Response:
     return Response(status_code=200, content="OK")
+
+
+@app.get("/api/ps", tags=["experimental"], summary="Get a list of loaded models.")
+def get_running_models() -> dict[str, list[str]]:
+    return {"models": list(loaded_models.keys())}
+
+
+@app.post("/api/ps/{model_name:path}", tags=["experimental"], summary="Load a model into memory.")
+def load_model_route(model_name: str) -> Response:
+    if model_name in loaded_models:
+        return Response(status_code=409, content="Model already loaded")
+    load_model(model_name)
+    return Response(status_code=201)
+
+
+@app.delete("/api/ps/{model_name:path}", tags=["experimental"], summary="Unload a model from memory.")
+def stop_running_model(model_name: str) -> Response:
+    model = loaded_models.get(model_name)
+    if model is not None:
+        del loaded_models[model_name]
+        gc.collect()
+        return Response(status_code=204)
+    return Response(status_code=404)
 
 
 @app.get("/v1/models")
