@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from collections import OrderedDict
+from contextlib import asynccontextmanager
 from io import BytesIO
 import time
 from typing import TYPE_CHECKING, Annotated, Literal
@@ -45,7 +46,7 @@ from faster_whisper_server.server_models import (
 from faster_whisper_server.transcriber import audio_transcriber
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable
+    from collections.abc import AsyncGenerator, Generator, Iterable
 
     from faster_whisper.transcribe import TranscriptionInfo
     from huggingface_hub.hf_api import ModelInfo
@@ -63,7 +64,7 @@ def load_model(model_name: str) -> WhisperModel:
         del loaded_models[oldest_model_name]
     logger.debug(f"Loading {model_name}...")
     start = time.perf_counter()
-    # NOTE: will raise an exception if the model name isn't valid
+    # NOTE: will raise an exception if the model name isn't valid. Should I do an explicit check?
     whisper = WhisperModel(
         model_name,
         device=config.whisper.inference_device,
@@ -81,7 +82,15 @@ def load_model(model_name: str) -> WhisperModel:
 
 logger.debug(f"Config: {config}")
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
+    for model_name in config.preload_models:
+        load_model(model_name)
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 if config.allow_origins is not None:
     app.add_middleware(
