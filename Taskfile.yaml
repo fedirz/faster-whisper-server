@@ -31,7 +31,6 @@ tasks:
     sources:
       - Dockerfile.*
       - faster_whisper_server/*.py
-  sync: lsyncd lsyncd.conf
   cii:
     cmds:
       - act --rm --action-offline-mode --secret-file .secrets {{.CLI_ARGS}}
