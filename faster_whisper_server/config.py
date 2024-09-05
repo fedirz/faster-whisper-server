@@ -1,6 +1,7 @@
 import enum
+from typing import Self
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 SAMPLES_PER_SECOND = 16000
@@ -151,7 +152,9 @@ class WhisperConfig(BaseModel):
 
     model: str = Field(default="Systran/faster-whisper-medium.en")
     """
-    Huggingface model to use for transcription. Note, the model must support being ran using CTranslate2.
+    Default Huggingface model to use for transcription. Note, the model must support being ran using CTranslate2.
+    This model will be used if no model is specified in the request.
+
     Models created by authors of `faster-whisper` can be found at https://huggingface.co/Systran
     You can find other supported models at https://huggingface.co/models?p=2&sort=trending&search=ctranslate2 and https://huggingface.co/models?sort=trending&search=ct2
     """
@@ -199,6 +202,16 @@ class Config(BaseSettings):
     """
     Maximum number of models that can be loaded at a time.
     """
+    preload_models: list[str] = Field(
+        default_factory=list,
+        examples=[
+            ["Systran/faster-whisper-medium.en"],
+            ["Systran/faster-whisper-medium.en", "Systran/faster-whisper-small.en"],
+        ],
+    )
+    """
+    List of models to preload on startup. Shouldn't be greater than `max_models`. By default, the model is first loaded on first request.
+    """  # noqa: E501
     max_no_data_seconds: float = 1.0
     """
     Max duration to wait for the next audio chunk before transcription is finilized and connection is closed.
@@ -217,6 +230,14 @@ class Config(BaseSettings):
     Controls how many latest seconds of audio are being passed through VAD.
     Should be greater than `max_inactivity_seconds`
     """
+
+    @model_validator(mode="after")
+    def ensure_preloaded_models_is_lte_max_models(self) -> Self:
+        if len(self.preload_models) > self.max_models:
+            raise ValueError(
+                f"Number of preloaded models ({len(self.preload_models)}) is greater than max_models ({self.max_models})"  # noqa: E501
+            )
+        return self
 
 
 config = Config()
