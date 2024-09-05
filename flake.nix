@@ -20,7 +20,6 @@
               act
               ffmpeg-full
               go-task
-              lsyncd
               parallel
               pre-commit
               pv
