@@ -1,5 +1,6 @@
 [project]
 name = "faster-whisper-server"
+version = "0.1.0"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "pydantic",
@@ -29,8 +30,6 @@ dev = [
     "basedpyright==1.13.0",
     "pytest-xdist"
 ]
-
-other = ["youtube-dl @ git+https://github.com/ytdl-org/youtube-dl.git@37cea84f775129ad715b9bcd617251c831fcc980", "aider-chat==0.39.0"]
 
 # https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
