@@ -1,7 +1,8 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/master";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    flake-utils.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs =
     { nixpkgs, flake-utils, ... }:
@@ -11,6 +12,8 @@
         pkgs = import nixpkgs {
           inherit system;
           config.allowUnfree = true;
+          # `cudnn_8_9` is marked as broken but still seems to work as before
+          config.allowBroken = true;
         };
       in
       {
