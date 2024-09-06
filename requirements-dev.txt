@@ -14,12 +14,12 @@ av==12.3.0
     # via faster-whisper
 basedpyright==1.13.0
     # via faster-whisper-server (pyproject.toml)
-certifi==2024.7.4
+certifi==2024.8.30
     # via
     #   httpcore
     #   httpx
     #   requests
-cffi==1.17.0
+cffi==1.17.1
     # via soundfile
 charset-normalizer==3.3.2
     # via requests
@@ -29,7 +29,7 @@ click==8.1.7
     #   uvicorn
 coloredlogs==15.0.1
     # via onnxruntime
-contourpy==1.2.1
+contourpy==1.3.0
     # via matplotlib
 ctranslate2==4.3.1
     # via faster-whisper
@@ -39,7 +39,7 @@ distro==1.9.0
     # via openai
 execnet==2.1.1
     # via pytest-xdist
-fastapi==0.112.2
+fastapi==0.113.0
     # via
     #   faster-whisper-server (pyproject.toml)
     #   gradio
@@ -53,7 +53,7 @@ flatbuffers==24.3.25
     # via onnxruntime
 fonttools==4.53.1
     # via matplotlib
-fsspec==2024.6.1
+fsspec==2024.9.0
     # via
     #   gradio-client
     #   huggingface-hub
@@ -67,7 +67,7 @@ h11==0.14.0
     #   uvicorn
 httpcore==1.0.5
     # via httpx
-httpx==0.27.0
+httpx==0.27.2
     # via
     #   faster-whisper-server (pyproject.toml)
     #   gradio
@@ -97,7 +97,7 @@ jinja2==3.1.4
     # via gradio
 jiter==0.5.0
     # via openai
-kiwisolver==1.4.5
+kiwisolver==1.4.7
     # via matplotlib
 markdown-it-py==3.0.0
     # via rich
@@ -122,9 +122,9 @@ numpy==1.26.4
     #   matplotlib
     #   onnxruntime
     #   pandas
-onnxruntime==1.19.0
+onnxruntime==1.19.2
     # via faster-whisper
-openai==1.42.0
+openai==1.43.1
     # via faster-whisper-server (pyproject.toml)
 orjson==3.10.7
     # via gradio
@@ -144,18 +144,18 @@ pillow==10.4.0
     #   matplotlib
 pluggy==1.5.0
     # via pytest
-protobuf==5.27.3
+protobuf==5.28.0
     # via onnxruntime
 pycparser==2.22
     # via cffi
-pydantic==2.8.2
+pydantic==2.9.0
     # via
     #   faster-whisper-server (pyproject.toml)
     #   fastapi
     #   gradio
     #   openai
     #   pydantic-settings
-pydantic-core==2.20.1
+pydantic-core==2.23.2
     # via pydantic
 pydantic-settings==2.4.0
     # via faster-whisper-server (pyproject.toml)
@@ -198,7 +198,7 @@ ruff==0.5.3
     #   gradio
 semantic-version==2.10.0
     # via gradio
-setuptools==73.0.1
+setuptools==74.1.2
     # via ctranslate2
 shellingham==1.5.4
     # via typer
@@ -213,7 +213,7 @@ soundfile==0.12.1
     # via faster-whisper-server (pyproject.toml)
 srt==3.5.3
     # via faster-whisper-server (pyproject.toml)
-starlette==0.38.2
+starlette==0.38.4
     # via fastapi
 sympy==1.13.2
     # via onnxruntime
@@ -238,7 +238,9 @@ typing-extensions==4.12.2
     #   pydantic-core
     #   typer
 tzdata==2024.1
-    # via pandas
+    # via
+    #   pandas
+    #   pydantic
 urllib3==2.2.2
     # via
     #   gradio
