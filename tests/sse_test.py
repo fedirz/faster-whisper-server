@@ -2,16 +2,15 @@ import json
 import os
 
 from fastapi.testclient import TestClient
+from faster_whisper_server.server_models import (
+    TranscriptionJsonResponse,
+    TranscriptionVerboseJsonResponse,
+)
 from httpx_sse import connect_sse
 import pytest
 import srt
 import webvtt
 import webvtt.vtt
-
-from faster_whisper_server.server_models import (
-    TranscriptionJsonResponse,
-    TranscriptionVerboseJsonResponse,
-)
 
 FILE_PATHS = ["audio.wav"]  # HACK
 ENDPOINTS = [
