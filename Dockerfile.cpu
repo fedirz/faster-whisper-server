@@ -17,9 +17,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 COPY ./src ./pyproject.toml ./uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen
-ENV WHISPER__MODEL=Systran/faster-whisper-medium.en
+ENV WHISPER__MODEL=Systran/faster-whisper-small
 ENV WHISPER__INFERENCE_DEVICE=cpu
-ENV WHISPER__COMPUTE_TYPE=int8
 ENV UVICORN_HOST=0.0.0.0
 ENV UVICORN_PORT=8000
 CMD ["uv", "run", "uvicorn", "faster_whisper_server.main:app"]
