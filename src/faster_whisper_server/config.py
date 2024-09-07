@@ -150,7 +150,7 @@ class Task(enum.StrEnum):
 class WhisperConfig(BaseModel):
     """See https://github.com/SYSTRAN/faster-whisper/blob/master/faster_whisper/transcribe.py#L599."""
 
-    model: str = Field(default="Systran/faster-whisper-medium.en")
+    model: str = Field(default="Systran/faster-whisper-small")
     """
     Default Huggingface model to use for transcription. Note, the model must support being ran using CTranslate2.
     This model will be used if no model is specified in the request.
@@ -205,7 +205,7 @@ class Config(BaseSettings):
     preload_models: list[str] = Field(
         default_factory=list,
         examples=[
-            ["Systran/faster-whisper-medium.en"],
+            ["Systran/faster-whisper-small"],
             ["Systran/faster-whisper-medium.en", "Systran/faster-whisper-small.en"],
         ],
     )

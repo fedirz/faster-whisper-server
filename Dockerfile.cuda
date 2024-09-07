@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 COPY ./src ./pyproject.toml ./uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen
-ENV WHISPER__MODEL=Systran/faster-distil-whisper-large-v3
+ENV WHISPER__MODEL=Systran/faster-whisper-large-v3
 ENV WHISPER__INFERENCE_DEVICE=auto
 ENV UVICORN_HOST=0.0.0.0
 ENV UVICORN_PORT=8000
