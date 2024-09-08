@@ -102,6 +102,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
         ],
         fn=handler,
         outputs="text",
+        analytics_enabled=False,  # disable telemetry
     ) as demo:
         demo.load(update_model_dropdown, inputs=None, outputs=model_dropdown)
     return demo
