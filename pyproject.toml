@@ -3,33 +3,37 @@ name = "faster-whisper-server"
 version = "0.1.0"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-    "pydantic",
-    "fastapi",
-    "uvicorn",
-    "python-multipart",
-    "soundfile",
-    "pydantic-settings",
+    "pydantic==2.9.0",
+    "fastapi==0.113.0",
+    "uvicorn==0.30.6",
+    "python-multipart==0.0.9",
+    "soundfile==0.12.1",
+    "pydantic-settings==2.4.0",
     "numpy<2.0.0",
     "faster-whisper==1.0.3",
-    "huggingface-hub",
-    "httpx-sse",
-    "httpx",
-    "gradio",
-    "openai",
+    "huggingface-hub==0.24.6",
+    "httpx-sse==0.4.0",
+    "httpx==0.27.2",
+    "gradio==4.42.0",
+    "openai==1.43.1",
 ]
 
 [project.optional-dependencies]
 client = [
-    "keyboard",
+    "keyboard==0.13.5",
 ]
 dev = [
     "ruff==0.5.3",
-    "pytest",
-    "webvtt-py",
-    "srt",
+    "pytest==8.3.2",
+    "webvtt-py==0.5.1",
+    "srt==3.5.3",
     "basedpyright==1.13.0",
-    "pytest-xdist"
+    "pytest-xdist==3.6.1"
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 # https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
