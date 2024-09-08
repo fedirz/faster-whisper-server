@@ -10,10 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v2
         with:
-          python-version: 3.12
-      - run: pip install uv
-      - run: uv pip install --no-cache --system -r requirements-dev.txt
+          version: "0.4.4"
+          enable-cache: true
+      - run: uv python install 3.12
+      - run: uv sync --extra dev
       # TODO: figure out why `pytest` doesn't discover tests in `faster_whisper_server` directory by itself
-      - run: pytest faster_whisper_server/* tests
+      - run: uv run pytest src/faster_whisper_server/* tests
