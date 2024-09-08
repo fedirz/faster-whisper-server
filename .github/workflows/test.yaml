@@ -21,3 +21,12 @@ jobs:
       - run: uv sync --extra dev
       # TODO: figure out why `pytest` doesn't discover tests in `faster_whisper_server` directory by itself
       - run: uv run pytest src/faster_whisper_server/* tests
+  test-docker-runs-on-arm:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build --tag faster-whisper-server --file Dockerfile.cpu --platform linux/arm64 .
+      - run: docker run --rm --detach faster-whisper-server
+      - run: docker ps
+      - run: uname -m
+      - run: curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav"
