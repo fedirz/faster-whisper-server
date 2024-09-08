@@ -12,18 +12,6 @@ tasks:
     sources:
       - Dockerfile.*
       - faster_whisper_server/*.py
-  pip-compile:
-    cmds:
-      - uv pip compile --override overrides.txt pyproject.toml {{.CLI_ARGS}} > requirements.txt
-      - uv pip compile --override overrides.txt --extra dev pyproject.toml {{.CLI_ARGS}} > requirements-dev.txt
-      - uv pip compile --override overrides.txt --all-extras pyproject.toml {{.CLI_ARGS}} > requirements-all.txt
-    sources:
-      - pyproject.toml
-  pip-sync:
-    cmds:
-      - uv pip sync requirements-all.txt
-    sources:
-      - requirements-all.txt
   create-multi-arch-builder: docker buildx create --name main --driver=docker-container
   docker-build:
     cmds:
