@@ -10,10 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v2
         with:
-          python-version: 3.12
-      - run: pip install uv
-      - run: uv pip install --system -r requirements-dev.txt
-      - run: ruff check .
-      - run: ruff format --check --diff .
+          version: "0.4.4"
+          enable-cache: true
+      - run: uv python install 3.12
+      - run: uv sync --extra dev
+      - run: uv run ruff check .
+      - run: uv run ruff format --check --diff .
