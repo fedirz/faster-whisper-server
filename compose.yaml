@@ -1,5 +1,4 @@
 # TODO: https://docs.astral.sh/uv/guides/integration/docker/#configuring-watch-with-docker-compose
-# NOTE: arm images haven't been tested
 services:
   faster-whisper-server-cuda:
     image: fedirz/faster-whisper-server:latest-cuda
@@ -9,11 +8,11 @@ services:
       platforms:
         - linux/amd64
         - linux/arm64
-    volumes:
-      - hugging_face_cache:/root/.cache/huggingface
     restart: unless-stopped
     ports:
       - 8000:8000
+    volumes:
+      - hugging_face_cache:/root/.cache/huggingface
     develop:
       watch:
         - path: faster_whisper_server
@@ -37,11 +36,11 @@ services:
       platforms:
         - linux/amd64
         - linux/arm64
-    volumes:
-      - hugging_face_cache:/root/.cache/huggingface
     restart: unless-stopped
     ports:
       - 8000:8000
+    volumes:
+      - hugging_face_cache:/root/.cache/huggingface
     develop:
       watch:
         - path: faster_whisper_server
