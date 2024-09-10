@@ -4,7 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "pydantic==2.9.0",
-    "fastapi==0.113.0",
+    "fastapi==0.112.4",
     "uvicorn==0.30.6",
     "python-multipart==0.0.9",
     "soundfile==0.12.1",
