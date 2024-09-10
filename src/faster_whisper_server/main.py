@@ -16,6 +16,7 @@ from fastapi import (
     Query,
     Response,
     UploadFile,
+    Security,
     WebSocket,
     WebSocketDisconnect,
 )
@@ -47,6 +48,7 @@ from faster_whisper_server.server_models import (
     TranscriptionVerboseJsonResponse,
 )
 from faster_whisper_server.transcriber import audio_transcriber
+from faster_whisper_server.security import check_api_key
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator, Generator, Iterable
@@ -111,7 +113,7 @@ def health() -> Response:
 
 
 @app.post("/api/pull/{model_name:path}", tags=["experimental"], summary="Download a model from Hugging Face.")
-def pull_model(model_name: str) -> Response:
+def pull_model(model_name: str, api_key: str = Security(check_api_key)) -> Response:
     if hf_utils.does_local_model_exist(model_name):
         return Response(status_code=200, content="Model already exists")
     try:
@@ -122,12 +124,12 @@ def pull_model(model_name: str) -> Response:
 
 
 @app.get("/api/ps", tags=["experimental"], summary="Get a list of loaded models.")
-def get_running_models() -> dict[str, list[str]]:
+def get_running_models(api_key: str = Security(check_api_key)) -> dict[str, list[str]]:
     return {"models": list(loaded_models.keys())}
 
 
 @app.post("/api/ps/{model_name:path}", tags=["experimental"], summary="Load a model into memory.")
-def load_model_route(model_name: str) -> Response:
+def load_model_route(model_name: str, api_key: str = Security(check_api_key)) -> Response:
     if model_name in loaded_models:
         return Response(status_code=409, content="Model already loaded")
     load_model(model_name)
@@ -135,7 +137,7 @@ def load_model_route(model_name: str) -> Response:
 
 
 @app.delete("/api/ps/{model_name:path}", tags=["experimental"], summary="Unload a model from memory.")
-def stop_running_model(model_name: str) -> Response:
+def stop_running_model(model_name: str, api_key: str = Security(check_api_key)) -> Response:
     model = loaded_models.get(model_name)
     if model is not None:
         del loaded_models[model_name]
@@ -145,7 +147,7 @@ def stop_running_model(model_name: str) -> Response:
 
 
 @app.get("/v1/models")
-def get_models() -> ModelListResponse:
+def get_models(api_key: str = Security(check_api_key)) -> ModelListResponse:
     models = huggingface_hub.list_models(library="ctranslate2", tags="automatic-speech-recognition", cardData=True)
     models = list(models)
     models.sort(key=lambda model: model.downloads, reverse=True)  # type: ignore  # noqa: PGH003
@@ -175,6 +177,7 @@ def get_models() -> ModelListResponse:
 # NOTE: `examples` doesn't work https://github.com/tiangolo/fastapi/discussions/10537
 def get_model(
     model_name: Annotated[str, Path(example="Systran/faster-distil-whisper-large-v3")],
+    api_key: str = Security(check_api_key),
 ) -> ModelObject:
     models = huggingface_hub.list_models(
         model_name=model_name, library="ctranslate2", tags="automatic-speech-recognition", cardData=True
@@ -290,6 +293,7 @@ def translate_file(
     response_format: Annotated[ResponseFormat, Form()] = config.default_response_format,
     temperature: Annotated[float, Form()] = 0.0,
     stream: Annotated[bool, Form()] = False,
+    api_key: str = Security(check_api_key),
 ) -> Response | StreamingResponse:
     whisper = load_model(model)
     segments, transcription_info = whisper.transcribe(
@@ -326,6 +330,7 @@ def transcribe_file(
     ] = ["segment"],
     stream: Annotated[bool, Form()] = False,
     hotwords: Annotated[str | None, Form()] = None,
+    api_key: str = Security(check_api_key),
 ) -> Response | StreamingResponse:
     whisper = load_model(model)
     segments, transcription_info = whisper.transcribe(
@@ -383,6 +388,7 @@ async def transcribe_stream(
     language: Annotated[Language | None, Query()] = config.default_language,
     response_format: Annotated[ResponseFormat, Query()] = config.default_response_format,
     temperature: Annotated[float, Query()] = 0.0,
+    api_key: str = Security(check_api_key),
 ) -> None:
     await ws.accept()
     transcribe_opts = {

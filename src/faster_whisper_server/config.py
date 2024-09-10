@@ -176,6 +176,7 @@ class Config(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
     log_level: str = "debug"
+    api_key: str | None = None
     host: str = Field(alias="UVICORN_HOST", default="0.0.0.0")
     port: int = Field(alias="UVICORN_PORT", default=8000)
     allow_origins: list[str] | None = None
