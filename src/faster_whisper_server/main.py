@@ -321,8 +321,8 @@ def transcribe_file(
     response_format: Annotated[ResponseFormat, Form()] = config.default_response_format,
     temperature: Annotated[float, Form()] = 0.0,
     timestamp_granularities: Annotated[
-        list[Literal["segment", "word"]],
-        Form(alias="timestamp_granularities[]"),
+        list[str],
+        Form(),
     ] = ["segment"],
     stream: Annotated[bool, Form()] = False,
     hotwords: Annotated[str | None, Form()] = None,

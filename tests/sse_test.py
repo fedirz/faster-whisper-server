@@ -98,3 +98,31 @@ def test_transcription_srt(client: TestClient) -> None:
     text = text.replace("1", "YO")
     with pytest.raises(srt.SRTParseError):
         list(srt.parse(text))
+
+@pytest.mark.parametrize("timestamp_granularities", [["word"], ["word", "segment"]])
+def test_transcription_verbose_json(client: TestClient, timestamp_granularities) -> None:
+    with open("audio.wav", "rb") as f:
+        data = f.read()
+    kwargs = {
+        "files": {"file": ("audio.wav", data, "audio/wav")},
+        "data": {"response_format": "verbose_json", "stream": False, "timestamp_granularities": timestamp_granularities},
+    }
+    response = client.post("/v1/audio/transcriptions", **kwargs)
+    assert response.status_code == 200
+    assert "application/json" in response.headers["content-type"]
+    output = response.json()
+    assert output is not None
+
+@pytest.mark.parametrize("timestamp_granularities", [["word"], ["word", "segment"]])
+def test_transcription_verbose_json_with_alias_timestamp_granularities(client: TestClient, timestamp_granularities) -> None:
+    with open("audio.wav", "rb") as f:
+        data = f.read()
+    kwargs = {
+        "files": {"file": ("audio.wav", data, "audio/wav")},
+        "data": {"response_format": "verbose_json", "stream": False, "timestamp_granularities[]": timestamp_granularities},
+    }
+    response = client.post("/v1/audio/transcriptions", **kwargs)
+    assert response.status_code == 200
+    assert "application/json" in response.headers["content-type"]
+    output = response.json()
+    assert output is not None
