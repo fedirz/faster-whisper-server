@@ -3,7 +3,7 @@
 Features:
 - GPU and CPU support.
 - Easily deployable using Docker.
-- **Configurable through environment variables (see [config.py](./faster_whisper_server/config.py))**.
+- **Configurable through environment variables (see [config.py](./src/faster_whisper_server/config.py))**.
 - OpenAI API compatible.
 
 Please create an issue if you find a bug, have a question, or a feature suggestion.
