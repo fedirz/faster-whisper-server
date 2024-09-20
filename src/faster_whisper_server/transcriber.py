@@ -1,16 +1,17 @@
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 from faster_whisper_server.audio import Audio, AudioStream
-from faster_whisper_server.config import config
 from faster_whisper_server.core import Transcription, Word, common_prefix, to_full_sentences, word_to_text
-from faster_whisper_server.logger import logger
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
     from faster_whisper_server.asr import FasterWhisperASR
+
+logger = logging.getLogger(__name__)
 
 
 class LocalAgreement:
@@ -47,11 +48,12 @@ def prompt(confirmed: Transcription) -> str | None:
 async def audio_transcriber(
     asr: FasterWhisperASR,
     audio_stream: AudioStream,
+    min_duration: float,
 ) -> AsyncGenerator[Transcription, None]:
     local_agreement = LocalAgreement()
     full_audio = Audio()
     confirmed = Transcription()
-    async for chunk in audio_stream.chunks(config.min_duration):
+    async for chunk in audio_stream.chunks(min_duration):
         full_audio.extend(chunk)
         audio = full_audio.after(needs_audio_after(confirmed))
         transcription, _ = await asr.transcribe(audio, prompt(confirmed))

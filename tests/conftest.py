@@ -1,7 +1,9 @@
 from collections.abc import AsyncGenerator, Generator
 import logging
+import os
 
 from fastapi.testclient import TestClient
+from faster_whisper_server.main import create_app
 from httpx import ASGITransport, AsyncClient
 from openai import OpenAI
 import pytest
@@ -18,17 +20,15 @@ def pytest_configure() -> None:
 
 @pytest.fixture()
 def client() -> Generator[TestClient, None, None]:
-    from faster_whisper_server.main import app
-
-    with TestClient(app) as client:
+    os.environ["WHISPER__MODEL"] = "Systran/faster-whisper-tiny.en"
+    with TestClient(create_app()) as client:
         yield client
 
 
 @pytest_asyncio.fixture()
 async def aclient() -> AsyncGenerator[AsyncClient, None]:
-    from faster_whisper_server.main import app
-
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as aclient:
+    os.environ["WHISPER__MODEL"] = "Systran/faster-whisper-tiny.en"
+    async with AsyncClient(transport=ASGITransport(app=create_app()), base_url="http://test") as aclient:
         yield aclient
 
 
