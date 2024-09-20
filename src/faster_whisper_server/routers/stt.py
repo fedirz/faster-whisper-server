@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from io import BytesIO
+import logging
 from typing import TYPE_CHECKING, Annotated, Literal
 
 from fastapi import (
@@ -16,6 +17,8 @@ from fastapi import (
 from fastapi.responses import StreamingResponse
 from fastapi.websockets import WebSocketState
 from faster_whisper.vad import VadOptions, get_speech_timestamps
+from pydantic import AfterValidator
+
 from faster_whisper_server.asr import FasterWhisperASR
 from faster_whisper_server.audio import AudioStream, audio_samples_from_file
 from faster_whisper_server.config import (
@@ -23,23 +26,22 @@ from faster_whisper_server.config import (
     Language,
     ResponseFormat,
     Task,
-    config,
 )
 from faster_whisper_server.core import Segment, segments_to_srt, segments_to_text, segments_to_vtt
-from faster_whisper_server.logger import logger
-from faster_whisper_server.model_manager import model_manager
+from faster_whisper_server.dependencies import ConfigDependency, ModelManagerDependency, get_config
 from faster_whisper_server.server_models import (
     TranscriptionJsonResponse,
     TranscriptionVerboseJsonResponse,
 )
 from faster_whisper_server.transcriber import audio_transcriber
-from pydantic import AfterValidator
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable
 
     from faster_whisper.transcribe import TranscriptionInfo
 
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -103,6 +105,7 @@ def handle_default_openai_model(model_name: str) -> str:
 
     For example, https://github.com/open-webui/open-webui/issues/2248#issuecomment-2162997623.
     """
+    config = get_config()  # HACK
     if model_name == "whisper-1":
         logger.info(f"{model_name} is not a valid model name. Using {config.whisper.model} instead.")
         return config.whisper.model
@@ -117,13 +120,19 @@ ModelName = Annotated[str, AfterValidator(handle_default_openai_model)]
     response_model=str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse,
 )
 def translate_file(
+    config: ConfigDependency,
+    model_manager: ModelManagerDependency,
     file: Annotated[UploadFile, Form()],
-    model: Annotated[ModelName, Form()] = config.whisper.model,
+    model: Annotated[ModelName | None, Form()] = None,
     prompt: Annotated[str | None, Form()] = None,
-    response_format: Annotated[ResponseFormat, Form()] = config.default_response_format,
+    response_format: Annotated[ResponseFormat | None, Form()] = None,
     temperature: Annotated[float, Form()] = 0.0,
     stream: Annotated[bool, Form()] = False,
 ) -> Response | StreamingResponse:
+    if model is None:
+        model = config.whisper.model
+    if response_format is None:
+        response_format = config.default_response_format
     whisper = model_manager.load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,
@@ -147,11 +156,13 @@ def translate_file(
     response_model=str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse,
 )
 def transcribe_file(
+    config: ConfigDependency,
+    model_manager: ModelManagerDependency,
     file: Annotated[UploadFile, Form()],
-    model: Annotated[ModelName, Form()] = config.whisper.model,
-    language: Annotated[Language | None, Form()] = config.default_language,
+    model: Annotated[ModelName | None, Form()] = None,
+    language: Annotated[Language | None, Form()] = None,
     prompt: Annotated[str | None, Form()] = None,
-    response_format: Annotated[ResponseFormat, Form()] = config.default_response_format,
+    response_format: Annotated[ResponseFormat | None, Form()] = None,
     temperature: Annotated[float, Form()] = 0.0,
     timestamp_granularities: Annotated[
         list[Literal["segment", "word"]],
@@ -160,6 +171,12 @@ def transcribe_file(
     stream: Annotated[bool, Form()] = False,
     hotwords: Annotated[str | None, Form()] = None,
 ) -> Response | StreamingResponse:
+    if model is None:
+        model = config.whisper.model
+    if language is None:
+        language = config.default_language
+    if response_format is None:
+        response_format = config.default_response_format
     whisper = model_manager.load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,
@@ -180,6 +197,7 @@ def transcribe_file(
 
 
 async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
+    config = get_config()  # HACK
     try:
         while True:
             bytes_ = await asyncio.wait_for(ws.receive_bytes(), timeout=config.max_no_data_seconds)
@@ -211,12 +229,20 @@ async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
 
 @router.websocket("/v1/audio/transcriptions")
 async def transcribe_stream(
+    config: ConfigDependency,
+    model_manager: ModelManagerDependency,
     ws: WebSocket,
-    model: Annotated[ModelName, Query()] = config.whisper.model,
-    language: Annotated[Language | None, Query()] = config.default_language,
-    response_format: Annotated[ResponseFormat, Query()] = config.default_response_format,
+    model: Annotated[ModelName | None, Query()] = None,
+    language: Annotated[Language | None, Query()] = None,
+    response_format: Annotated[ResponseFormat | None, Query()] = None,
     temperature: Annotated[float, Query()] = 0.0,
 ) -> None:
+    if model is None:
+        model = config.whisper.model
+    if language is None:
+        language = config.default_language
+    if response_format is None:
+        response_format = config.default_response_format
     await ws.accept()
     transcribe_opts = {
         "language": language,
@@ -229,7 +255,7 @@ async def transcribe_stream(
     audio_stream = AudioStream()
     async with asyncio.TaskGroup() as tg:
         tg.create_task(audio_receiver(ws, audio_stream))
-        async for transcription in audio_transcriber(asr, audio_stream):
+        async for transcription in audio_transcriber(asr, audio_stream, min_duration=config.min_duration):
             logger.debug(f"Sending transcription: {transcription.text}")
             if ws.client_state == WebSocketState.DISCONNECTED:
                 break

@@ -1,6 +1,6 @@
 version: "3"
 tasks:
-  server: uvicorn --host 0.0.0.0 faster_whisper_server.main:app {{.CLI_ARGS}}
+  server: uvicorn --factory --host 0.0.0.0 faster_whisper_server.main:create_app {{.CLI_ARGS}}
   test:
     cmds:
       - pytest -o log_cli=true -o log_cli_level=DEBUG {{.CLI_ARGS}}

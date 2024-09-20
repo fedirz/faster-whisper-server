@@ -1,11 +1,13 @@
 import asyncio
+import logging
 import time
 
 from faster_whisper import transcribe
 
 from faster_whisper_server.audio import Audio
 from faster_whisper_server.core import Segment, Transcription, Word
-from faster_whisper_server.logger import logger
+
+logger = logging.getLogger(__name__)
 
 
 class FasterWhisperASR:
