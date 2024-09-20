@@ -41,3 +41,6 @@ class ModelManager:
         )
         self.loaded_models[model_name] = whisper
         return whisper
+
+
+model_manager = ModelManager()
