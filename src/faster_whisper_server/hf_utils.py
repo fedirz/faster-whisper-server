@@ -1,10 +1,11 @@
 from collections.abc import Generator
+import logging
 from pathlib import Path
 import typing
 
 import huggingface_hub
 
-from faster_whisper_server.logger import logger
+logger = logging.getLogger(__name__)
 
 LIBRARY_NAME = "ctranslate2"
 TASK_NAME = "automatic-speech-recognition"

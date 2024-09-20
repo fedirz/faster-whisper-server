@@ -238,6 +238,3 @@ class Config(BaseSettings):
                 f"Number of preloaded models ({len(self.preload_models)}) is greater than max_models ({self.max_models})"  # noqa: E501
             )
         return self
-
-
-config = Config()
