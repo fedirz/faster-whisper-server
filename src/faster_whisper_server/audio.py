@@ -1,18 +1,21 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from typing import TYPE_CHECKING, BinaryIO
 
 import numpy as np
 import soundfile as sf
 
 from faster_whisper_server.config import SAMPLES_PER_SECOND
-from faster_whisper_server.logger import logger
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
     from numpy.typing import NDArray
+
+
+logger = logging.getLogger(__name__)
 
 
 def audio_samples_from_file(file: BinaryIO) -> NDArray[np.float32]:

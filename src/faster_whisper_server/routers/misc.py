@@ -6,10 +6,11 @@ from fastapi import (
     APIRouter,
     Response,
 )
-from faster_whisper_server import hf_utils
-from faster_whisper_server.model_manager import model_manager
 import huggingface_hub
 from huggingface_hub.hf_api import RepositoryNotFoundError
+
+from faster_whisper_server import hf_utils
+from faster_whisper_server.dependencies import ModelManagerDependency  # noqa: TCH001
 
 router = APIRouter()
 
@@ -31,12 +32,14 @@ def pull_model(model_name: str) -> Response:
 
 
 @router.get("/api/ps", tags=["experimental"], summary="Get a list of loaded models.")
-def get_running_models() -> dict[str, list[str]]:
+def get_running_models(
+    model_manager: ModelManagerDependency,
+) -> dict[str, list[str]]:
     return {"models": list(model_manager.loaded_models.keys())}
 
 
 @router.post("/api/ps/{model_name:path}", tags=["experimental"], summary="Load a model into memory.")
-def load_model_route(model_name: str) -> Response:
+def load_model_route(model_manager: ModelManagerDependency, model_name: str) -> Response:
     if model_name in model_manager.loaded_models:
         return Response(status_code=409, content="Model already loaded")
     model_manager.load_model(model_name)
@@ -44,7 +47,7 @@ def load_model_route(model_name: str) -> Response:
 
 
 @router.delete("/api/ps/{model_name:path}", tags=["experimental"], summary="Unload a model from memory.")
-def stop_running_model(model_name: str) -> Response:
+def stop_running_model(model_manager: ModelManagerDependency, model_name: str) -> Response:
     model = model_manager.loaded_models.get(model_name)
     if model is not None:
         del model_manager.loaded_models[model_name]
