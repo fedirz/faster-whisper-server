@@ -75,6 +75,7 @@ ignore = [
     "ISC001", # recommended to disable for formatting
     "INP001",
     "PT018",
+    "G004", # logging f string
 ]
 
 [tool.ruff.lint.isort]

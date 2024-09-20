@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
 
-from faster_whisper_server.config import config
+from faster_whisper_server.dependencies import get_config
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -113,6 +113,7 @@ class Transcription:
         self.words.extend(words)
 
     def _ensure_no_word_overlap(self, words: list[Word]) -> None:
+        config = get_config()  # HACK
         if len(self.words) > 0 and len(words) > 0:
             if words[0].start + config.word_timestamp_error_margin <= self.words[-1].end:
                 raise ValueError(
