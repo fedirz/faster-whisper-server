@@ -9,6 +9,7 @@ from fastapi import (
     APIRouter,
     Form,
     Query,
+    Request,
     Response,
     UploadFile,
     WebSocket,
@@ -30,6 +31,8 @@ from faster_whisper_server.config import (
 from faster_whisper_server.core import Segment, segments_to_srt, segments_to_text, segments_to_vtt
 from faster_whisper_server.dependencies import ConfigDependency, ModelManagerDependency, get_config
 from faster_whisper_server.server_models import (
+    DEFAULT_TIMESTAMP_GRANULARITIES,
+    TIMESTAMP_GRANULARITIES_COMBINATIONS,
     TimestampGranularities,
     TranscriptionJsonResponse,
     TranscriptionVerboseJsonResponse,
@@ -150,6 +153,18 @@ def translate_file(
         return segments_to_response(segments, transcription_info, response_format)
 
 
+# HACK: Since Form() doesn't support `alias`, we need to use a workaround.
+async def get_timestamp_granularities(request: Request) -> TimestampGranularities:
+    form = await request.form()
+    if form.get("timestamp_granularities[]") is None:
+        return DEFAULT_TIMESTAMP_GRANULARITIES
+    timestamp_granularities = form.getlist("timestamp_granularities[]")
+    assert (
+        timestamp_granularities in TIMESTAMP_GRANULARITIES_COMBINATIONS
+    ), f"{timestamp_granularities} is not a valid value for `timestamp_granularities[]`."
+    return timestamp_granularities
+
+
 # https://platform.openai.com/docs/api-reference/audio/createTranscription
 # https://github.com/openai/openai-openapi/blob/master/openapi.yaml#L8915
 @router.post(
@@ -159,6 +174,7 @@ def translate_file(
 def transcribe_file(
     config: ConfigDependency,
     model_manager: ModelManagerDependency,
+    request: Request,
     file: Annotated[UploadFile, Form()],
     model: Annotated[ModelName | None, Form()] = None,
     language: Annotated[Language | None, Form()] = None,
@@ -167,6 +183,7 @@ def transcribe_file(
     temperature: Annotated[float, Form()] = 0.0,
     timestamp_granularities: Annotated[
         TimestampGranularities,
+        # WARN: `alias` doesn't actually work.
         Form(alias="timestamp_granularities[]"),
     ] = ["segment"],
     stream: Annotated[bool, Form()] = False,
@@ -178,6 +195,11 @@ def transcribe_file(
         language = config.default_language
     if response_format is None:
         response_format = config.default_response_format
+    timestamp_granularities = asyncio.run(get_timestamp_granularities(request))
+    if timestamp_granularities != DEFAULT_TIMESTAMP_GRANULARITIES and response_format != ResponseFormat.VERBOSE_JSON:
+        logger.warning(
+            "It only makes sense to provide `timestamp_granularities[]` when `response_format` is set to `verbose_json`. See https://platform.openai.com/docs/api-reference/audio/createTranscription#audio-createtranscription-timestamp_granularities."  # noqa: E501
+        )
     whisper = model_manager.load_model(model)
     segments, transcription_info = whisper.transcribe(
         file.file,
