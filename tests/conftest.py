@@ -5,7 +5,7 @@ import os
 from fastapi.testclient import TestClient
 from faster_whisper_server.main import create_app
 from httpx import ASGITransport, AsyncClient
-from openai import OpenAI
+from openai import AsyncOpenAI, OpenAI
 import pytest
 import pytest_asyncio
 
@@ -35,3 +35,10 @@ async def aclient() -> AsyncGenerator[AsyncClient, None]:
 @pytest.fixture()
 def openai_client(client: TestClient) -> OpenAI:
     return OpenAI(api_key="cant-be-empty", http_client=client)
+
+
+@pytest.fixture()
+def actual_openai_client() -> AsyncOpenAI:
+    return AsyncOpenAI(
+        base_url="https://api.openai.com/v1"
+    )  # `base_url` is provided in case `OPENAI_API_BASE_URL` is set to a different value
