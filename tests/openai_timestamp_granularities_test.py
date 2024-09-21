@@ -6,6 +6,7 @@ import pytest
 
 
 @pytest.mark.asyncio()
+@pytest.mark.requires_openai()
 @pytest.mark.parametrize("timestamp_granularities", TIMESTAMP_GRANULARITIES_COMBINATIONS)
 async def test_openai_json_response_format_and_timestamp_granularities_combinations(
     actual_openai_client: AsyncOpenAI,
@@ -28,6 +29,7 @@ async def test_openai_json_response_format_and_timestamp_granularities_combinati
 
 
 @pytest.mark.asyncio()
+@pytest.mark.requires_openai()
 @pytest.mark.parametrize("timestamp_granularities", TIMESTAMP_GRANULARITIES_COMBINATIONS)
 async def test_openai_verbose_json_response_format_and_timestamp_granularities_combinations(
     actual_openai_client: AsyncOpenAI,
