@@ -29,7 +29,7 @@ class TranscriptionVerboseJsonResponse(BaseModel):
     language: str
     duration: float
     text: str
-    words: list[Word]
+    words: list[Word] | None
     segments: list[Segment]
 
     @classmethod
@@ -38,7 +38,7 @@ class TranscriptionVerboseJsonResponse(BaseModel):
             language=transcription_info.language,
             duration=segment.end - segment.start,
             text=segment.text,
-            words=(segment.words if isinstance(segment.words, list) else []),
+            words=segment.words if transcription_info.transcription_options.word_timestamps else None,
             segments=[segment],
         )
 
@@ -51,7 +51,7 @@ class TranscriptionVerboseJsonResponse(BaseModel):
             duration=transcription_info.duration,
             text=segments_to_text(segments),
             segments=segments,
-            words=Word.from_segments(segments),
+            words=Word.from_segments(segments) if transcription_info.transcription_options.word_timestamps else None,
         )
 
     @classmethod
@@ -112,6 +112,7 @@ class ModelObject(BaseModel):
 TimestampGranularities = list[Literal["segment", "word"]]
 
 
+DEFAULT_TIMESTAMP_GRANULARITIES: TimestampGranularities = ["segment"]
 TIMESTAMP_GRANULARITIES_COMBINATIONS: list[TimestampGranularities] = [
     [],  # should be treated as ["segment"]. https://platform.openai.com/docs/api-reference/audio/createTranscription#audio-createtranscription-timestamp_granularities
     ["segment"],
