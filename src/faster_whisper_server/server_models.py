@@ -107,3 +107,15 @@ class ModelObject(BaseModel):
             ]
         },
     )
+
+
+TimestampGranularities = list[Literal["segment", "word"]]
+
+
+TIMESTAMP_GRANULARITIES_COMBINATIONS: list[TimestampGranularities] = [
+    [],  # should be treated as ["segment"]. https://platform.openai.com/docs/api-reference/audio/createTranscription#audio-createtranscription-timestamp_granularities
+    ["segment"],
+    ["word"],
+    ["word", "segment"],
+    ["segment", "word"],  # same as ["word", "segment"] but order is different
+]
