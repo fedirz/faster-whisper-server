@@ -98,3 +98,6 @@ pythonPlatform = "Linux"
 # https://github.com/DetachHead/basedpyright?tab=readme-ov-file#pre-commit-hook
 venvPath = "."
 venv = ".venv"
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function" # this fixes pytest warning
