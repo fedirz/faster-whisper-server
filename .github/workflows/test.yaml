@@ -20,4 +20,4 @@ jobs:
       - run: uv python install 3.12
       - run: uv sync --extra dev
       # TODO: figure out why `pytest` doesn't discover tests in `faster_whisper_server` directory by itself
-      - run: uv run pytest src/faster_whisper_server/* tests
+      - run: uv run pytest -m "not requires_openai" src/faster_whisper_server/* tests
