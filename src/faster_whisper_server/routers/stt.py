@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from io import BytesIO
 import logging
-from typing import TYPE_CHECKING, Annotated, Literal
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import (
     APIRouter,
@@ -30,6 +30,7 @@ from faster_whisper_server.config import (
 from faster_whisper_server.core import Segment, segments_to_srt, segments_to_text, segments_to_vtt
 from faster_whisper_server.dependencies import ConfigDependency, ModelManagerDependency, get_config
 from faster_whisper_server.server_models import (
+    TimestampGranularities,
     TranscriptionJsonResponse,
     TranscriptionVerboseJsonResponse,
 )
@@ -165,7 +166,7 @@ def transcribe_file(
     response_format: Annotated[ResponseFormat | None, Form()] = None,
     temperature: Annotated[float, Form()] = 0.0,
     timestamp_granularities: Annotated[
-        list[Literal["segment", "word"]],
+        TimestampGranularities,
         Form(alias="timestamp_granularities[]"),
     ] = ["segment"],
     stream: Annotated[bool, Form()] = False,
