@@ -18,7 +18,7 @@ ConfigDependency = Annotated[Config, Depends(get_config)]
 @lru_cache
 def get_model_manager() -> ModelManager:
     config = get_config()  # HACK
-    return ModelManager(config)
+    return ModelManager(config.whisper)
 
 
 ModelManagerDependency = Annotated[ModelManager, Depends(get_model_manager)]
