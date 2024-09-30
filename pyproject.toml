@@ -2,35 +2,36 @@
 name = "faster-whisper-server"
 version = "0.1.0"
 requires-python = ">=3.12,<3.13"
+# https://packaging.python.org/en/latest/specifications/version-specifiers/#id5
 dependencies = [
-    "pydantic==2.9.0",
-    "fastapi==0.112.4",
-    "uvicorn==0.30.6",
-    "python-multipart==0.0.9",
-    "soundfile==0.12.1",
-    "pydantic-settings==2.4.0",
-    "numpy<2.0.0",
-    "faster-whisper==1.0.3",
-    "huggingface-hub==0.24.6",
-    "httpx-sse==0.4.0",
-    "httpx==0.27.2",
-    "gradio==4.42.0",
-    "openai==1.43.1",
+    "fastapi>=0.115.0",
+    "faster-whisper>=1.0.3",
+    "gradio>=4.44.0",
+    "httpx-sse>=0.4.0",
+    "httpx>=0.27.2",
+    "huggingface-hub>=0.25.1",
+    "numpy>=2.1.1",
+    "openai>=1.48.0",
+    "pydantic-settings>=2.5.2",
+    "pydantic>=2.9.0",
+    "python-multipart>=0.0.10",
+    "soundfile>=0.12.1",
+    "uvicorn>=0.30.6",
 ]
 
 [project.optional-dependencies]
 client = [
-    "keyboard==0.13.5",
+    "keyboard>=0.13.5",
 ]
 dev = [
-    "ruff==0.5.3",
-    "pytest==8.3.2",
-    "webvtt-py==0.5.1",
-    "srt==3.5.3",
-    "basedpyright==1.13.0",
-    "pytest-xdist==3.6.1",
-    "pytest-asyncio>=0.24.0",
     "anyio>=4.4.0",
+    "basedpyright>=1.18.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-xdist>=3.6.1",
+    "pytest>=8.3.3",
+    "ruff>=0.5.3",
+    "srt>=3.5.3",
+    "webvtt-py>=0.5.1",
 ]
 
 [build-system]
