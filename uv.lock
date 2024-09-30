@@ -295,6 +295,7 @@ client = [
     { name = "keyboard" },
 ]
 dev = [
+    { name = "anyio" },
     { name = "basedpyright" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
@@ -306,6 +307,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anyio", marker = "extra == 'dev'", specifier = ">=4.4.0" },
     { name = "basedpyright", marker = "extra == 'dev'", specifier = "==1.13.0" },
     { name = "fastapi", specifier = "==0.112.4" },
     { name = "faster-whisper", specifier = "==1.0.3" },

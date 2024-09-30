@@ -30,6 +30,7 @@ dev = [
     "basedpyright==1.13.0",
     "pytest-xdist==3.6.1",
     "pytest-asyncio>=0.24.0",
+    "anyio>=4.4.0",
 ]
 
 [build-system]
