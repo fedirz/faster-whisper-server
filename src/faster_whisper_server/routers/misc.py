@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import gc
-
 from fastapi import (
     APIRouter,
     Response,
@@ -42,15 +40,19 @@ def get_running_models(
 def load_model_route(model_manager: ModelManagerDependency, model_name: str) -> Response:
     if model_name in model_manager.loaded_models:
         return Response(status_code=409, content="Model already loaded")
-    model_manager.load_model(model_name)
+    with model_manager.load_model(model_name):
+        pass
     return Response(status_code=201)
 
 
 @router.delete("/api/ps/{model_name:path}", tags=["experimental"], summary="Unload a model from memory.")
 def stop_running_model(model_manager: ModelManagerDependency, model_name: str) -> Response:
-    model = model_manager.loaded_models.get(model_name)
-    if model is not None:
-        del model_manager.loaded_models[model_name]
-        gc.collect()
+    try:
+        model_manager.unload_model(model_name)
         return Response(status_code=204)
-    return Response(status_code=404)
+    except (KeyError, ValueError) as e:
+        match e:
+            case KeyError():
+                return Response(status_code=404, content="Model not found")
+            case ValueError():
+                return Response(status_code=409, content=str(e))
