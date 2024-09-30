@@ -1,5 +1,5 @@
 import json
-import os
+from pathlib import Path
 
 import anyio
 from faster_whisper_server.api_models import (
@@ -26,7 +26,7 @@ parameters = [(file_path, endpoint) for endpoint in ENDPOINTS for file_path in F
 @pytest.mark.asyncio()
 @pytest.mark.parametrize(("file_path", "endpoint"), parameters)
 async def test_streaming_transcription_text(aclient: AsyncClient, file_path: str, endpoint: str) -> None:
-    extension = os.path.splitext(file_path)[1]
+    extension = Path(file_path).suffix[1:]
     async with await anyio.open_file(file_path, "rb") as f:
         data = await f.read()
     kwargs = {
@@ -42,7 +42,7 @@ async def test_streaming_transcription_text(aclient: AsyncClient, file_path: str
 @pytest.mark.asyncio()
 @pytest.mark.parametrize(("file_path", "endpoint"), parameters)
 async def test_streaming_transcription_json(aclient: AsyncClient, file_path: str, endpoint: str) -> None:
-    extension = os.path.splitext(file_path)[1]
+    extension = Path(file_path).suffix[1:]
     async with await anyio.open_file(file_path, "rb") as f:
         data = await f.read()
     kwargs = {
@@ -57,7 +57,7 @@ async def test_streaming_transcription_json(aclient: AsyncClient, file_path: str
 @pytest.mark.asyncio()
 @pytest.mark.parametrize(("file_path", "endpoint"), parameters)
 async def test_streaming_transcription_verbose_json(aclient: AsyncClient, file_path: str, endpoint: str) -> None:
-    extension = os.path.splitext(file_path)[1]
+    extension = Path(file_path).suffix[1:]
     async with await anyio.open_file(file_path, "rb") as f:
         data = await f.read()
     kwargs = {
