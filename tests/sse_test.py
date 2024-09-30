@@ -2,9 +2,9 @@ import json
 import os
 
 from fastapi.testclient import TestClient
-from faster_whisper_server.server_models import (
-    TranscriptionJsonResponse,
-    TranscriptionVerboseJsonResponse,
+from faster_whisper_server.api_models import (
+    CreateTranscriptionResponseJson,
+    CreateTranscriptionResponseVerboseJson,
 )
 from httpx_sse import connect_sse
 import pytest
@@ -48,7 +48,7 @@ def test_streaming_transcription_json(client: TestClient, file_path: str, endpoi
     }
     with connect_sse(client, "POST", endpoint, **kwargs) as event_source:
         for event in event_source.iter_sse():
-            TranscriptionJsonResponse(**json.loads(event.data))
+            CreateTranscriptionResponseJson(**json.loads(event.data))
 
 
 @pytest.mark.parametrize(("file_path", "endpoint"), parameters)
@@ -62,7 +62,7 @@ def test_streaming_transcription_verbose_json(client: TestClient, file_path: str
     }
     with connect_sse(client, "POST", endpoint, **kwargs) as event_source:
         for event in event_source.iter_sse():
-            TranscriptionVerboseJsonResponse(**json.loads(event.data))
+            CreateTranscriptionResponseVerboseJson(**json.loads(event.data))
 
 
 def test_transcription_vtt(client: TestClient) -> None:
