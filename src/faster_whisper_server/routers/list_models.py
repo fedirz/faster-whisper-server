@@ -24,7 +24,7 @@ router = APIRouter()
 def get_models() -> ListModelsResponse:
     models = huggingface_hub.list_models(library="ctranslate2", tags="automatic-speech-recognition", cardData=True)
     models = list(models)
-    models.sort(key=lambda model: model.downloads, reverse=True)  # type: ignore  # noqa: PGH003
+    models.sort(key=lambda model: model.downloads or -1, reverse=True)
     transformed_models: list[Model] = []
     for model in models:
         assert model.created_at is not None
@@ -56,7 +56,7 @@ def get_model(
         model_name=model_name, library="ctranslate2", tags="automatic-speech-recognition", cardData=True
     )
     models = list(models)
-    models.sort(key=lambda model: model.downloads, reverse=True)  # type: ignore  # noqa: PGH003
+    models.sort(key=lambda model: model.downloads or -1, reverse=True)
     if len(models) == 0:
         raise HTTPException(status_code=404, detail="Model doesn't exists")
     exact_match: ModelInfo | None = None

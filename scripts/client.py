@@ -64,7 +64,7 @@ while True:
     print(f"Recording finished. File size: {file.stat().st_size} bytes")
 
     try:
-        with open(file, "rb") as fd:
+        with file.open("rb") as fd:
             start = time.perf_counter()
             res = client.post(
                 OPENAI_BASE_URL + TRANSCRIBE_PATH,
