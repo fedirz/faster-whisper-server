@@ -18,6 +18,7 @@ def pytest_configure() -> None:
         logger.disabled = True
 
 
+# NOTE: not being used. Keeping just in case
 @pytest.fixture()
 def client() -> Generator[TestClient, None, None]:
     os.environ["WHISPER__MODEL"] = "Systran/faster-whisper-tiny.en"
