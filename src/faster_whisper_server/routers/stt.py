@@ -20,6 +20,14 @@ from fastapi.websockets import WebSocketState
 from faster_whisper.vad import VadOptions, get_speech_timestamps
 from pydantic import AfterValidator
 
+from faster_whisper_server.api_models import (
+    DEFAULT_TIMESTAMP_GRANULARITIES,
+    TIMESTAMP_GRANULARITIES_COMBINATIONS,
+    CreateTranscriptionResponseJson,
+    CreateTranscriptionResponseVerboseJson,
+    TimestampGranularities,
+    TranscriptionSegment,
+)
 from faster_whisper_server.asr import FasterWhisperASR
 from faster_whisper_server.audio import AudioStream, audio_samples_from_file
 from faster_whisper_server.config import (
@@ -28,15 +36,8 @@ from faster_whisper_server.config import (
     ResponseFormat,
     Task,
 )
-from faster_whisper_server.core import Segment, segments_to_srt, segments_to_text, segments_to_vtt
 from faster_whisper_server.dependencies import ConfigDependency, ModelManagerDependency, get_config
-from faster_whisper_server.server_models import (
-    DEFAULT_TIMESTAMP_GRANULARITIES,
-    TIMESTAMP_GRANULARITIES_COMBINATIONS,
-    TimestampGranularities,
-    TranscriptionJsonResponse,
-    TranscriptionVerboseJsonResponse,
-)
+from faster_whisper_server.text_utils import segments_to_srt, segments_to_text, segments_to_vtt
 from faster_whisper_server.transcriber import audio_transcriber
 
 if TYPE_CHECKING:
@@ -51,7 +52,7 @@ router = APIRouter()
 
 
 def segments_to_response(
-    segments: Iterable[Segment],
+    segments: Iterable[TranscriptionSegment],
     transcription_info: TranscriptionInfo,
     response_format: ResponseFormat,
 ) -> Response:
@@ -60,12 +61,12 @@ def segments_to_response(
         return Response(segments_to_text(segments), media_type="text/plain")
     elif response_format == ResponseFormat.JSON:
         return Response(
-            TranscriptionJsonResponse.from_segments(segments).model_dump_json(),
+            CreateTranscriptionResponseJson.from_segments(segments).model_dump_json(),
             media_type="application/json",
         )
     elif response_format == ResponseFormat.VERBOSE_JSON:
         return Response(
-            TranscriptionVerboseJsonResponse.from_segments(segments, transcription_info).model_dump_json(),
+            CreateTranscriptionResponseVerboseJson.from_segments(segments, transcription_info).model_dump_json(),
             media_type="application/json",
         )
     elif response_format == ResponseFormat.VTT:
@@ -83,7 +84,7 @@ def format_as_sse(data: str) -> str:
 
 
 def segments_to_streaming_response(
-    segments: Iterable[Segment],
+    segments: Iterable[TranscriptionSegment],
     transcription_info: TranscriptionInfo,
     response_format: ResponseFormat,
 ) -> StreamingResponse:
@@ -92,9 +93,11 @@ def segments_to_streaming_response(
             if response_format == ResponseFormat.TEXT:
                 data = segment.text
             elif response_format == ResponseFormat.JSON:
-                data = TranscriptionJsonResponse.from_segments([segment]).model_dump_json()
+                data = CreateTranscriptionResponseJson.from_segments([segment]).model_dump_json()
             elif response_format == ResponseFormat.VERBOSE_JSON:
-                data = TranscriptionVerboseJsonResponse.from_segment(segment, transcription_info).model_dump_json()
+                data = CreateTranscriptionResponseVerboseJson.from_segment(
+                    segment, transcription_info
+                ).model_dump_json()
             elif response_format == ResponseFormat.VTT:
                 data = segments_to_vtt(segment, i)
             elif response_format == ResponseFormat.SRT:
@@ -121,7 +124,7 @@ ModelName = Annotated[str, AfterValidator(handle_default_openai_model)]
 
 @router.post(
     "/v1/audio/translations",
-    response_model=str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse,
+    response_model=str | CreateTranscriptionResponseJson | CreateTranscriptionResponseVerboseJson,
 )
 def translate_file(
     config: ConfigDependency,
@@ -145,7 +148,7 @@ def translate_file(
         temperature=temperature,
         vad_filter=True,
     )
-    segments = Segment.from_faster_whisper_segments(segments)
+    segments = TranscriptionSegment.from_faster_whisper_segments(segments)
 
     if stream:
         return segments_to_streaming_response(segments, transcription_info, response_format)
@@ -169,7 +172,7 @@ async def get_timestamp_granularities(request: Request) -> TimestampGranularitie
 # https://github.com/openai/openai-openapi/blob/master/openapi.yaml#L8915
 @router.post(
     "/v1/audio/transcriptions",
-    response_model=str | TranscriptionJsonResponse | TranscriptionVerboseJsonResponse,
+    response_model=str | CreateTranscriptionResponseJson | CreateTranscriptionResponseVerboseJson,
 )
 def transcribe_file(
     config: ConfigDependency,
@@ -211,7 +214,7 @@ def transcribe_file(
         vad_filter=True,
         hotwords=hotwords,
     )
-    segments = Segment.from_faster_whisper_segments(segments)
+    segments = TranscriptionSegment.from_faster_whisper_segments(segments)
 
     if stream:
         return segments_to_streaming_response(segments, transcription_info, response_format)
@@ -286,9 +289,11 @@ async def transcribe_stream(
             if response_format == ResponseFormat.TEXT:
                 await ws.send_text(transcription.text)
             elif response_format == ResponseFormat.JSON:
-                await ws.send_json(TranscriptionJsonResponse.from_transcription(transcription).model_dump())
+                await ws.send_json(CreateTranscriptionResponseJson.from_transcription(transcription).model_dump())
             elif response_format == ResponseFormat.VERBOSE_JSON:
-                await ws.send_json(TranscriptionVerboseJsonResponse.from_transcription(transcription).model_dump())
+                await ws.send_json(
+                    CreateTranscriptionResponseVerboseJson.from_transcription(transcription).model_dump()
+                )
 
     if ws.client_state != WebSocketState.DISCONNECTED:
         logger.info("Closing the connection.")

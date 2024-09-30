@@ -1,11 +1,17 @@
+from __future__ import annotations
+
 import asyncio
 import logging
 import time
+from typing import TYPE_CHECKING
 
-from faster_whisper import transcribe
+from faster_whisper_server.api_models import TranscriptionSegment, TranscriptionWord
+from faster_whisper_server.text_utils import Transcription
 
-from faster_whisper_server.audio import Audio
-from faster_whisper_server.core import Segment, Transcription, Word
+if TYPE_CHECKING:
+    from faster_whisper import transcribe
+
+    from faster_whisper_server.audio import Audio
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +37,8 @@ class FasterWhisperASR:
             word_timestamps=True,
             **self.transcribe_opts,
         )
-        segments = Segment.from_faster_whisper_segments(segments)
-        words = Word.from_segments(segments)
+        segments = TranscriptionSegment.from_faster_whisper_segments(segments)
+        words = TranscriptionWord.from_segments(segments)
         for word in words:
             word.offset(audio.start)
         transcription = Transcription(words)
