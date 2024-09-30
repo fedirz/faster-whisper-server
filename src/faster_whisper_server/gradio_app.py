@@ -1,4 +1,5 @@
 from collections.abc import Generator
+from pathlib import Path
 
 import gradio as gr
 import httpx
@@ -33,7 +34,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
             yield audio_task(file_path, endpoint, temperature, model)
 
     def audio_task(file_path: str, endpoint: str, temperature: float, model: str) -> str:
-        with open(file_path, "rb") as file:
+        with Path(file_path).open("rb") as file:
             response = http_client.post(
                 endpoint,
                 files={"file": file},
@@ -50,7 +51,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
     def streaming_audio_task(
         file_path: str, endpoint: str, temperature: float, model: str
     ) -> Generator[str, None, None]:
-        with open(file_path, "rb") as file:
+        with Path(file_path).open("rb") as file:
             kwargs = {
                 "files": {"file": file},
                 "data": {
