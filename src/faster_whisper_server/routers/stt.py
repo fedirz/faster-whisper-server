@@ -136,6 +136,7 @@ def translate_file(
     response_format: Annotated[ResponseFormat | None, Form()] = None,
     temperature: Annotated[float, Form()] = 0.0,
     stream: Annotated[bool, Form()] = False,
+    vad_filter: Annotated[bool, Form()] = False,
 ) -> Response | StreamingResponse:
     if model is None:
         model = config.whisper.model
@@ -147,7 +148,7 @@ def translate_file(
         task=Task.TRANSLATE,
         initial_prompt=prompt,
         temperature=temperature,
-        vad_filter=True,
+        vad_filter=vad_filter,
     )
     segments = TranscriptionSegment.from_faster_whisper_segments(segments)
 
@@ -192,6 +193,7 @@ def transcribe_file(
     ] = ["segment"],
     stream: Annotated[bool, Form()] = False,
     hotwords: Annotated[str | None, Form()] = None,
+    vad_filter: Annotated[bool, Form()] = False,
 ) -> Response | StreamingResponse:
     if model is None:
         model = config.whisper.model
@@ -212,7 +214,7 @@ def transcribe_file(
         initial_prompt=prompt,
         word_timestamps="word" in timestamp_granularities,
         temperature=temperature,
-        vad_filter=True,
+        vad_filter=vad_filter,
         hotwords=hotwords,
     )
     segments = TranscriptionSegment.from_faster_whisper_segments(segments)
@@ -263,6 +265,7 @@ async def transcribe_stream(
     language: Annotated[Language | None, Query()] = None,
     response_format: Annotated[ResponseFormat | None, Query()] = None,
     temperature: Annotated[float, Query()] = 0.0,
+    vad_filter: Annotated[bool, Query()] = False,
 ) -> None:
     if model is None:
         model = config.whisper.model
@@ -274,7 +277,7 @@ async def transcribe_stream(
     transcribe_opts = {
         "language": language,
         "temperature": temperature,
-        "vad_filter": True,
+        "vad_filter": vad_filter,
         "condition_on_previous_text": False,
     }
     whisper = model_manager.load_model(model)
