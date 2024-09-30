@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project
 COPY ./src ./pyproject.toml ./uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen
+    uv sync --frozen --extra ui
 ENV WHISPER__MODEL=Systran/faster-whisper-small
 ENV WHISPER__INFERENCE_DEVICE=cpu
 ENV UVICORN_HOST=0.0.0.0
