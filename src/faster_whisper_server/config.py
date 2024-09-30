@@ -1,7 +1,6 @@
 import enum
-from typing import Self
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 SAMPLES_PER_SECOND = 16000
@@ -163,6 +162,12 @@ class WhisperConfig(BaseModel):
     compute_type: Quantization = Field(default=Quantization.DEFAULT)
     cpu_threads: int = 0
     num_workers: int = 1
+    ttl: int = Field(default=300, ge=-1)
+    """
+    Time in seconds until the model is unloaded if it is not being used.
+    -1: Never unload the model.
+    0: Unload the model immediately after usage.
+    """
 
 
 class Config(BaseSettings):
@@ -198,10 +203,6 @@ class Config(BaseSettings):
     """
     default_response_format: ResponseFormat = ResponseFormat.JSON
     whisper: WhisperConfig = WhisperConfig()
-    max_models: int = 1
-    """
-    Maximum number of models that can be loaded at a time.
-    """
     preload_models: list[str] = Field(
         default_factory=list,
         examples=[
@@ -210,8 +211,8 @@ class Config(BaseSettings):
         ],
     )
     """
-    List of models to preload on startup. Shouldn't be greater than `max_models`. By default, the model is first loaded on first request.
-    """  # noqa: E501
+    List of models to preload on startup. By default, the model is first loaded on first request.
+    """
     max_no_data_seconds: float = 1.0
     """
     Max duration to wait for the next audio chunk before transcription is finilized and connection is closed.
@@ -230,11 +231,3 @@ class Config(BaseSettings):
     Controls how many latest seconds of audio are being passed through VAD.
     Should be greater than `max_inactivity_seconds`
     """
-
-    @model_validator(mode="after")
-    def ensure_preloaded_models_is_lte_max_models(self) -> Self:
-        if len(self.preload_models) > self.max_models:
-            raise ValueError(
-                f"Number of preloaded models ({len(self.preload_models)}) is greater than max_models ({self.max_models})"  # noqa: E501
-            )
-        return self

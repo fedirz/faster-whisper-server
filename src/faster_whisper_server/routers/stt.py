@@ -142,20 +142,20 @@ def translate_file(
         model = config.whisper.model
     if response_format is None:
         response_format = config.default_response_format
-    whisper = model_manager.load_model(model)
-    segments, transcription_info = whisper.transcribe(
-        file.file,
-        task=Task.TRANSLATE,
-        initial_prompt=prompt,
-        temperature=temperature,
-        vad_filter=vad_filter,
-    )
-    segments = TranscriptionSegment.from_faster_whisper_segments(segments)
+    with model_manager.load_model(model) as whisper:
+        segments, transcription_info = whisper.transcribe(
+            file.file,
+            task=Task.TRANSLATE,
+            initial_prompt=prompt,
+            temperature=temperature,
+            vad_filter=vad_filter,
+        )
+        segments = TranscriptionSegment.from_faster_whisper_segments(segments)
 
-    if stream:
-        return segments_to_streaming_response(segments, transcription_info, response_format)
-    else:
-        return segments_to_response(segments, transcription_info, response_format)
+        if stream:
+            return segments_to_streaming_response(segments, transcription_info, response_format)
+        else:
+            return segments_to_response(segments, transcription_info, response_format)
 
 
 # HACK: Since Form() doesn't support `alias`, we need to use a workaround.
@@ -206,23 +206,23 @@ def transcribe_file(
         logger.warning(
             "It only makes sense to provide `timestamp_granularities[]` when `response_format` is set to `verbose_json`. See https://platform.openai.com/docs/api-reference/audio/createTranscription#audio-createtranscription-timestamp_granularities."  # noqa: E501
         )
-    whisper = model_manager.load_model(model)
-    segments, transcription_info = whisper.transcribe(
-        file.file,
-        task=Task.TRANSCRIBE,
-        language=language,
-        initial_prompt=prompt,
-        word_timestamps="word" in timestamp_granularities,
-        temperature=temperature,
-        vad_filter=vad_filter,
-        hotwords=hotwords,
-    )
-    segments = TranscriptionSegment.from_faster_whisper_segments(segments)
+    with model_manager.load_model(model) as whisper:
+        segments, transcription_info = whisper.transcribe(
+            file.file,
+            task=Task.TRANSCRIBE,
+            language=language,
+            initial_prompt=prompt,
+            word_timestamps="word" in timestamp_granularities,
+            temperature=temperature,
+            vad_filter=vad_filter,
+            hotwords=hotwords,
+        )
+        segments = TranscriptionSegment.from_faster_whisper_segments(segments)
 
-    if stream:
-        return segments_to_streaming_response(segments, transcription_info, response_format)
-    else:
-        return segments_to_response(segments, transcription_info, response_format)
+        if stream:
+            return segments_to_streaming_response(segments, transcription_info, response_format)
+        else:
+            return segments_to_response(segments, transcription_info, response_format)
 
 
 async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
@@ -280,24 +280,24 @@ async def transcribe_stream(
         "vad_filter": vad_filter,
         "condition_on_previous_text": False,
     }
-    whisper = model_manager.load_model(model)
-    asr = FasterWhisperASR(whisper, **transcribe_opts)
-    audio_stream = AudioStream()
-    async with asyncio.TaskGroup() as tg:
-        tg.create_task(audio_receiver(ws, audio_stream))
-        async for transcription in audio_transcriber(asr, audio_stream, min_duration=config.min_duration):
-            logger.debug(f"Sending transcription: {transcription.text}")
-            if ws.client_state == WebSocketState.DISCONNECTED:
-                break
+    with model_manager.load_model(model) as whisper:
+        asr = FasterWhisperASR(whisper, **transcribe_opts)
+        audio_stream = AudioStream()
+        async with asyncio.TaskGroup() as tg:
+            tg.create_task(audio_receiver(ws, audio_stream))
+            async for transcription in audio_transcriber(asr, audio_stream, min_duration=config.min_duration):
+                logger.debug(f"Sending transcription: {transcription.text}")
+                if ws.client_state == WebSocketState.DISCONNECTED:
+                    break
 
-            if response_format == ResponseFormat.TEXT:
-                await ws.send_text(transcription.text)
-            elif response_format == ResponseFormat.JSON:
-                await ws.send_json(CreateTranscriptionResponseJson.from_transcription(transcription).model_dump())
-            elif response_format == ResponseFormat.VERBOSE_JSON:
-                await ws.send_json(
-                    CreateTranscriptionResponseVerboseJson.from_transcription(transcription).model_dump()
-                )
+                if response_format == ResponseFormat.TEXT:
+                    await ws.send_text(transcription.text)
+                elif response_format == ResponseFormat.JSON:
+                    await ws.send_json(CreateTranscriptionResponseJson.from_transcription(transcription).model_dump())
+                elif response_format == ResponseFormat.VERBOSE_JSON:
+                    await ws.send_json(
+                        CreateTranscriptionResponseVerboseJson.from_transcription(transcription).model_dump()
+                    )
 
     if ws.client_state != WebSocketState.DISCONNECTED:
         logger.info("Closing the connection.")
