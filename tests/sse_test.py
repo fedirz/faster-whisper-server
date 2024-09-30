@@ -2,16 +2,17 @@ import json
 from pathlib import Path
 
 import anyio
-from faster_whisper_server.api_models import (
-    CreateTranscriptionResponseJson,
-    CreateTranscriptionResponseVerboseJson,
-)
 from httpx import AsyncClient
 from httpx_sse import aconnect_sse
 import pytest
 import srt
 import webvtt
 import webvtt.vtt
+
+from faster_whisper_server.api_models import (
+    CreateTranscriptionResponseJson,
+    CreateTranscriptionResponseVerboseJson,
+)
 
 FILE_PATHS = ["audio.wav"]  # HACK
 ENDPOINTS = [
@@ -23,7 +24,7 @@ ENDPOINTS = [
 parameters = [(file_path, endpoint) for endpoint in ENDPOINTS for file_path in FILE_PATHS]
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize(("file_path", "endpoint"), parameters)
 async def test_streaming_transcription_text(aclient: AsyncClient, file_path: str, endpoint: str) -> None:
     extension = Path(file_path).suffix[1:]
@@ -39,7 +40,7 @@ async def test_streaming_transcription_text(aclient: AsyncClient, file_path: str
             assert len(event.data) > 1  # HACK: 1 because of the space character that's always prepended
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize(("file_path", "endpoint"), parameters)
 async def test_streaming_transcription_json(aclient: AsyncClient, file_path: str, endpoint: str) -> None:
     extension = Path(file_path).suffix[1:]
@@ -54,7 +55,7 @@ async def test_streaming_transcription_json(aclient: AsyncClient, file_path: str
             CreateTranscriptionResponseJson(**json.loads(event.data))
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize(("file_path", "endpoint"), parameters)
 async def test_streaming_transcription_verbose_json(aclient: AsyncClient, file_path: str, endpoint: str) -> None:
     extension = Path(file_path).suffix[1:]
@@ -69,7 +70,7 @@ async def test_streaming_transcription_verbose_json(aclient: AsyncClient, file_p
             CreateTranscriptionResponseVerboseJson(**json.loads(event.data))
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_transcription_vtt(aclient: AsyncClient) -> None:
     async with await anyio.open_file("audio.wav", "rb") as f:
         data = await f.read()
@@ -87,7 +88,7 @@ async def test_transcription_vtt(aclient: AsyncClient) -> None:
         webvtt.from_string(text)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_transcription_srt(aclient: AsyncClient) -> None:
     async with await anyio.open_file("audio.wav", "rb") as f:
         data = await f.read()

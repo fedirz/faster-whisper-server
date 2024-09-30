@@ -2,12 +2,13 @@
 
 from pathlib import Path
 
-from faster_whisper_server.api_models import TIMESTAMP_GRANULARITIES_COMBINATIONS, TimestampGranularities
 from openai import AsyncOpenAI
 import pytest
 
+from faster_whisper_server.api_models import TIMESTAMP_GRANULARITIES_COMBINATIONS, TimestampGranularities
 
-@pytest.mark.asyncio()
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("timestamp_granularities", TIMESTAMP_GRANULARITIES_COMBINATIONS)
 async def test_api_json_response_format_and_timestamp_granularities_combinations(
     openai_client: AsyncOpenAI,
@@ -20,7 +21,7 @@ async def test_api_json_response_format_and_timestamp_granularities_combinations
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize("timestamp_granularities", TIMESTAMP_GRANULARITIES_COMBINATIONS)
 async def test_api_verbose_json_response_format_and_timestamp_granularities_combinations(
     openai_client: AsyncOpenAI,
