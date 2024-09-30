@@ -57,26 +57,27 @@ def segments_to_response(
     response_format: ResponseFormat,
 ) -> Response:
     segments = list(segments)
-    if response_format == ResponseFormat.TEXT:  # noqa: RET503
-        return Response(segments_to_text(segments), media_type="text/plain")
-    elif response_format == ResponseFormat.JSON:
-        return Response(
-            CreateTranscriptionResponseJson.from_segments(segments).model_dump_json(),
-            media_type="application/json",
-        )
-    elif response_format == ResponseFormat.VERBOSE_JSON:
-        return Response(
-            CreateTranscriptionResponseVerboseJson.from_segments(segments, transcription_info).model_dump_json(),
-            media_type="application/json",
-        )
-    elif response_format == ResponseFormat.VTT:
-        return Response(
-            "".join(segments_to_vtt(segment, i) for i, segment in enumerate(segments)), media_type="text/vtt"
-        )
-    elif response_format == ResponseFormat.SRT:
-        return Response(
-            "".join(segments_to_srt(segment, i) for i, segment in enumerate(segments)), media_type="text/plain"
-        )
+    match response_format:
+        case ResponseFormat.TEXT:
+            return Response(segments_to_text(segments), media_type="text/plain")
+        case ResponseFormat.JSON:
+            return Response(
+                CreateTranscriptionResponseJson.from_segments(segments).model_dump_json(),
+                media_type="application/json",
+            )
+        case ResponseFormat.VERBOSE_JSON:
+            return Response(
+                CreateTranscriptionResponseVerboseJson.from_segments(segments, transcription_info).model_dump_json(),
+                media_type="application/json",
+            )
+        case ResponseFormat.VTT:
+            return Response(
+                "".join(segments_to_vtt(segment, i) for i, segment in enumerate(segments)), media_type="text/vtt"
+            )
+        case ResponseFormat.SRT:
+            return Response(
+                "".join(segments_to_srt(segment, i) for i, segment in enumerate(segments)), media_type="text/plain"
+            )
 
 
 def format_as_sse(data: str) -> str:
