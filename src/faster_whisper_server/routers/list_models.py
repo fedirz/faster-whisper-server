@@ -9,9 +9,9 @@ from fastapi import (
 )
 import huggingface_hub
 
-from faster_whisper_server.server_models import (
-    ModelListResponse,
-    ModelObject,
+from faster_whisper_server.api_models import (
+    ListModelsResponse,
+    Model,
 )
 
 if TYPE_CHECKING:
@@ -21,11 +21,11 @@ router = APIRouter()
 
 
 @router.get("/v1/models")
-def get_models() -> ModelListResponse:
+def get_models() -> ListModelsResponse:
     models = huggingface_hub.list_models(library="ctranslate2", tags="automatic-speech-recognition", cardData=True)
     models = list(models)
     models.sort(key=lambda model: model.downloads, reverse=True)  # type: ignore  # noqa: PGH003
-    transformed_models: list[ModelObject] = []
+    transformed_models: list[Model] = []
     for model in models:
         assert model.created_at is not None
         assert model.card_data is not None
@@ -36,7 +36,7 @@ def get_models() -> ModelListResponse:
             language = [model.card_data.language]
         else:
             language = model.card_data.language
-        transformed_model = ModelObject(
+        transformed_model = Model(
             id=model.id,
             created=int(model.created_at.timestamp()),
             object_="model",
@@ -44,14 +44,14 @@ def get_models() -> ModelListResponse:
             language=language,
         )
         transformed_models.append(transformed_model)
-    return ModelListResponse(data=transformed_models)
+    return ListModelsResponse(data=transformed_models)
 
 
 @router.get("/v1/models/{model_name:path}")
 # NOTE: `examples` doesn't work https://github.com/tiangolo/fastapi/discussions/10537
 def get_model(
     model_name: Annotated[str, Path(example="Systran/faster-distil-whisper-large-v3")],
-) -> ModelObject:
+) -> Model:
     models = huggingface_hub.list_models(
         model_name=model_name, library="ctranslate2", tags="automatic-speech-recognition", cardData=True
     )
@@ -78,7 +78,7 @@ def get_model(
         language = [exact_match.card_data.language]
     else:
         language = exact_match.card_data.language
-    return ModelObject(
+    return Model(
         id=exact_match.id,
         created=int(exact_match.created_at.timestamp()),
         object_="model",

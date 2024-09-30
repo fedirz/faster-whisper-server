@@ -4,11 +4,12 @@ import logging
 from typing import TYPE_CHECKING
 
 from faster_whisper_server.audio import Audio, AudioStream
-from faster_whisper_server.core import Transcription, Word, common_prefix, to_full_sentences, word_to_text
+from faster_whisper_server.text_utils import Transcription, common_prefix, to_full_sentences, word_to_text
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
+    from faster_whisper_server.api_models import TranscriptionWord
     from faster_whisper_server.asr import FasterWhisperASR
 
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ class LocalAgreement:
     def __init__(self) -> None:
         self.unconfirmed = Transcription()
 
-    def merge(self, confirmed: Transcription, incoming: Transcription) -> list[Word]:
+    def merge(self, confirmed: Transcription, incoming: Transcription) -> list[TranscriptionWord]:
         # https://github.com/ufal/whisper_streaming/blob/main/whisper_online.py#L264
         incoming = incoming.after(confirmed.end - 0.1)
         prefix = common_prefix(incoming.words, self.unconfirmed.words)
