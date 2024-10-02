@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+site_name: Faster Whisper Server Documentation
+repo_url: https://github.com/fedirz/faster-whisper-server
+theme:
+  language: en
+  name: material
+  palette:
+    scheme: default
+    primary: deep orange
+    accent: indigo
+  features:
+    - content.tabs.link
+    - content.code.copy
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.instant.prefetch
+    - search.highlight
+    - search.share
+plugins:
+  - mkdocstrings:
+      default_handler: python
+nav:
+  - Home: index.md
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
