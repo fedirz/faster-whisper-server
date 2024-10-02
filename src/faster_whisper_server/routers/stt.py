@@ -18,7 +18,7 @@ from fastapi import (
 from fastapi.responses import StreamingResponse
 from fastapi.websockets import WebSocketState
 from faster_whisper.vad import VadOptions, get_speech_timestamps
-from pydantic import AfterValidator
+from pydantic import AfterValidator, Field
 
 from faster_whisper_server.api_models import (
     DEFAULT_TIMESTAMP_GRANULARITIES,
@@ -120,7 +120,17 @@ def handle_default_openai_model(model_name: str) -> str:
     return model_name
 
 
-ModelName = Annotated[str, AfterValidator(handle_default_openai_model)]
+ModelName = Annotated[
+    str,
+    AfterValidator(handle_default_openai_model),
+    Field(
+        description="The ID of the model. You can get a list of available models by calling `/v1/models`.",
+        examples=[
+            "Systran/faster-distil-whisper-large-v3",
+            "bofenghuang/whisper-large-v2-cv11-french-ct2",
+        ],
+    ),
+]
 
 
 @router.post(
