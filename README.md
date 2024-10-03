@@ -14,11 +14,11 @@ Please create an issue if you find a bug, have a question, or a feature suggesti
 ## OpenAI API Compatibility ++
 See [OpenAI API reference](https://platform.openai.com/docs/api-reference/audio) for more information.
 - Audio file transcription via `POST /v1/audio/transcriptions` endpoint.
-    - Unlike OpenAI's API, `faster-whisper-server` also supports streaming transcriptions(and translations). This is useful for when you want to process large audio files would rather receive the transcription in chunks as they are processed rather than waiting for the whole file to be transcribe. It works in the similar way to chat messages are being when chatting with LLMs.
+    - Unlike OpenAI's API, `faster-whisper-server` also supports streaming transcriptions(and translations). This is useful for when you want to process large audio files and would rather receive the transcription in chunks as they are processed rather than waiting for the whole file to be transcribed. It works similarly to chat messages when chatting with LLMs.
 - Audio file translation via `POST /v1/audio/translations` endpoint.
 -  Live audio transcription via `WS /v1/audio/transcriptions` endpoint.
     - LocalAgreement2 ([paper](https://aclanthology.org/2023.ijcnlp-demo.3.pdf) | [original implementation](https://github.com/ufal/whisper_streaming)) algorithm is used for live transcription.
-    - Only transcription of single channel, 16000 sample rate, raw, 16-bit little-endian audio is supported.
+    - Only transcription of a single channel, 16000 sample rate, raw, 16-bit little-endian audio is supported.
 
 ## Quick Start
 [Hugging Face Space](https://huggingface.co/spaces/Iatalking/fast-whisper-server)
@@ -42,7 +42,7 @@ docker compose up --detach faster-whisper-server-cpu
 Using Kubernetes: [tutorial](https://substratus.ai/blog/deploying-faster-whisper-on-k8s)
 
 ## Usage
-If you are looking for a step-by-step walkthrough, checkout [this](https://www.youtube.com/watch?app=desktop&v=vSN-oAl6LVs) YouTube video.
+If you are looking for a step-by-step walkthrough, check out [this](https://www.youtube.com/watch?app=desktop&v=vSN-oAl6LVs) YouTube video.
 
 ### OpenAI API CLI
 ```bash
