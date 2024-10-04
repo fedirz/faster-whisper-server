@@ -80,13 +80,13 @@ curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav" -F "lang
 curl http://localhost:8000/v1/audio/translations -F "file=@audio.wav"
 ```
 
-### Live Transcription (using Web Socket)
+### Live Transcription (using WebSocket)
 From [live-audio](./examples/live-audio) example
 
 https://github.com/fedirz/faster-whisper-server/assets/76551385/e334c124-af61-41d4-839c-874be150598f
 
 [websocat](https://github.com/vi/websocat?tab=readme-ov-file#installation) installation is required.
-Live transcribing audio data from a microphone.
+Live transcription of audio data from a microphone.
 ```bash
 ffmpeg -loglevel quiet -f alsa -i default -ac 1 -ar 16000 -f s16le - | websocat --binary ws://localhost:8000/v1/audio/transcriptions
 ```
