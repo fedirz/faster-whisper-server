@@ -90,3 +90,8 @@ Live transcription of audio data from a microphone.
 ```bash
 ffmpeg -loglevel quiet -f alsa -i default -ac 1 -ar 16000 -f s16le - | websocat --binary ws://localhost:8000/v1/audio/transcriptions
 ```
+
+
+## 📜 License
+
+This project is licensed under the [MIT License](LICENSE).
