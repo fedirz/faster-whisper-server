@@ -24,7 +24,6 @@
               ffmpeg-full
               go-task
               parallel
-              pre-commit
               pv
               python312
               rsync
