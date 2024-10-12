@@ -4,7 +4,15 @@ on:
   push:
     branches:
       - master
+    paths:
+      - "src/**"
+      - "tests/**"
+      - ".github/workflows/test.yaml"
   pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - ".github/workflows/test.yaml"
 jobs:
   pytest:
     strategy:

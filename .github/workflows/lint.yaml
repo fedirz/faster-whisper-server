@@ -4,7 +4,17 @@ on:
   push:
     branches:
       - master
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "tests/**"
+      - ".github/workflows/lint.yaml"
   pull_request:
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "tests/**"
+      - ".github/workflows/lint.yaml"
 jobs:
   ruff:
     runs-on: ubuntu-latest
