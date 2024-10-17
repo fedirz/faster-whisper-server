@@ -1,24 +1,29 @@
 version: "3"
 tasks:
-  server: uvicorn --factory --host 0.0.0.0 faster_whisper_server.main:create_app {{.CLI_ARGS}}
+  server:
+    cmds:
+      - pkill --signal SIGKILL --echo --full 'uvicorn --factory --host 0.0.0.0 faster_whisper_server.main:create_app' || true
+      - uvicorn --factory --host 0.0.0.0 faster_whisper_server.main:create_app {{.CLI_ARGS}}
+    sources:
+      - src/**/*.py
   test:
     cmds:
       - pytest -o log_cli=true -o log_cli_level=DEBUG {{.CLI_ARGS}}
     sources:
-      - "**/*.py"
+      - src/**/*.py
   build:
     cmds:
       - docker compose build
     sources:
       - Dockerfile.*
-      - faster_whisper_server/*.py
+      - src/**/*.py
   create-multi-arch-builder: docker buildx create --name main --driver=docker-container
   docker-build:
     cmds:
       - docker compose build --builder main {{.CLI_ARGS}}
     sources:
       - Dockerfile.*
-      - faster_whisper_server/*.py
+      - src/faster_whisper_server/*.py
   cii:
     cmds:
       - act --rm --action-offline-mode --secret-file .secrets {{.CLI_ARGS}}
@@ -26,6 +31,7 @@ tasks:
   # https://support.nordvpn.com/hc/en-us/articles/20164669224337-How-to-disable-IPv6-on-Linux
   disable-ipv6: sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1 && sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
   enable-ipv6: sudo sysctl -w net.ipv6.conf.all.disable_ipv6=0 && sudo sysctl -w net.ipv6.conf.default.disable_ipv6=0
+  # NOTE: no longer used. Should be removed, but keeping for now.
   download-test-data:
     # Downlod audio files for testing into `tests/data`
     cmds:
