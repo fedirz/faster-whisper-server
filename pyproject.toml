@@ -110,3 +110,7 @@ asyncio_default_fixture_loop_scope = "function" # this fixes pytest warning
 filterwarnings = [
     'ignore::DeprecationWarning'
 ]
+# https://docs.pytest.org/en/stable/how-to/mark.html#registering-marks
+markers = [
+    "requires_openai",
+]
