@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 import logging
+import platform
 from typing import TYPE_CHECKING
 
 from fastapi import (
@@ -30,6 +31,14 @@ def create_app() -> FastAPI:
 
     logger = logging.getLogger(__name__)
 
+    if platform.machine() == "x86_64":
+        from faster_whisper_server.routers.speech import (
+            router as speech_router,
+        )
+    else:
+        logger.warning("`/v1/audio/speech` is only supported on x86_64 machines")
+        speech_router = None
+
     config = get_config()  # HACK
     logger.debug(f"Config: {config}")
 
@@ -46,6 +55,8 @@ def create_app() -> FastAPI:
     app.include_router(stt_router)
     app.include_router(list_models_router)
     app.include_router(misc_router)
+    if speech_router is not None:
+        app.include_router(speech_router)
 
     if config.allow_origins is not None:
         app.add_middleware(
