@@ -8,4 +8,4 @@ def setup_logger() -> None:
     logging.getLogger().setLevel(logging.INFO)
     logger = logging.getLogger(__name__)
     logger.setLevel(config.log_level.upper())
-    logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(funcName)s:%(message)s")
+    logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(funcName)s:%(lineno)d:%(message)s")
