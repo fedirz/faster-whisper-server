@@ -61,6 +61,11 @@ def create_app() -> FastAPI:
 
         from faster_whisper_server.gradio_app import create_gradio_demo
 
-        app = gr.mount_gradio_app(app, create_gradio_demo(config), path="/")
+        app = gr.mount_gradio_app(
+            app,
+            create_gradio_demo(config),
+            path="/",
+            #   ssr_mode=True
+        )
 
     return app

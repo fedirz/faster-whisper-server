@@ -1,7 +1,9 @@
 import enum
+from turtle import down
 
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sympy import N
 
 SAMPLES_PER_SECOND = 16000
 BYTES_PER_SAMPLE = 2
@@ -162,6 +164,8 @@ class WhisperConfig(BaseModel):
     compute_type: Quantization = Field(default=Quantization.DEFAULT)
     cpu_threads: int = 0
     num_workers: int = 1
+    download_root: str | None = None
+    offline_models_root: str | None = None
     ttl: int = Field(default=300, ge=-1)
     """
     Time in seconds until the model is unloaded if it is not being used.
@@ -230,4 +234,10 @@ class Config(BaseSettings):
     """
     Controls how many latest seconds of audio are being passed through VAD.
     Should be greater than `max_inactivity_seconds`
+    """
+
+    whisper_models_config_file: str | None = None
+    """
+    File to cache the list of models. If not set, the list will not be cached.
+    This is useful to deploy the application in a environment where the network is slow or unreliable.
     """

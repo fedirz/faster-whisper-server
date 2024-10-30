@@ -5,7 +5,7 @@ LABEL org.opencontainers.image.source="https://github.com/fedirz/faster-whisper-
 RUN apt-get update && \
     apt-get install -y ffmpeg software-properties-common && \
     add-apt-repository ppa:deadsnakes/ppa && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3.12 python3.12-distutils && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3.12 python3.12-distutils python3.12-tk && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=ghcr.io/astral-sh/uv:0.4.20 /uv /bin/uv
@@ -21,4 +21,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 ENV WHISPER__MODEL=Systran/faster-whisper-large-v3
 ENV UVICORN_HOST=0.0.0.0
 ENV UVICORN_PORT=8000
-CMD ["uv", "run", "uvicorn", "--factory", "faster_whisper_server.main:create_app"]
+ENV WHISPER_MODELS_CONFIG_FILE=/root/faster-whisper-server/models/models.json
+ENV WHISPER__OFFLINE_MODELS_ROOT=/root/faster-whisper-server/models
+CMD ["/root/faster-whisper-server/.venv/bin/uvicorn", "--factory", "faster_whisper_server.main:create_app"]

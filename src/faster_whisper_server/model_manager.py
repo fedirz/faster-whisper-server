@@ -7,6 +7,8 @@ import threading
 import time
 from typing import TYPE_CHECKING
 
+import os
+
 from faster_whisper import WhisperModel
 
 if TYPE_CHECKING:
@@ -56,15 +58,20 @@ class SelfDisposingWhisperModel:
     def _load(self) -> None:
         with self.rlock:
             assert self.whisper is None
-            logger.debug(f"Loading model {self.model_id}")
             start = time.perf_counter()
+            if self.whisper_config.offline_models_root:
+                model_size_or_path = os.path.join(self.whisper_config.offline_models_root, self.model_id)
+            else:
+                model_size_or_path = self.model_id
+            logger.info(f"Loading model from {model_size_or_path}")
             self.whisper = WhisperModel(
-                self.model_id,
+                model_size_or_path=model_size_or_path,
                 device=self.whisper_config.inference_device,
                 device_index=self.whisper_config.device_index,
                 compute_type=self.whisper_config.compute_type,
                 cpu_threads=self.whisper_config.cpu_threads,
                 num_workers=self.whisper_config.num_workers,
+                download_root=self.whisper_config.download_root,
             )
             logger.info(f"Model {self.model_id} loaded in {time.perf_counter() - start:.2f}s")
 

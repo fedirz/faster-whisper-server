@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import os
+import logging
+import pathlib
 from typing import TYPE_CHECKING, Annotated
+from venv import logger
 
 from fastapi import (
     APIRouter,
@@ -13,15 +17,17 @@ from faster_whisper_server.api_models import (
     ListModelsResponse,
     Model,
 )
+from faster_whisper_server.dependencies import ConfigDependency
 
 if TYPE_CHECKING:
     from huggingface_hub.hf_api import ModelInfo
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 
-@router.get("/v1/models")
-def get_models() -> ListModelsResponse:
+def _download_models_meta() -> ListModelsResponse:
     models = huggingface_hub.list_models(library="ctranslate2", tags="automatic-speech-recognition", cardData=True)
     models = list(models)
     models.sort(key=lambda model: model.downloads or -1, reverse=True)
@@ -44,7 +50,26 @@ def get_models() -> ListModelsResponse:
             language=language,
         )
         transformed_models.append(transformed_model)
-    return ListModelsResponse(data=transformed_models)
+    models = ListModelsResponse(data=transformed_models)
+    return models
+
+
+@router.get("/v1/models")
+def get_models(
+    config: ConfigDependency,
+) -> ListModelsResponse:
+    if config.whisper_models_config_file and os.path.exists(config.whisper_models_config_file):
+        logger.info(f"Loading cached model list from {config.whisper_models_config_file}")
+        with open(config.whisper_models_config_file, "r") as f:
+            return ListModelsResponse.model_validate_json(f.read())
+    else:
+        logger.info(f"config file not found: {config.whisper_models_config_file}")
+        models = _download_models_meta()
+        if config.whisper_models_config_file:
+            os.makedirs(os.path.dirname(os.path.abspath(config.whisper_models_config_file)), exist_ok=True)
+            with open(config.whisper_models_config_file, "w") as f:
+                f.write(models.model_dump_json(indent=2))
+        return models
 
 
 @router.get("/v1/models/{model_name:path}")

@@ -4,6 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.12,<3.13"
 # https://packaging.python.org/en/latest/specifications/version-specifiers/#id5
 dependencies = [
+    "ctranslate2==4.4.0",
     "fastapi>=0.115.0",
     "faster-whisper>=1.0.3",
     "huggingface-hub>=0.25.1",
@@ -107,3 +108,8 @@ venv = ".venv"
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function" # this fixes pytest warning
+
+[tool.uv]
+dev-dependencies = [
+    "jupyter>=1.1.1",
+]

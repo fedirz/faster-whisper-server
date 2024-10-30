@@ -93,7 +93,6 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
     stream_checkbox = gr.Checkbox(label="Stream", value=True)
     with gr.Interface(
         title="Whisper Playground",
-        description="""Consider supporting the project by starring the <a href="https://github.com/fedirz/faster-whisper-server">repository on GitHub</a>.""",  # noqa: E501
         inputs=[
             gr.Audio(type="filepath"),
             model_dropdown,
