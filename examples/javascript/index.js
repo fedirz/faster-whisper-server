@@ -1,15 +1,11 @@
 /**
  * Example provided by https://github.com/Gan-Xing in https://github.com/fedirz/faster-whisper-server/issues/26
  */
-import fs from 'fs';
+import 'dotenv/config';
+import fs from 'node:fs';
+import path from 'node:path';
 import WebSocket from 'ws';
-import fetch from 'node-fetch';
-import FormData from 'form-data';
-import path from 'path';
 import ffmpeg from 'fluent-ffmpeg';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const ffmpegPath = process.env.FFMPEG_PATH || '/usr/bin/ffmpeg';
 ffmpeg.setFfmpegPath(ffmpegPath);
