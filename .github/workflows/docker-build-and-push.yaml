@@ -7,7 +7,7 @@ on:
   release:
     types: [published]
 env:
-  IMAGE_NAME: fedirz/faster-whisper-server
+  IMAGE_NAME: sagewei0/faster-whisper-server
 jobs:
   docker:
     runs-on: ubuntu-latest
