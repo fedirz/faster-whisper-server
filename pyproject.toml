@@ -8,7 +8,8 @@ dependencies = [
     "faster-whisper>=1.0.3",
     "huggingface-hub>=0.25.1",
     "numpy>=2.1.1",
-    "piper-phonemize",
+    "piper-phonemize ; platform_machine == 'x86_64'",
+    "piper-tts>=1.2.0 ; platform_machine == 'x86_64'",
     "pydantic-settings>=2.5.2",
     "pydantic>=2.9.0",
     "python-multipart>=0.0.10",
@@ -119,3 +120,8 @@ markers = [
 
 [tool.uv.sources]
 piper-phonemize = { url = "https://github.com/fedirz/piper-phonemize/raw/refs/heads/master/dist/piper_phonemize-1.2.0-cp312-cp312-manylinux_2_28_x86_64.whl" }
+
+[[tool.uv.dependency-metadata]]
+name = "piper-tts"
+version = "1.2.0"
+requires-dist = ["piper-phonemize"]
