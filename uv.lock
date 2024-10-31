@@ -1,6 +1,13 @@
 version = 1
 requires-python = "==3.12.*"
 
+[manifest]
+
+[[manifest.dependency-metadata]]
+name = "piper-tts"
+version = "1.2.0"
+requires-dist = ["piper-phonemize"]
+
 [[package]]
 name = "aiofiles"
 version = "23.2.1"
@@ -257,7 +264,8 @@ dependencies = [
     { name = "faster-whisper" },
     { name = "huggingface-hub" },
     { name = "numpy" },
-    { name = "piper-phonemize" },
+    { name = "piper-phonemize", marker = "platform_machine == 'x86_64'" },
+    { name = "piper-tts", marker = "platform_machine == 'x86_64'" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "python-multipart" },
@@ -306,7 +314,8 @@ requires-dist = [
     { name = "mkdocstrings", extras = ["python"], marker = "extra == 'dev'", specifier = ">=0.26.1" },
     { name = "numpy", specifier = ">=2.1.1" },
     { name = "openai", marker = "extra == 'ui'", specifier = ">=1.48.0" },
-    { name = "piper-phonemize", url = "https://github.com/fedirz/piper-phonemize/raw/refs/heads/master/dist/piper_phonemize-1.2.0-cp312-cp312-manylinux_2_28_x86_64.whl" },
+    { name = "piper-phonemize", marker = "platform_machine == 'x86_64'", url = "https://github.com/fedirz/piper-phonemize/raw/refs/heads/master/dist/piper_phonemize-1.2.0-cp312-cp312-manylinux_2_28_x86_64.whl" },
+    { name = "piper-tts", marker = "platform_machine == 'x86_64'", specifier = ">=1.2.0" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.0.1" },
     { name = "pydantic", specifier = ">=2.9.0" },
     { name = "pydantic-settings", specifier = ">=2.5.2" },
@@ -990,6 +999,17 @@ version = "1.2.0"
 source = { url = "https://github.com/fedirz/piper-phonemize/raw/refs/heads/master/dist/piper_phonemize-1.2.0-cp312-cp312-manylinux_2_28_x86_64.whl" }
 wheels = [
     { url = "https://github.com/fedirz/piper-phonemize/raw/refs/heads/master/dist/piper_phonemize-1.2.0-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:13bfd07550572042c5e6dd8d40076bf24101a930af0c7a1265427217275225b3" },
+]
+
+[[package]]
+name = "piper-tts"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "piper-phonemize" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/24/aa/215bced0725cf5b5afe939f86b177c8ddb0d38292a94e85c55b3fcf6d46d/piper_tts-1.2.0-py3-none-any.whl", hash = "sha256:f3410aea0f8051d8a118050a5b954faeb36f6ac0da6d10fc2f8a043a8eaf27b5", size = 29454 },
 ]
 
 [[package]]
