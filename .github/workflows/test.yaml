@@ -16,6 +16,7 @@ on:
 jobs:
   pytest:
     strategy:
+      fail-fast: false # Continue running jobs even if one fails
       matrix:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
