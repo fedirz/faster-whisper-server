@@ -29,7 +29,8 @@
               rsync
               websocat
               uv
-              cudaPackages_12.cudnn_8_9
+              cudaPackages_12.cudnn
+              cudaPackages_12.libcublas
             ];
 
             # https://github.com/NixOS/nixpkgs/issues/278976#issuecomment-1879685177
@@ -39,7 +40,8 @@
             # NOTE: sometimes it still doesn't work but rebooting the system fixes it
             LD_LIBRARY_PATH = "/run/opengl-driver/lib:${
               pkgs.lib.makeLibraryPath [
-                pkgs.cudaPackages_12.cudnn_8_9
+                pkgs.cudaPackages_12.cudnn
+                pkgs.cudaPackages_12.libcublas
                 pkgs.zlib
                 pkgs.stdenv.cc.cc
                 pkgs.openssl
