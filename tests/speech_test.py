@@ -5,7 +5,11 @@ from openai import APIConnectionError, AsyncOpenAI, UnprocessableEntityError
 import pytest
 import soundfile as sf
 
-from faster_whisper_server.routers.speech import (
+platform_machine = platform.machine()
+if platform_machine != "x86_64":
+    pytest.skip("Only supported on x86_64", allow_module_level=True)
+
+from faster_whisper_server.routers.speech import (  # noqa: E402
     DEFAULT_MODEL,
     DEFAULT_RESPONSE_FORMAT,
     DEFAULT_VOICE,
@@ -14,8 +18,6 @@ from faster_whisper_server.routers.speech import (
 )
 
 DEFAULT_INPUT = "Hello, world!"
-
-platform_machine = platform.machine()
 
 
 @pytest.mark.asyncio
