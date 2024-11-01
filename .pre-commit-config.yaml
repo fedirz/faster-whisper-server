@@ -31,7 +31,7 @@ repos:
         args: [--fix]
       - id: ruff-format
   - repo: https://github.com/google/yamlfmt
-    rev: v0.13.0
+    rev: v0.14.0
     hooks:
       - id: yamlfmt
   - repo: https://github.com/DetachHead/basedpyright-pre-commit-mirror
