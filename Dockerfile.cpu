@@ -21,4 +21,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 ENV WHISPER__MODEL=Systran/faster-whisper-small
 ENV UVICORN_HOST=0.0.0.0
 ENV UVICORN_PORT=8000
-CMD ["uv", "run", "uvicorn", "--factory", "faster_whisper_server.main:create_app"]
+ENV WHISPER_MODELS_CONFIG_FILE=/root/faster-whisper-server/models/models.json
+ENV WHISPER__OFFLINE_MODELS_ROOT=/root/faster-whisper-server/models
+CMD ["/root/faster-whisper-server/.venv/bin/uvicorn", "--factory", "faster_whisper_server.main:create_app"]

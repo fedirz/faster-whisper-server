@@ -7,13 +7,21 @@ dependencies = [
     "ctranslate2==4.4.0",
     "fastapi>=0.115.0",
     "faster-whisper>=1.0.3",
+    "gradio>=5.3.0",
+    "httpx-sse>=0.4.0",
     "huggingface-hub>=0.25.1",
-    "numpy>=2.1.1",
+    "librosa>=0.10.2.post1",
+    "numba>=0.59.1",
+    "numpy",
+    "openai>=1.53.0",
+    "pyaudio>=0.2.14",
     "pydantic-settings>=2.5.2",
     "pydantic>=2.9.0",
+    "pydub>=0.25.1",
     "python-multipart>=0.0.10",
     "soundfile>=0.12.1",
     "uvicorn>=0.30.6",
+    "websockets>=12.0",
 ]
 
 [project.optional-dependencies]

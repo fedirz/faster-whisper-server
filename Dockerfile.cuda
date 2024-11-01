@@ -5,7 +5,7 @@ LABEL org.opencontainers.image.source="https://github.com/sagewe/faster-whisper-
 RUN apt-get update && \
     apt-get install -y ffmpeg software-properties-common && \
     add-apt-repository ppa:deadsnakes/ppa && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3.12 python3.12-tk && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3.12-dev python3.12-tk portaudio19-dev build-essential && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=ghcr.io/astral-sh/uv:0.4.20 /uv /bin/uv

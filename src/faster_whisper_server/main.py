@@ -59,7 +59,7 @@ def create_app() -> FastAPI:
     if config.enable_ui:
         import gradio as gr
 
-        from faster_whisper_server.gradio_app import create_gradio_demo
+        from faster_whisper_server.apps.simulation import create_gradio_demo
 
         app = gr.mount_gradio_app(
             app,

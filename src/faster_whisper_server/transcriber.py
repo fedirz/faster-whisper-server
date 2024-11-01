@@ -54,7 +54,10 @@ async def audio_transcriber(
     local_agreement = LocalAgreement()
     full_audio = Audio()
     confirmed = Transcription()
+    import time
+    last_chunk_time = time.time()
     async for chunk in audio_stream.chunks(min_duration):
+        last_chunk_time = time.time()
         full_audio.extend(chunk)
         audio = full_audio.after(needs_audio_after(confirmed))
         transcription, _ = await asr.transcribe(audio, prompt(confirmed))
@@ -62,7 +65,10 @@ async def audio_transcriber(
         if len(new_words) > 0:
             confirmed.extend(new_words)
             yield confirmed
+        else:
+            logger.debug("No new words")
     logger.debug("Flushing...")
     confirmed.extend(local_agreement.unconfirmed.words)
     yield confirmed
     logger.info("Audio transcriber finished")
+    logger.warning(f"Last chunk received at {last_chunk_time}, it has been {time.time() - last_chunk_time} seconds since then")

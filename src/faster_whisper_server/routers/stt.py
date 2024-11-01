@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from io import BytesIO
 import logging
+from tracemalloc import start
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import (
@@ -19,6 +20,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.websockets import WebSocketState
 from faster_whisper.vad import VadOptions, get_speech_timestamps
 from pydantic import AfterValidator, Field
+from sympy import im
 
 from faster_whisper_server.api_models import (
     DEFAULT_TIMESTAMP_GRANULARITIES,
@@ -240,7 +242,6 @@ async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
     try:
         while True:
             bytes_ = await asyncio.wait_for(ws.receive_bytes(), timeout=config.max_no_data_seconds)
-            logger.debug(f"Received {len(bytes_)} bytes of audio data")
             audio_samples = audio_samples_from_file(BytesIO(bytes_))
             audio_stream.extend(audio_samples)
             if audio_stream.duration - config.inactivity_window_seconds >= 0:
@@ -300,6 +301,8 @@ async def transcribe_stream(
                 if ws.client_state == WebSocketState.DISCONNECTED:
                     break
 
+                import time
+                start = time.time()
                 if response_format == ResponseFormat.TEXT:
                     await ws.send_text(transcription.text)
                 elif response_format == ResponseFormat.JSON:
@@ -308,6 +311,7 @@ async def transcribe_stream(
                     await ws.send_json(
                         CreateTranscriptionResponseVerboseJson.from_transcription(transcription).model_dump()
                     )
+                logger.info(f"Sent transcription in {time.time() - start} seconds.")
 
     if ws.client_state != WebSocketState.DISCONNECTED:
         logger.info("Closing the connection.")
