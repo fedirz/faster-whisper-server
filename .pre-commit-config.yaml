@@ -9,7 +9,7 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.28.6
+    rev: 0.29.4
     hooks:
       - id: check-taskfile
   - repo: https://github.com/rhysd/actionlint
