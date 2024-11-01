@@ -13,6 +13,7 @@ from faster_whisper_server.api_models import (
     ListModelsResponse,
     Model,
 )
+from faster_whisper_server.hf_utils import list_whisper_models
 
 if TYPE_CHECKING:
     from huggingface_hub.hf_api import ModelInfo
@@ -22,34 +23,13 @@ router = APIRouter()
 
 @router.get("/v1/models")
 def get_models() -> ListModelsResponse:
-    models = huggingface_hub.list_models(library="ctranslate2", tags="automatic-speech-recognition", cardData=True)
-    models = list(models)
-    models.sort(key=lambda model: model.downloads or -1, reverse=True)
-    transformed_models: list[Model] = []
-    for model in models:
-        assert model.created_at is not None
-        assert model.card_data is not None
-        assert model.card_data.language is None or isinstance(model.card_data.language, str | list)
-        if model.card_data.language is None:
-            language = []
-        elif isinstance(model.card_data.language, str):
-            language = [model.card_data.language]
-        else:
-            language = model.card_data.language
-        transformed_model = Model(
-            id=model.id,
-            created=int(model.created_at.timestamp()),
-            object_="model",
-            owned_by=model.id.split("/")[0],
-            language=language,
-        )
-        transformed_models.append(transformed_model)
-    return ListModelsResponse(data=transformed_models)
+    whisper_models = list(list_whisper_models())
+    return ListModelsResponse(data=whisper_models)
 
 
 @router.get("/v1/models/{model_name:path}")
-# NOTE: `examples` doesn't work https://github.com/tiangolo/fastapi/discussions/10537
 def get_model(
+    # NOTE: `examples` doesn't work https://github.com/tiangolo/fastapi/discussions/10537
     model_name: Annotated[str, Path(example="Systran/faster-distil-whisper-large-v3")],
 ) -> Model:
     models = huggingface_hub.list_models(

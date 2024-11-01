@@ -16,6 +16,7 @@ on:
 jobs:
   pytest:
     strategy:
+      fail-fast: false # Continue running jobs even if one fails
       matrix:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
@@ -27,5 +28,4 @@ jobs:
           enable-cache: true
       - run: uv python install 3.12
       - run: uv sync --all-extras
-      # TODO: figure out why `pytest` doesn't discover tests in `faster_whisper_server` directory by itself
-      - run: uv run pytest -m "not requires_openai" src/faster_whisper_server/* tests
+      - run: uv run pytest -m "not requires_openai"

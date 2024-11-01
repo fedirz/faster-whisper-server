@@ -4,6 +4,7 @@ import os
 
 from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient
+from huggingface_hub import snapshot_download
 from openai import AsyncOpenAI
 import pytest
 import pytest_asyncio
@@ -44,3 +45,10 @@ def actual_openai_client() -> AsyncOpenAI:
     return AsyncOpenAI(
         base_url="https://api.openai.com/v1"
     )  # `base_url` is provided in case `OPENAI_API_BASE_URL` is set to a different value
+
+
+# TODO: remove the download after running the tests
+@pytest.fixture(scope="session", autouse=True)
+def download_piper_voices() -> None:
+    # Only download `voices.json` and the default voice
+    snapshot_download("rhasspy/piper-voices", allow_patterns=["voices.json", "en/en_US/amy/**"])
