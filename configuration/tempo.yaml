@@ -1,0 +1,19 @@
+server:
+  http_listen_port: 3200 # default: 80
+  grpc_listen_port: 9095 # default: 9095
+
+usage_report:
+  reporting_enabled: false
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+
+# TODO: S3 storage
+storage:
+  trace:
+    backend: local
+    local:
+      path: /tmp/tempo/traces

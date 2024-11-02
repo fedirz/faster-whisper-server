@@ -1,0 +1,41 @@
+# https://github.com/grafana/loki/blob/811f5f015cd5da4e25d800307b905c3385406be3/docs/sources/configure/examples/configuration-examples.md
+
+auth_enabled: false # default: true
+# https://grafana.com/docs/loki/latest/configure/#server
+server:
+  http_listen_port: 3100 # default: 3100
+  grpc_listen_port: 9095 # default: 9095
+  log_level: info # default: info
+  log_format: json # default: logfmt
+limits_config:
+  allow_structured_metadata: true # needed for OTEL
+  volume_enabled: true # not sure what this does
+common:
+  ring:
+    instance_addr: 0.0.0.0
+    kvstore:
+      store: inmemory
+  replication_factor: 1
+  path_prefix: /tmp/loki
+storage_config:
+  tsdb_shipper:
+    active_index_directory: /tmp/loki/index
+    cache_location: /tmp/loki/index_cache
+  filesystem:
+    directory: /tmp/loki/chunks
+pattern_ingester:
+  enabled: true
+analytics:
+  reporting_enabled: false # default: true
+tracing:
+  enabled: true # default: false
+# https://grafana.com/docs/loki/latest/configure/#schema_config
+schema_config:
+  configs:
+    - from: 2020-05-15
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
