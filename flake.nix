@@ -12,8 +12,6 @@
         pkgs = import nixpkgs {
           inherit system;
           config.allowUnfree = true;
-          # `cudnn_8_9` is marked as broken but still seems to work as before
-          config.allowBroken = true;
         };
       in
       {
