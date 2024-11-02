@@ -169,3 +169,7 @@ tests/data
 .secrets
 .ruff_cache
 .aider*
+models/
+esic/
+.gradio/
+.idea
