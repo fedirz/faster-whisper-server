@@ -2,7 +2,6 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    flake-utils.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs =
     { nixpkgs, flake-utils, ... }:
@@ -19,16 +18,17 @@
           default = pkgs.mkShell {
             nativeBuildInputs = with pkgs; [
               act
+              cudaPackages_12.cudnn
+              cudaPackages_12.libcublas
               ffmpeg-full
               go-task
+              grafana-loki
               parallel
               pv
               python312
-              rsync
-              websocat
+              tempo
               uv
-              cudaPackages_12.cudnn
-              cudaPackages_12.libcublas
+              websocat
             ];
 
             # https://github.com/NixOS/nixpkgs/issues/278976#issuecomment-1879685177
