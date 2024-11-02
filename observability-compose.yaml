@@ -1,0 +1,73 @@
+services:
+  opentelemetry-collector:
+    image: otel/opentelemetry-collector-contrib:0.107.0
+    command: ["--config=/etc/opentelemetry-collector.yaml"]
+    volumes:
+      - ./configuration/opentelemetry-collector.yaml:/etc/opentelemetry-collector.yaml
+    ports:
+      # NOTE: when `faster-whisper-server` is also running as a Docker Compose service, this doesn't need to be exposed.
+      - 4317:4317 # OTLP gRPC receiver
+      # - 4318:4318 # OTLP HTTP receiver
+      # - 8888:8888 # Prometheus metrics exposed by the Collector
+      # - 8889:8889 # Prometheus exporter metrics
+      # - 13133:13133 # health_check extension
+    # NOTE: `healthcheck` can't be set up, as the container doesn't have a shell to run the healthcheck command.
+  loki:
+    image: grafana/loki:3.0.0
+    command: ["-config.file=/etc/loki.yaml"]
+    volumes:
+      - ./configuration/loki.yaml:/etc/loki.yaml
+      - loki-data:/loki
+    ports:
+      - "3100:3100"
+    healthcheck:
+      # NOTE: doesn't have a proper healthcheck endpoint
+      test: wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 3
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    command: ["--config.file=/etc/prometheus.yaml"]
+    volumes:
+      - ./configuration/prometheus.yaml:/etc/prometheus.yaml
+      - prometheus-data:/prometheus
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 3
+  tempo:
+    image: grafana/tempo:2.5.0
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./configuration/tempo.yaml:/etc/tempo.yaml
+      - tempo-data:/tmp
+      # https://github.com/grafana/tempo/issues/1657#issuecomment-2049987178
+      # - tempo-data:/tmp/tempo
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3200/status || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 3
+  grafana:
+    image: grafana/grafana:11.3.0
+    volumes:
+      - ./configuration/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 3
+volumes:
+  loki-data:
+  prometheus-data:
+  tempo-data:
+  grafana-data:

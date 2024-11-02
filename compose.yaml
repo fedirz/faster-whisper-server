@@ -1,4 +1,6 @@
 # TODO: https://docs.astral.sh/uv/guides/integration/docker/#configuring-watch-with-docker-compose
+include:
+  - observability-compose.yaml
 services:
   faster-whisper-server-cuda:
     image: fedirz/faster-whisper-server:latest-cuda
