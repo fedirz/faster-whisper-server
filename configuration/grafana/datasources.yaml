@@ -1,0 +1,23 @@
+apiVersion: 1
+datasources:
+  - name: tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    editable: true
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: loki
+        filterByTraceID: true
+      lokiSearch:
+        datasourceUid: loki
+  - name: loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: true
+  - name: prometheus
+    type: prometheus
+    editable: true
+    url: http://prometheus:9090
+# TODO: https://grafana.com/docs/tempo/latest/getting-started/metrics-from-traces/
