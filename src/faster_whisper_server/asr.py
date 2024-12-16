@@ -31,6 +31,7 @@ class FasterWhisperASR:
         prompt: str | None = None,
     ) -> tuple[Transcription, transcribe.TranscriptionInfo]:
         start = time.perf_counter()
+        # NOTE: should `BatchedInferencePipeline` be used here?
         segments, transcription_info = self.whisper.transcribe(
             audio.data,
             initial_prompt=prompt,
