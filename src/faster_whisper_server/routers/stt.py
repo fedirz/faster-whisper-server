@@ -21,6 +21,7 @@ from fastapi.exceptions import HTTPException
 from fastapi.responses import StreamingResponse
 from fastapi.websockets import WebSocketState
 from faster_whisper.audio import decode_audio
+from faster_whisper.transcribe import BatchedInferencePipeline
 from faster_whisper.vad import VadOptions, get_speech_timestamps
 from numpy import float32
 from numpy.typing import NDArray
@@ -188,7 +189,8 @@ def translate_file(
     if response_format is None:
         response_format = config.default_response_format
     with model_manager.load_model(model) as whisper:
-        segments, transcription_info = whisper.transcribe(
+        whisper_model = BatchedInferencePipeline(model=whisper) if config.whisper.use_batched_mode else whisper
+        segments, transcription_info = whisper_model.transcribe(
             audio,
             task=Task.TRANSLATE,
             initial_prompt=prompt,
@@ -252,7 +254,8 @@ def transcribe_file(
             "It only makes sense to provide `timestamp_granularities[]` when `response_format` is set to `verbose_json`. See https://platform.openai.com/docs/api-reference/audio/createTranscription#audio-createtranscription-timestamp_granularities."  # noqa: E501
         )
     with model_manager.load_model(model) as whisper:
-        segments, transcription_info = whisper.transcribe(
+        whisper_model = BatchedInferencePipeline(model=whisper) if config.whisper.use_batched_mode else whisper
+        segments, transcription_info = whisper_model.transcribe(
             audio,
             task=Task.TRANSCRIBE,
             language=language,
