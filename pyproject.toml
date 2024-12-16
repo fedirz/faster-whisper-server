@@ -6,7 +6,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "ctranslate2>=4.5.0",
     "fastapi>=0.115.0",
-    "faster-whisper>=1.0.3",
+    "faster-whisper>=1.1.0",
     "huggingface-hub>=0.25.1",
     "numpy>=2.1.1",
     "piper-phonemize ; platform_machine == 'x86_64'",
