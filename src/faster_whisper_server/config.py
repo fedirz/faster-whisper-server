@@ -236,3 +236,14 @@ class Config(BaseSettings):
     Controls how many latest seconds of audio are being passed through VAD.
     Should be greater than `max_inactivity_seconds`
     """
+
+    chat_completion_base_url: str = "https://api.openai.com/v1"
+    chat_completion_api_key: str | None = None
+
+    speech_base_url: str | None = None
+    speech_api_key: str | None = None
+    speech_model: str = "piper"
+    speech_extra_body: dict = {"sample_rate": 24000}
+
+    transcription_base_url: str | None = None
+    transcription_api_key: str | None = None
