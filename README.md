@@ -1,6 +1,8 @@
 # Faster Whisper Server
+
 `faster-whisper-server` is an OpenAI API-compatible transcription server which uses [faster-whisper](https://github.com/SYSTRAN/faster-whisper) as its backend.
 Features:
+
 - GPU and CPU support.
 - Easily deployable using Docker.
 - **Configurable through environment variables (see [config.py](./src/faster_whisper_server/config.py))**.
@@ -12,26 +14,32 @@ Features:
 Please create an issue if you find a bug, have a question, or a feature suggestion.
 
 ## OpenAI API Compatibility ++
+
 See [OpenAI API reference](https://platform.openai.com/docs/api-reference/audio) for more information.
+
 - Audio file transcription via `POST /v1/audio/transcriptions` endpoint.
-    - Unlike OpenAI's API, `faster-whisper-server` also supports streaming transcriptions (and translations). This is useful for when you want to process large audio files and would rather receive the transcription in chunks as they are processed, rather than waiting for the whole file to be transcribed. It works similarly to chat messages when chatting with LLMs.
+  - Unlike OpenAI's API, `faster-whisper-server` also supports streaming transcriptions (and translations). This is useful for when you want to process large audio files and would rather receive the transcription in chunks as they are processed, rather than waiting for the whole file to be transcribed. It works similarly to chat messages when chatting with LLMs.
 - Audio file translation via `POST /v1/audio/translations` endpoint.
--  Live audio transcription via `WS /v1/audio/transcriptions` endpoint.
-    - LocalAgreement2 ([paper](https://aclanthology.org/2023.ijcnlp-demo.3.pdf) | [original implementation](https://github.com/ufal/whisper_streaming)) algorithm is used for live transcription.
-    - Only transcription of a single channel, 16000 sample rate, raw, 16-bit little-endian audio is supported.
+- Live audio transcription via `WS /v1/audio/transcriptions` endpoint.
+  - LocalAgreement2 ([paper](https://aclanthology.org/2023.ijcnlp-demo.3.pdf) | [original implementation](https://github.com/ufal/whisper_streaming)) algorithm is used for live transcription.
+  - Only transcription of a single channel, 16000 sample rate, raw, 16-bit little-endian audio is supported.
 
 ## Quick Start
+
 [Hugging Face Space](https://huggingface.co/spaces/Iatalking/fast-whisper-server)
 
 ![image](https://github.com/fedirz/faster-whisper-server/assets/76551385/6d215c52-ded5-41d2-89a5-03a6fd113aa0)
 
 Using Docker
+
 ```bash
 docker run --gpus=all --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:latest-cuda
 # or
 docker run --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:latest-cpu
 ```
+
 Using Docker Compose
+
 ```bash
 curl -sO https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.yaml
 docker compose up --detach faster-whisper-server-cuda
@@ -42,19 +50,24 @@ docker compose up --detach faster-whisper-server-cpu
 Using Kubernetes: [tutorial](https://substratus.ai/blog/deploying-faster-whisper-on-k8s)
 
 ## Usage
+
 If you are looking for a step-by-step walkthrough, check out [this](https://www.youtube.com/watch?app=desktop&v=vSN-oAl6LVs) YouTube video.
 
 ### OpenAI API CLI
+
 ```bash
 export OPENAI_API_KEY="cant-be-empty"
 export OPENAI_BASE_URL=http://localhost:8000/v1/
 ```
+
 ```bash
 openai api audio.transcriptions.create -m Systran/faster-distil-whisper-large-v3 -f audio.wav --response-format text
 
 openai api audio.translations.create -m Systran/faster-distil-whisper-large-v3 -f audio.wav --response-format verbose_json
 ```
+
 ### OpenAI API Python SDK
+
 ```python
 from openai import OpenAI
 
@@ -67,7 +80,16 @@ transcript = client.audio.transcriptions.create(
 print(transcript.text)
 ```
 
+**NOTE:** to use the OpenAI API from the browser, you will need to configure CORS on the server. This can be done by settings the `ALLOW_ORIGINS` environment variable
+for example:
+
+```
+ALLOW_ORIGINS=["http://localhost:3000"]
+ALLOW_ORIGINS=["*"]
+```
+
 ### cURL
+
 ```bash
 # If `model` isn't specified, the default model is used
 curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav"
@@ -80,13 +102,19 @@ curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav" -F "lang
 curl http://localhost:8000/v1/audio/translations -F "file=@audio.wav"
 ```
 
+### Deploy with RunPod
+
+You can deploy this server on RunPod with [this](https://runpod.io/console/deploy?template=ydh4lwsri8&ref=dep6l83q) template. This will automatically configure CORS for the server and was tested on an RTX 4090. You can find the IP address and port in the RunPod console by clicking "Connect" and then "TCP Port Mappings".
+
 ### Live Transcription (using WebSocket)
+
 From [live-audio](./examples/live-audio) example
 
 https://github.com/fedirz/faster-whisper-server/assets/76551385/e334c124-af61-41d4-839c-874be150598f
 
 [websocat](https://github.com/vi/websocat?tab=readme-ov-file#installation) installation is required.
 Live transcription of audio data from a microphone.
+
 ```bash
 ffmpeg -loglevel quiet -f alsa -i default -ac 1 -ar 16000 -f s16le - | websocat --binary ws://localhost:8000/v1/audio/transcriptions
 ```
