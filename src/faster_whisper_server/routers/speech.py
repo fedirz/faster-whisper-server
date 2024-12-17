@@ -134,7 +134,8 @@ class CreateSpeechRequestBody(BaseModel):
     # https://platform.openai.com/docs/api-reference/audio/createSpeech#audio-createspeech-voice
     speed: float = Field(1.0, ge=0.25, le=4.0)
     """The speed of the generated audio. Select a value from 0.25 to 4.0. 1.0 is the default."""
-    sample_rate: int | None = Field(None, ge=MIN_SAMPLE_RATE, le=MAX_SAMPLE_RATE)  # TODO: document
+    sample_rate: int | None = Field(None, ge=MIN_SAMPLE_RATE, le=MAX_SAMPLE_RATE)
+    """Desired sample rate to convert the generated audio to. If not provided, the model's default sample rate will be used."""  # noqa: E501
 
     # TODO: move into `Voice`
     @model_validator(mode="after")
