@@ -69,7 +69,7 @@ class TranscriptionSegment(BaseModel):
                 end=segment.end,
                 text=segment.text,
                 tokens=segment.tokens,
-                temperature=segment.temperature,
+                temperature=segment.temperature or 0,  # FIX: hardcoded
                 avg_logprob=segment.avg_logprob,
                 compression_ratio=segment.compression_ratio,
                 no_speech_prob=segment.no_speech_prob,
