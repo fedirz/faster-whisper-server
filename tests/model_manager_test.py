@@ -20,7 +20,7 @@ async def test_model_unloaded_after_ttl() -> None:
         await aclient.post(f"/api/ps/{model}")
         res = (await aclient.get("/api/ps")).json()
         assert len(res["models"]) == 1
-        await asyncio.sleep(ttl + 1)
+        await asyncio.sleep(ttl + 1)  # wait for the model to be unloaded
         res = (await aclient.get("/api/ps")).json()
         assert len(res["models"]) == 0
 
@@ -35,7 +35,7 @@ async def test_ttl_resets_after_usage() -> None:
         await aclient.post(f"/api/ps/{model}")
         res = (await aclient.get("/api/ps")).json()
         assert len(res["models"]) == 1
-        await asyncio.sleep(ttl - 2)
+        await asyncio.sleep(ttl - 2)  # sleep for less than the ttl. The model should not be unloaded
         res = (await aclient.get("/api/ps")).json()
         assert len(res["models"]) == 1
 
@@ -48,11 +48,11 @@ async def test_ttl_resets_after_usage() -> None:
         ).json()
         res = (await aclient.get("/api/ps")).json()
         assert len(res["models"]) == 1
-        await asyncio.sleep(ttl - 2)
+        await asyncio.sleep(ttl - 2)  # sleep for less than the ttl. The model should not be unloaded
         res = (await aclient.get("/api/ps")).json()
         assert len(res["models"]) == 1
 
-        await asyncio.sleep(3)
+        await asyncio.sleep(3)  # sleep for a bit more. The model should be unloaded
         res = (await aclient.get("/api/ps")).json()
         assert len(res["models"]) == 0
 
@@ -80,7 +80,7 @@ async def test_model_cant_be_unloaded_when_used() -> None:
                 "/v1/audio/transcriptions", files={"file": ("audio.wav", data, "audio/wav")}, data={"model": model}
             )
         )
-        await asyncio.sleep(0.01)
+        await asyncio.sleep(0.1)  # wait for the server to start processing the request
         res = await aclient.delete(f"/api/ps/{model}")
         assert res.status_code == 409
 
