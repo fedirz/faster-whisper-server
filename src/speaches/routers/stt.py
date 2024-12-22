@@ -36,9 +36,14 @@ from speaches.config import (
     ResponseFormat,
     Task,
 )
+
 from speaches.dependencies import AudioFileDependency, ConfigDependency, ModelManagerDependency, get_config
 from speaches.text_utils import segments_to_srt, segments_to_text, segments_to_vtt
 from speaches.transcriber import audio_transcriber
+
+# Custom packages:
+from speaches.map_speakers import map_speakers_to_segments, DiarizationSegment
+
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable
@@ -235,6 +240,122 @@ def transcribe_file(
             return segments_to_streaming_response(segments, transcription_info, response_format)
         else:
             return segments_to_response(segments, transcription_info, response_format)
+
+        
+
+@router.post(
+    "/v1/audio/diarization",
+    response_model=str | CreateTranscriptionResponseJson | CreateTranscriptionResponseVerboseJson,
+)
+def diarize_file(
+    config: ConfigDependency,
+    model_manager: ModelManagerDependency,
+    request: Request,
+    audio: AudioFileDependency,
+    model: Annotated[ModelName | None, Form()] = None,
+    language: Annotated[Language | None, Form()] = None,
+    prompt: Annotated[str | None, Form()] = None,
+    response_format: Annotated[ResponseFormat | None, Form()] = None,
+    temperature: Annotated[float, Form()] = 0.0,
+    timestamp_granularities: Annotated[
+        TimestampGranularities,
+        # WARN: `alias` doesn't actually work.
+        Form(alias="timestamp_granularities[]"),
+    ] = ["segment"],
+    # stream: Annotated[bool, Form()] = False,
+    hotwords: Annotated[str | None, Form()] = None,
+    vad_filter: Annotated[bool, Form()] = False,
+    num_speakers: Annotated[int | None, Form()] = None,
+) -> Response | StreamingResponse:
+    if model is None:
+        model = config.whisper.model
+    if language is None:
+        language = config.default_language
+    if response_format is None:
+        response_format = config.default_response_format
+    timestamp_granularities = asyncio.run(get_timestamp_granularities(request))
+    if timestamp_granularities != DEFAULT_TIMESTAMP_GRANULARITIES and response_format != ResponseFormat.VERBOSE_JSON:
+        logger.warning(
+            "It only makes sense to provide `timestamp_granularities[]` when `response_format` is set to `verbose_json`. See https://platform.openai.com/docs/api-reference/audio/createTranscription#audio-createtranscription-timestamp_granularities."  # noqa: E501
+        )
+    with model_manager.load_model(model) as whisper:
+        whisper_model = BatchedInferencePipeline(model=whisper) if config.whisper.use_batched_mode else whisper
+        segments, transcription_info = whisper_model.transcribe(
+            audio,
+            task=Task.TRANSCRIBE,
+            language=language,
+            initial_prompt=prompt,
+            word_timestamps="word" in timestamp_granularities,
+            temperature=temperature,
+            vad_filter=vad_filter,
+            hotwords=hotwords,
+        )
+        # segments = TranscriptionSegment.from_faster_whisper_segments(segments)
+        transcription_segments = list(TranscriptionSegment.from_faster_whisper_segments(segments))
+    
+    diarization_url = "http://diarization-server:8001/diarize"  # Configure this in your config
+
+    params = {'num_speakers': num_speakers} if num_speakers else {}
+    
+    try:
+        # Convert numpy array to bytes
+        audio_bytes = BytesIO()
+        # Save as WAV file
+        torchaudio.save(
+            audio_bytes,
+            torch.from_numpy(audio).unsqueeze(0),  # Add channel dimension
+            sample_rate=16000,  # faster-whisper uses 16kHz
+            format="wav"
+        )
+        audio_bytes.seek(0)  # Reset buffer position
+        
+        # Create files dictionary for requests
+        files = {
+            'audio': ('audio.wav', audio_bytes, 'audio/wav')
+        }
+        
+        # Send request with proper file formatting
+        diarization_response = requests.post(
+            diarization_url,
+            files=files,
+            params={'num_speakers': num_speakers} if num_speakers else {}
+        )
+        
+        diarization_response.raise_for_status()
+        diarization_data = diarization_response.json()
+        logger.info(diarization_data)
+        if not diarization_data['success']:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Diarization failed: {diarization_data.get('error', 'Unknown error')}"
+            )
+            
+        # Assign speakers to segments based on time overlap
+        # Convert diarization segments to proper objects
+        diarization_segments = [
+                DiarizationSegment(
+                    speaker=seg['speaker'],
+                    start=float(seg['start']),
+                    end=float(seg['end'])
+                )
+                for seg in diarization_data['diarization_segments']
+            ]
+        logger.info(transcription_segments)
+        logger.info(diarization_segments)
+            # Map speakers to segments and return JSON response directly
+        result = map_speakers_to_segments(transcription_segments, diarization_segments)
+        return Response(
+                content=result,  # result is already a JSON string from map_speakers_to_segments
+                media_type="application/json"
+            )
+    
+    except requests.RequestException as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to connect to diarization service: {str(e)}"
+        )
+    # return map_speakers_to_segments(list(segments), diarization_segments)
+    # return segments_to_response(segments, transcription_info, response_format)
 
 
 async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
