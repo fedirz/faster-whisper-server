@@ -12,9 +12,63 @@ services:
     restart: unless-stopped
     ports:
       - 8000:8000
-    healthcheck:
-      test: ["CMD", "curl", "--fail", "http://0.0.0.0:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
+    volumes:
+      - hugging_face_cache:/root/.cache/huggingface
+    develop:
+      watch:
+        - path: faster_whisper_server
+          action: rebuild
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
+              # If you have CDI feature enabled use the following instead
+              # https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/cdi-support.html
+              # https://docs.docker.com/reference/cli/dockerd/#enable-cdi-devices
+              # - driver: cdi
+              #   device_ids:
+              #   - nvidia.com/gpu=all
+  faster-whisper-server-cpu:
+    image: fedirz/faster-whisper-server:latest-cpu
+    build:
+      dockerfile: Dockerfile.cpu
+      context: .
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+    volumes:
+      - hugging_face_cache:/root/.cache/huggingface
+    develop:
+      watch:
+        - path: faster_whisper_server
+          action: rebuild
+  diarization-server:
+    image: whisper-diarization:latest
+    build:
+      dockerfile: Dockerfile.diarization
+      context: .
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    restart: unless-stopped
+    ports:
+      - 8001:8001
+    volumes:
+      - hugging_face_cache:/root/.cache/huggingface
+      - torch:/root/.cache/torch
+    develop:
+      watch:
+        - path: src/diarization
+          action: rebuild
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
+volumes:
+  hugging_face_cache:
+  torch:
