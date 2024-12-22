@@ -1,0 +1,24 @@
+# include:
+#   - compose.observability.yaml
+# This file is for those who have the CDI Docker feature enabled
+# https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/cdi-support.html
+# https://docs.docker.com/reference/cli/dockerd/#enable-cdi-devices
+services:
+  faster-whisper-server:
+    extends:
+      file: compose.cuda.yaml
+      service: faster-whisper-server
+    volumes:
+      - hugging_face_cache:/root/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          # WARN: requires Docker Compose 2.24.2
+          # https://docs.docker.com/reference/compose-file/merge/#replace-value
+          devices: !override
+            - capabilities: ["gpu"]
+              driver: cdi
+              device_ids:
+                - nvidia.com/gpu=all
+volumes:
+  hugging_face_cache:
