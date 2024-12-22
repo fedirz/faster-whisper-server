@@ -1,0 +1,49 @@
+# Use official Python slim base image
+FROM python:3.11-slim as builder
+
+# Create and activate virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first to leverage Docker cache
+COPY ./src/diarization/requirements.txt /requirements.txt
+
+# Install dependencies into the virtual environment with caching
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r /requirements.txt
+
+# Final stage
+FROM python:3.11-slim
+
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install only runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create the cache directory with permissions
+RUN mkdir -p /root/.cache/huggingface && \
+    chmod -R 777 /root/.cache/huggingface
+
+# Set up working directory and copy source files
+WORKDIR /app
+COPY ./src/ /app/src/
+
+# Set environment variables
+ENV PYTHONPATH=/app \
+    MODEL_NAME="pyannote/speaker-diarization-3.1" \
+    DEVICE="cuda"
+
+# Change to the diarization directory
+WORKDIR /app/src/diarization
+
+# Expose and run the service
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
