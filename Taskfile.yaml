@@ -11,19 +11,7 @@ tasks:
       - pytest -o log_cli=true -o log_cli_level=DEBUG {{.CLI_ARGS}}
     sources:
       - src/**/*.py
-  build:
-    cmds:
-      - docker compose build
-    sources:
-      - Dockerfile.*
-      - src/**/*.py
   create-multi-arch-builder: docker buildx create --name main --driver=docker-container
-  docker-build:
-    cmds:
-      - docker compose build --builder main {{.CLI_ARGS}}
-    sources:
-      - Dockerfile.*
-      - src/faster_whisper_server/*.py
   cii:
     cmds:
       - act --rm --action-offline-mode --secret-file .secrets {{.CLI_ARGS}}

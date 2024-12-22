@@ -13,11 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dockerfile: [Dockerfile.cuda, Dockerfile.cpu]
+        # https://hub.docker.com/r/nvidia/cuda/tags
+        base-image: ['nvidia/cuda:12.6.2-cudnn-runtime-ubuntu24.04', 'ubuntu:24.04']
         include:
-          - dockerfile: Dockerfile.cuda
+          - base-image: nvidia/cuda:12.6.2-cudnn-runtime-ubuntu24.04
             tag-suffix: -cuda
-          - dockerfile: Dockerfile.cpu
+          - base-image: ubuntu:24.04
             tag-suffix: -cpu
     steps:
       - uses: actions/checkout@v4
@@ -45,7 +46,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ${{ matrix.dockerfile }}
+          file: Dockerfile
+          build-args: |
+            BASE_IMAGE=${{ matrix.base-image }}
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}

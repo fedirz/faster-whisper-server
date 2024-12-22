@@ -1,0 +1,22 @@
+# include:
+#   - compose.observability.yaml
+services:
+  faster-whisper-server:
+    extends:
+      file: compose.yaml
+      service: faster-whisper-server
+    image: fedirz/faster-whisper-server:latest-cuda
+    build:
+      args:
+        BASE_IMAGE: nvidia/cuda:12.6.2-cudnn-runtime-ubuntu24.04
+    environment:
+      - WHISPER__MODEL=Systran/faster-whisper-large-v3
+    volumes:
+      - hugging_face_cache:/root/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
+volumes:
+  hugging_face_cache:

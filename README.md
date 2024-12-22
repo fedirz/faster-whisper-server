@@ -25,18 +25,26 @@ See [OpenAI API reference](https://platform.openai.com/docs/api-reference/audio)
 
 ![image](https://github.com/fedirz/faster-whisper-server/assets/76551385/6d215c52-ded5-41d2-89a5-03a6fd113aa0)
 
+Using Docker Compose (Recommended)
+NOTE: I'm using newer Docker Compsose features. If you are using an older version of Docker Compose, you may need need to update.
+
+```bash
+curl --silent --remote-name https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.yaml
+
+# for GPU support
+curl --silent --remote-name https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.cuda.yaml
+docker compose --file compose.cuda.yaml up --detach
+# for CPU only (use this if you don't have a GPU, as the image is much smaller)
+curl --silent --remote-name https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.cpu.yaml
+docker compose --file compose.cpu.yaml up --detach
+```
+
 Using Docker
 ```bash
-docker run --gpus=all --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:latest-cuda
-# or
-docker run --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface fedirz/faster-whisper-server:latest-cpu
-```
-Using Docker Compose
-```bash
-curl -sO https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.yaml
-docker compose up --detach faster-whisper-server-cuda
-# or
-docker compose up --detach faster-whisper-server-cpu
+# for GPU support
+docker run --gpus=all --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface --detach fedirz/faster-whisper-server:latest-cuda
+# for CPU only (use this if you don't have a GPU, as the image is much smaller)
+docker run --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface --env WHISPER__MODEL=Systran/faster-whisper-small --detach fedirz/faster-whisper-server:latest-cpu
 ```
 
 Using Kubernetes: [tutorial](https://substratus.ai/blog/deploying-faster-whisper-on-k8s)
