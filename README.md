@@ -1,3 +1,31 @@
+---
+title: Faster Whisper
+colorFrom: yellow
+colorTo: pink
+sdk: docker
+app_port: 8000
+# https://huggingface.co/docs/hub/en/spaces-config-reference
+suggested_hardware: t4-small
+preload_from_hub:
+  - Systran/faster-distil-whisper-large-v3
+  - Systran/faster-distil-whisper-medium.en
+  - Systran/faster-distil-whisper-small.en
+  - Systran/faster-whisper-large-v3
+  - Systran/faster-whisper-medium
+  - Systran/faster-whisper-medium.en
+  - Systran/faster-whisper-small
+  - Systran/faster-whisper-small.en
+  - Systran/faster-whisper-tiny
+  - Systran/faster-whisper-tiny.en
+---
+
+```sh
+git remote add huggingface-space https://huggingface.co/spaces/fedirz/faster-whisper-server
+git push --force huggingface-space huggingface-space:main
+```
+
+TODO: Configure environment variables. See [this](https://huggingface.co/docs/hub/en/spaces-overview#managing-secrets).
+
 # Faster Whisper Server
 
 `faster-whisper-server` is an OpenAI API-compatible transcription server which uses [faster-whisper](https://github.com/SYSTRAN/faster-whisper) as its backend.
