@@ -26,7 +26,7 @@ See [OpenAI API reference](https://platform.openai.com/docs/api-reference/audio)
 
 ## Quick Start
 
-[Hugging Face Space](https://huggingface.co/spaces/Iatalking/fast-whisper-server)
+[Hugging Face Space](https://huggingface.co/spaces/fedirz/faster-whisper-server)
 
 ![image](https://github.com/fedirz/faster-whisper-server/assets/76551385/6d215c52-ded5-41d2-89a5-03a6fd113aa0)
 
