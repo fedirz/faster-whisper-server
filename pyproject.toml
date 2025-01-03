@@ -36,6 +36,7 @@ dev = [
     "srt>=3.5.3",
     "webvtt-py>=0.5.1",
     "pre-commit>=4.0.1",
+    "pytest-mock>=3.14.0",
 ]
 ui = [
     "gradio>=5.0.2",
