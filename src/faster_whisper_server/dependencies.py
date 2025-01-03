@@ -1,4 +1,5 @@
 from functools import lru_cache
+import logging
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
@@ -11,7 +12,13 @@ from openai.resources.chat.completions import AsyncCompletions
 from faster_whisper_server.config import Config
 from faster_whisper_server.model_manager import PiperModelManager, WhisperModelManager
 
+logger = logging.getLogger(__name__)
 
+# NOTE: `get_config` is called directly instead of using sub-dependencies so that these functions could be used outside of `FastAPI`  # noqa: E501
+
+
+# https://fastapi.tiangolo.com/advanced/settings/?h=setti#creating-the-settings-only-once-with-lru_cache
+# WARN: Any new module that ends up calling this function directly (not through `FastAPI` dependency injection) should be patched in `tests/conftest.py`  # noqa: E501
 @lru_cache
 def get_config() -> Config:
     return Config()
@@ -22,7 +29,7 @@ ConfigDependency = Annotated[Config, Depends(get_config)]
 
 @lru_cache
 def get_model_manager() -> WhisperModelManager:
-    config = get_config()  # HACK
+    config = get_config()
     return WhisperModelManager(config.whisper)
 
 
@@ -31,8 +38,8 @@ ModelManagerDependency = Annotated[WhisperModelManager, Depends(get_model_manage
 
 @lru_cache
 def get_piper_model_manager() -> PiperModelManager:
-    config = get_config()  # HACK
-    return PiperModelManager(config.whisper.ttl)  # HACK
+    config = get_config()
+    return PiperModelManager(config.whisper.ttl)  # HACK: should have its own config
 
 
 PiperModelManagerDependency = Annotated[PiperModelManager, Depends(get_piper_model_manager)]
@@ -53,7 +60,7 @@ ApiKeyDependency = Depends(verify_api_key)
 
 @lru_cache
 def get_completion_client() -> AsyncCompletions:
-    config = get_config()  # HACK
+    config = get_config()
     oai_client = AsyncOpenAI(base_url=config.chat_completion_base_url, api_key=config.chat_completion_api_key)
     return oai_client.chat.completions
 
@@ -63,9 +70,9 @@ CompletionClientDependency = Annotated[AsyncCompletions, Depends(get_completion_
 
 @lru_cache
 def get_speech_client() -> AsyncSpeech:
-    config = get_config()  # HACK
+    config = get_config()
     if config.speech_base_url is None:
-        # this might not work as expected if the `speech_router` won't have shared state with the main FastAPI `app`. TODO: verify  # noqa: E501
+        # this might not work as expected if `speech_router` won't have shared state (access to the same `model_manager`) with the main FastAPI `app`. TODO: verify  # noqa: E501
         from faster_whisper_server.routers.speech import (
             router as speech_router,
         )
@@ -86,7 +93,7 @@ SpeechClientDependency = Annotated[AsyncSpeech, Depends(get_speech_client)]
 def get_transcription_client() -> AsyncTranscriptions:
     config = get_config()
     if config.transcription_base_url is None:
-        # this might not work as expected if the `transcription_router` won't have shared state with the main FastAPI `app`. TODO: verify  # noqa: E501
+        # this might not work as expected if `transcription_router` won't have shared state (access to the same `model_manager`) with the main FastAPI `app`. TODO: verify  # noqa: E501
         from faster_whisper_server.routers.stt import (
             router as stt_router,
         )
