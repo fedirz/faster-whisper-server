@@ -27,9 +27,11 @@ if TYPE_CHECKING:
 
 
 def create_app() -> FastAPI:
-    setup_logger()
-
+    config = get_config()  # HACK
+    setup_logger(config.log_level)
     logger = logging.getLogger(__name__)
+
+    logger.debug(f"Config: {config}")
 
     if platform.machine() == "x86_64":
         from faster_whisper_server.routers.speech import (
@@ -38,9 +40,6 @@ def create_app() -> FastAPI:
     else:
         logger.warning("`/v1/audio/speech` is only supported on x86_64 machines")
         speech_router = None
-
-    config = get_config()  # HACK
-    logger.debug(f"Config: {config}")
 
     model_manager = get_model_manager()  # HACK
 
