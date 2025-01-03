@@ -14,9 +14,9 @@ jobs:
     strategy:
       matrix:
         # https://hub.docker.com/r/nvidia/cuda/tags
-        base-image: ['nvidia/cuda:12.6.2-cudnn-runtime-ubuntu24.04', 'ubuntu:24.04']
+        base-image: ['nvidia/cuda:12.6.3-cudnn-runtime-ubuntu24.04', 'ubuntu:24.04']
         include:
-          - base-image: nvidia/cuda:12.6.2-cudnn-runtime-ubuntu24.04
+          - base-image: nvidia/cuda:12.6.3-cudnn-runtime-ubuntu24.04
             tag-suffix: -cuda
           - base-image: ubuntu:24.04
             tag-suffix: -cpu

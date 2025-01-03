@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=nvidia/cuda:12.6.2-cudnn-runtime-ubuntu24.04
+ARG BASE_IMAGE=nvidia/cuda:12.6.3-cudnn-runtime-ubuntu24.04
 FROM ${BASE_IMAGE}
 LABEL org.opencontainers.image.source="https://github.com/fedirz/faster-whisper-server"
 # `ffmpeg` is installed because without it `gradio` won't work with mp3(possible others as well) files
