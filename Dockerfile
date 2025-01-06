@@ -8,10 +8,14 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ffmpeg python3.12 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+# "ubuntu" is the default user on ubuntu images with UID=1000. This user is used for two reasons:
+#   1. It's generally a good practice to run containers as non-root users. See https://www.docker.com/blog/understanding-the-docker-user-instruction/
+#   2. Docker Spaces on HuggingFace don't support running containers as root. See https://huggingface.co/docs/hub/en/spaces-sdks-docker#permissions
 USER ubuntu
 ENV HOME=/home/ubuntu \
     PATH=/home/ubuntu/.local/bin:$PATH
 WORKDIR $HOME/faster-whisper-server
+# https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
 COPY --chown=ubuntu --from=ghcr.io/astral-sh/uv:0.5.14 /uv /bin/uv
 # https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 # https://docs.astral.sh/uv/guides/integration/docker/#compiling-bytecode
@@ -25,5 +29,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 ENV WHISPER__MODEL=Systran/faster-whisper-large-v3
 ENV UVICORN_HOST=0.0.0.0
 ENV UVICORN_PORT=8000
+ENV PATH="$HOME/faster-whisper-server/.venv/bin:$PATH"
 EXPOSE 8000
-CMD ["uv", "run", "uvicorn", "--factory", "faster_whisper_server.main:create_app"]
+CMD ["uvicorn", "--factory", "faster_whisper_server.main:create_app"]
