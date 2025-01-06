@@ -1,4 +1,5 @@
 ARG BASE_IMAGE=nvidia/cuda:12.6.3-cudnn-runtime-ubuntu24.04
+# hadolint ignore=DL3006
 FROM ${BASE_IMAGE}
 LABEL org.opencontainers.image.source="https://github.com/fedirz/faster-whisper-server"
 # `ffmpeg` is installed because without it `gradio` won't work with mp3(possible others as well) files
@@ -20,9 +21,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --compile-bytecode --no-install-project
 COPY --chown=ubuntu ./src ./pyproject.toml ./uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --compile-bytecode --extra ui --extra opentelemetry
+    uv sync --frozen --compile-bytecode --extra ui
 ENV WHISPER__MODEL=Systran/faster-whisper-large-v3
 ENV UVICORN_HOST=0.0.0.0
 ENV UVICORN_PORT=8000
 EXPOSE 8000
-CMD ["uv", "run", "opentelemetry-instrument", "uvicorn", "--factory", "faster_whisper_server.main:create_app"]
+CMD ["uv", "run", "uvicorn", "--factory", "faster_whisper_server.main:create_app"]
