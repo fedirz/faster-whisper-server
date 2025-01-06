@@ -30,5 +30,7 @@ ENV WHISPER__MODEL=Systran/faster-whisper-large-v3
 ENV UVICORN_HOST=0.0.0.0
 ENV UVICORN_PORT=8000
 ENV PATH="$HOME/faster-whisper-server/.venv/bin:$PATH"
+# https://huggingface.co/docs/huggingface_hub/en/package_reference/environment_variables#hfhubenablehftransfer
+ENV HF_HUB_ENABLE_HF_TRANSFER=1
 EXPOSE 8000
 CMD ["uvicorn", "--factory", "faster_whisper_server.main:create_app"]
