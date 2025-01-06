@@ -8,6 +8,7 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
+        args: ['--maxkb=500'] # default: 500
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.30.0
     hooks:
@@ -38,4 +39,8 @@ repos:
     rev: 1.23.1
     hooks:
       - id: basedpyright
-        pass_filenames: false
+        pass_filenames: false # TODO: document
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
