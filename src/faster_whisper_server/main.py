@@ -10,7 +10,7 @@ from fastapi import (
 )
 from fastapi.middleware.cors import CORSMiddleware
 
-from faster_whisper_server.dependencies import get_config, get_model_manager, verify_api_key
+from faster_whisper_server.dependencies import ApiKeyDependency, get_config, get_model_manager
 from faster_whisper_server.logger import setup_logger
 from faster_whisper_server.routers.list_models import (
     router as list_models_router,
@@ -51,7 +51,7 @@ def create_app() -> FastAPI:
 
     dependencies = []
     if config.api_key is not None:
-        dependencies.append(verify_api_key)
+        dependencies.append(ApiKeyDependency)
 
     app = FastAPI(lifespan=lifespan, dependencies=dependencies)
 
