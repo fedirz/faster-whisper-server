@@ -38,6 +38,7 @@ class Quantization(enum.StrEnum):
     DEFAULT = "default"
 
 
+# TODO: this needs to be rethought
 class Language(enum.StrEnum):
     AF = "af"
     AM = "am"
@@ -151,7 +152,7 @@ class WhisperConfig(BaseModel):
 
     model: str = Field(default="Systran/faster-whisper-small")
     """
-    Default Huggingface model to use for transcription. Note, the model must support being ran using CTranslate2.
+    Default HuggingFace model to use for transcription. Note, the model must support being ran using CTranslate2.
     This model will be used if no model is specified in the request.
 
     Models created by authors of `faster-whisper` can be found at https://huggingface.co/Systran
@@ -174,6 +175,7 @@ class WhisperConfig(BaseModel):
     """  # noqa: E501
 
 
+# TODO: document `alias` behaviour within the docstring
 class Config(BaseSettings):
     """Configuration for the application. Values can be set via environment variables.
 
@@ -185,7 +187,13 @@ class Config(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
     api_key: str | None = None
+    """
+    If set, the API key will be required for all requests.
+    """
     log_level: str = "debug"
+    """
+    Logging level. One of: 'debug', 'info', 'warning', 'error', 'critical'.
+    """
     host: str = Field(alias="UVICORN_HOST", default="0.0.0.0")
     port: int = Field(alias="UVICORN_PORT", default=8000)
     allow_origins: list[str] | None = None
@@ -198,8 +206,8 @@ class Config(BaseSettings):
 
     enable_ui: bool = True
     """
-    Whether to enable the Gradio UI. You may want to disable this if you want to minimize the dependencies.
-    """
+    Whether to enable the Gradio UI. You may want to disable this if you want to minimize the dependencies and slightly improve the startup time.
+    """  # noqa: E501
 
     default_language: Language | None = None
     """
@@ -216,26 +224,35 @@ class Config(BaseSettings):
         ],
     )
     """
-    List of models to preload on startup. By default, the model is first loaded on first request.
+    List of Whisper models to preload on startup. By default, the model is first loaded on first request.
+    WARNING: I'd recommend not setting this, as it may be deprecated in the future.
     """
     max_no_data_seconds: float = 1.0
     """
     Max duration to wait for the next audio chunk before transcription is finilized and connection is closed.
+    Used only for live transcription (WS /v1/audio/transcriptions).
     """
     min_duration: float = 1.0
     """
     Minimum duration of an audio chunk that will be transcribed.
+    Used only for live transcription (WS /v1/audio/transcriptions).
     """
     word_timestamp_error_margin: float = 0.2
+    """
+    Used only for live transcription (WS /v1/audio/transcriptions).
+    """
     max_inactivity_seconds: float = 2.5
     """
     Max allowed audio duration without any speech being detected before transcription is finilized and connection is closed.
+    Used only for live transcription (WS /v1/audio/transcriptions).
     """  # noqa: E501
     inactivity_window_seconds: float = 5.0
     """
-    Controls how many latest seconds of audio are being passed through VAD.
-    Should be greater than `max_inactivity_seconds`
-    """
+    Controls how many latest seconds of audio are being passed through VAD. Should be greater than `max_inactivity_seconds`.
+    Used only for live transcription (WS /v1/audio/transcriptions).
+    """  # noqa: E501
+
+    # NOTE: options below are not used yet and should be ignored. Added as a placeholder for future features I'm currently working on.  # noqa: E501
 
     chat_completion_base_url: str = "https://api.openai.com/v1"
     chat_completion_api_key: str | None = None
