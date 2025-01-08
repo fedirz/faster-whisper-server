@@ -20,7 +20,10 @@ plugins:
   - mkdocstrings:
       default_handler: python
 nav:
-  - Home: index.md
+  - Introduction: introduction.md
+  - Installation: installation.md
+  - Configuration: configuration.md
+  - Usage: usage.md
 markdown_extensions:
   - admonition
   - pymdownx.superfences
