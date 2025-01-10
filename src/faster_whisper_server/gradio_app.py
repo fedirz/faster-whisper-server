@@ -22,22 +22,34 @@ TRANSLATION_ENDPOINT = "/v1/audio/translations"
 TIMEOUT_SECONDS = 180
 TIMEOUT = httpx.Timeout(timeout=TIMEOUT_SECONDS)
 
+# NOTE: `gr.Request` seems to be passed in as the last positional (not keyword) argument
 
-def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
-    base_url = f"http://{config.host}:{config.port}"
-    # TODO: test that auth works
-    http_client = httpx.AsyncClient(
+
+def base_url_from_gradio_req(request: gr.Request) -> str:
+    # NOTE: `request.request.url` seems to always have a path of "/gradio_api/queue/join"
+    assert request.request is not None
+    return f"{request.request.url.scheme}://{request.request.url.netloc}"
+
+
+def http_client_from_gradio_req(request: gr.Request, config: Config) -> httpx.AsyncClient:
+    base_url = base_url_from_gradio_req(request)
+    return httpx.AsyncClient(
         base_url=base_url,
         timeout=TIMEOUT,
-        headers={"Authorization": f"Bearer {config.api_key}"} if config.api_key else {},
-    )
-    openai_client = AsyncOpenAI(
-        base_url=f"{base_url}/v1", api_key=config.api_key if config.api_key else "cant-be-empty"
+        headers={"Authorization": f"Bearer {config.api_key}"} if config.api_key else None,
     )
 
+
+def openai_client_from_gradio_req(request: gr.Request, config: Config) -> AsyncOpenAI:
+    base_url = base_url_from_gradio_req(request)
+    return AsyncOpenAI(base_url=f"{base_url}/v1", api_key=config.api_key if config.api_key else "cant-be-empty")
+
+
+def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
     async def whisper_handler(
-        file_path: str, model: str, task: Task, temperature: float, stream: bool
+        file_path: str, model: str, task: Task, temperature: float, stream: bool, request: gr.Request
     ) -> AsyncGenerator[str, None]:
+        http_client = http_client_from_gradio_req(request, config)
         if task == Task.TRANSCRIBE:
             endpoint = TRANSCRIPTION_ENDPOINT
         elif task == Task.TRANSLATE:
@@ -45,13 +57,15 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
 
         if stream:
             previous_transcription = ""
-            async for transcription in streaming_audio_task(file_path, endpoint, temperature, model):
+            async for transcription in streaming_audio_task(http_client, file_path, endpoint, temperature, model):
                 previous_transcription += transcription
                 yield previous_transcription
         else:
-            yield await audio_task(file_path, endpoint, temperature, model)
+            yield await audio_task(http_client, file_path, endpoint, temperature, model)
 
-    async def audio_task(file_path: str, endpoint: str, temperature: float, model: str) -> str:
+    async def audio_task(
+        http_client: httpx.AsyncClient, file_path: str, endpoint: str, temperature: float, model: str
+    ) -> str:
         with Path(file_path).open("rb") as file:  # noqa: ASYNC230
             response = await http_client.post(
                 endpoint,
@@ -67,7 +81,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
         return response.text
 
     async def streaming_audio_task(
-        file_path: str, endpoint: str, temperature: float, model: str
+        http_client: httpx.AsyncClient, file_path: str, endpoint: str, temperature: float, model: str
     ) -> AsyncGenerator[str, None]:
         with Path(file_path).open("rb") as file:  # noqa: ASYNC230
             kwargs = {
@@ -83,7 +97,8 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
                 async for event in event_source.aiter_sse():
                     yield event.data
 
-    async def update_whisper_model_dropdown() -> gr.Dropdown:
+    async def update_whisper_model_dropdown(request: gr.Request) -> gr.Dropdown:
+        openai_client = openai_client_from_gradio_req(request, config)
         models = (await openai_client.models.list()).data
         model_names: list[str] = [model.id for model in models]
         assert config.whisper.model in model_names
@@ -96,14 +111,16 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
             value=config.whisper.model,
         )
 
-    async def update_piper_voices_dropdown() -> gr.Dropdown:
+    async def update_piper_voices_dropdown(request: gr.Request) -> gr.Dropdown:
+        http_client = http_client_from_gradio_req(request, config)
         res = (await http_client.get("/v1/audio/speech/voices")).raise_for_status()
         piper_models = [PiperModel.model_validate(x) for x in res.json()]
         return gr.Dropdown(choices=[model.voice for model in piper_models], label="Voice", value=DEFAULT_VOICE)
 
     async def handle_audio_speech(
-        text: str, voice: str, response_format: str, speed: float, sample_rate: int | None
+        text: str, voice: str, response_format: str, speed: float, sample_rate: int | None, request: gr.Request
     ) -> Path:
+        openai_client = openai_client_from_gradio_req(request, config)
         res = await openai_client.audio.speech.create(
             input=text,
             model="piper",
