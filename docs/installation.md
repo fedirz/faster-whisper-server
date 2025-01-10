@@ -70,26 +70,47 @@ TODO: just reference the existing compose file in the repo
 === "CUDA"
 
     ```bash
-    docker run --rm --detach --publish 8000:8000 --name faster-whisper-server --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub --gpus=all fedirz/faster-whisper-server:latest-cuda
+    docker run \
+      --rm \
+      --detach \
+      --publish 8000:8000 \
+      --name faster-whisper-server \
+      --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub \
+      --gpus=all \
+      fedirz/faster-whisper-server:latest-cuda
     ```
 
 === "CUDA (with CDI feature enabled)"
 
     ```bash
-    docker run --rm --detach --publish 8000:8000 --name faster-whisper-server --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub --device=nvidia.com/gpu=all fedirz/faster-whisper-server:latest-cuda
+    docker run \
+      --rm \
+      --detach \
+      --publish 8000:8000 \
+      --name faster-whisper-server \
+      --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub \
+      --device=nvidia.com/gpu=all \
+      fedirz/faster-whisper-server:latest-cuda
     ```
 
 === "CPU"
 
     ```bash
-    docker run --rm --detach --publish 8000:8000 --name faster-whisper-server --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub fedirz/faster-whisper-server:latest-cpu
+    docker run \
+      --rm \
+      --detach \
+      --publish 8000:8000 \
+      --name faster-whisper-server \
+      --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub \
+      fedirz/faster-whisper-server:latest-cpu
     ```
 
 ## Kubernetes
+
 WARNING: it was written few months ago and may be outdated.
 Please refer to this [blog post](https://substratus.ai/blog/deploying-faster-whisper-on-k8s)
 
-## Python (requires Python 3.12+)
+## Python (requires Python 3.12+ and `uv` package manager)
 
 ```bash
 git clone https://github.com/fedirz/faster-whisper-server.git
