@@ -55,7 +55,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
+router = APIRouter(tags=["automatic-speech-recognition"])
 
 
 # TODO: test async vs sync performance
