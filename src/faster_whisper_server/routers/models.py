@@ -18,7 +18,7 @@ from faster_whisper_server.hf_utils import list_whisper_models
 if TYPE_CHECKING:
     from huggingface_hub.hf_api import ModelInfo
 
-router = APIRouter()
+router = APIRouter(tags=["models"])
 
 
 @router.get("/v1/models")

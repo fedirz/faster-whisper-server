@@ -13,7 +13,7 @@ from faster_whisper_server.dependencies import ModelManagerDependency  # noqa: T
 router = APIRouter()
 
 
-@router.get("/health")
+@router.get("/health", tags=["diagnostic"])
 def health() -> Response:
     return Response(status_code=200, content="OK")
 
