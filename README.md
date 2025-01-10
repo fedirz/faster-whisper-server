@@ -49,9 +49,9 @@ docker compose --file compose.cpu.yaml up --detach
 
 ```bash
 # for GPU support
-docker run --gpus=all --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface --detach fedirz/faster-whisper-server:latest-cuda
+docker run --gpus=all --publish 8000:8000 --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub --detach fedirz/faster-whisper-server:latest-cuda
 # for CPU only (use this if you don't have a GPU, as the image is much smaller)
-docker run --publish 8000:8000 --volume ~/.cache/huggingface:/root/.cache/huggingface --env WHISPER__MODEL=Systran/faster-whisper-small --detach fedirz/faster-whisper-server:latest-cpu
+docker run --publish 8000:8000 --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub --env WHISPER__MODEL=Systran/faster-whisper-small --detach fedirz/faster-whisper-server:latest-cpu
 ```
 
 ### Using Kubernetes
