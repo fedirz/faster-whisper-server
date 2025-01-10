@@ -12,6 +12,6 @@ services:
     environment:
       - WHISPER__MODEL=Systran/faster-whisper-small
     volumes:
-      - hugging_face_cache:/root/.cache/huggingface
+      - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
 volumes:
-  hugging_face_cache:
+  hf-hub-cache:

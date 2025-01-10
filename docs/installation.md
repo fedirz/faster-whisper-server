@@ -13,14 +13,14 @@ TODO: just reference the existing compose file in the repo
         ports:
           - 8000:8000
         volumes:
-          - hugging_face_cache:/root/.cache/huggingface
+          - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
         deploy:
           resources:
             reservations:
               devices:
                 - capabilities: ["gpu"]
     volumes:
-      hugging_face_cache:
+      hf-hub-cache:
     ```
 
 === "CUDA (with CDI feature enabled)"
@@ -35,7 +35,7 @@ TODO: just reference the existing compose file in the repo
         ports:
           - 8000:8000
         volumes:
-          - hugging_face_cache:/root/.cache/huggingface
+          - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
         deploy:
           resources:
             reservations:
@@ -46,7 +46,7 @@ TODO: just reference the existing compose file in the repo
                   device_ids:
                   - nvidia.com/gpu=all
     volumes:
-      hugging_face_cache:
+      hf-hub-cache:
     ```
 
 === "CPU"
@@ -60,9 +60,9 @@ TODO: just reference the existing compose file in the repo
         ports:
           - 8000:8000
         volumes:
-          - hugging_face_cache:/root/.cache/huggingface
+          - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
     volumes:
-      hugging_face_cache:
+      hf-hub-cache:
     ```
 
 ## Docker
@@ -70,19 +70,19 @@ TODO: just reference the existing compose file in the repo
 === "CUDA"
 
     ```bash
-    docker run --rm --detach --publish 8000:8000 --name faster-whisper-server --volume hugging_face_cache:/root/.cache/huggingface --gpus=all fedirz/faster-whisper-server:latest-cuda
+    docker run --rm --detach --publish 8000:8000 --name faster-whisper-server --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub --gpus=all fedirz/faster-whisper-server:latest-cuda
     ```
 
 === "CUDA (with CDI feature enabled)"
 
     ```bash
-    docker run --rm --detach --publish 8000:8000 --name faster-whisper-server --volume hugging_face_cache:/root/.cache/huggingface --device=nvidia.com/gpu=all fedirz/faster-whisper-server:latest-cuda
+    docker run --rm --detach --publish 8000:8000 --name faster-whisper-server --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub --device=nvidia.com/gpu=all fedirz/faster-whisper-server:latest-cuda
     ```
 
 === "CPU"
 
     ```bash
-    docker run --rm --detach --publish 8000:8000 --name faster-whisper-server --volume hugging_face_cache:/root/.cache/huggingface fedirz/faster-whisper-server:latest-cpu
+    docker run --rm --detach --publish 8000:8000 --name faster-whisper-server --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub fedirz/faster-whisper-server:latest-cpu
     ```
 
 ## Kubernetes
