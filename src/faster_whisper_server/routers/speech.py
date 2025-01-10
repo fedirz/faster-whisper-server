@@ -12,7 +12,11 @@ from pydantic import BaseModel, BeforeValidator, Field, ValidationError, model_v
 import soundfile as sf
 
 from faster_whisper_server.dependencies import PiperModelManagerDependency
-from faster_whisper_server.hf_utils import read_piper_voices_config
+from faster_whisper_server.hf_utils import (
+    PiperModel,
+    list_piper_models,
+    read_piper_voices_config,
+)
 
 DEFAULT_MODEL = "piper"
 # https://platform.openai.com/docs/api-reference/audio/createSpeech#audio-createspeech-response_format
@@ -126,6 +130,14 @@ class CreateSpeechRequestBody(BaseModel):
         ],
     )
     voice: Voice = DEFAULT_VOICE
+    """
+The last part of the voice name is the quality (x_low, low, medium, high).
+Each quality has a different default sample rate:
+- x_low: 16000 Hz
+- low: 16000 Hz
+- medium: 22050 Hz
+- high: 22050 Hz
+    """
     response_format: ResponseFormat = Field(
         DEFAULT_RESPONSE_FORMAT,
         description=f"The format to audio in. Supported formats are {", ".join(SUPPORTED_RESPONSE_FORMATS)}. {", ".join(UNSUPORTED_RESPONSE_FORMATS)} are not supported",  # noqa: E501
@@ -136,6 +148,7 @@ class CreateSpeechRequestBody(BaseModel):
     """The speed of the generated audio. Select a value from 0.25 to 4.0. 1.0 is the default."""
     sample_rate: int | None = Field(None, ge=MIN_SAMPLE_RATE, le=MAX_SAMPLE_RATE)
     """Desired sample rate to convert the generated audio to. If not provided, the model's default sample rate will be used."""  # noqa: E501
+    # TODO: document default sample rate for each voice quality
 
     # TODO: move into `Voice`
     @model_validator(mode="after")
@@ -163,3 +176,8 @@ def synthesize(
             )
 
         return StreamingResponse(audio_generator, media_type=f"audio/{body.response_format}")
+
+
+@router.get("/v1/audio/speech/voices")
+def list_voices() -> list[PiperModel]:
+    return list(list_piper_models())
