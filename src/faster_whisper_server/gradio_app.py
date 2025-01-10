@@ -1,5 +1,6 @@
 from collections.abc import AsyncGenerator
 from pathlib import Path
+import platform
 
 import gradio as gr
 import httpx
@@ -8,14 +9,6 @@ from openai import AsyncOpenAI
 
 from faster_whisper_server.config import Config, Task
 from faster_whisper_server.hf_utils import PiperModel
-
-# FIX: this won't work on ARM
-from faster_whisper_server.routers.speech import (
-    DEFAULT_VOICE,
-    MAX_SAMPLE_RATE,
-    MIN_SAMPLE_RATE,
-    SUPPORTED_RESPONSE_FORMATS,
-)
 
 TRANSCRIPTION_ENDPOINT = "/v1/audio/transcriptions"
 TRANSLATION_ENDPOINT = "/v1/audio/translations"
@@ -163,13 +156,20 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
             )
 
         with gr.Tab(label="Speech Generation"):
-            # TODO: add warning about ARM
-            text = gr.Textbox(label="Input Text")
-            voice_dropdown = gr.Dropdown(
-                choices=["en_US-amy-medium"],
-                label="Voice",
-                value="en_US-amy-medium",
-                info="""
+            if platform.machine() != "x86_64":
+                from faster_whisper_server.routers.speech import (
+                    DEFAULT_VOICE,
+                    MAX_SAMPLE_RATE,
+                    MIN_SAMPLE_RATE,
+                    SUPPORTED_RESPONSE_FORMATS,
+                )
+
+                text = gr.Textbox(label="Input Text")
+                voice_dropdown = gr.Dropdown(
+                    choices=["en_US-amy-medium"],
+                    label="Voice",
+                    value="en_US-amy-medium",
+                    info="""
 The last part of the voice name is the quality (x_low, low, medium, high).
 Each quality has a different default sample rate:
 - x_low: 16000 Hz
@@ -177,32 +177,34 @@ Each quality has a different default sample rate:
 - medium: 22050 Hz
 - high: 22050 Hz
 """,
-            )
-            response_fromat_dropdown = gr.Dropdown(
-                choices=SUPPORTED_RESPONSE_FORMATS,
-                label="Response Format",
-                value="wav",
-            )
-            speed_slider = gr.Slider(minimum=0.25, maximum=4.0, step=0.05, label="Speed", value=1.0)
-            sample_rate_slider = gr.Number(
-                minimum=MIN_SAMPLE_RATE,
-                maximum=MAX_SAMPLE_RATE,
-                label="Desired Sample Rate",
-                info="""
+                )
+                response_fromat_dropdown = gr.Dropdown(
+                    choices=SUPPORTED_RESPONSE_FORMATS,
+                    label="Response Format",
+                    value="wav",
+                )
+                speed_slider = gr.Slider(minimum=0.25, maximum=4.0, step=0.05, label="Speed", value=1.0)
+                sample_rate_slider = gr.Number(
+                    minimum=MIN_SAMPLE_RATE,
+                    maximum=MAX_SAMPLE_RATE,
+                    label="Desired Sample Rate",
+                    info="""
 Setting this will resample the generated audio to the desired sample rate.
 You may want to set this if you are going to use voices of different qualities but want to keep the same sample rate.
 Default: None (No resampling)
 """,
-                value=lambda: None,
-            )
-            button = gr.Button("Generate Speech")
-            output = gr.Audio(type="filepath")
-            button.click(
-                handle_audio_speech,
-                [text, voice_dropdown, response_fromat_dropdown, speed_slider, sample_rate_slider],
-                output,
-            )
+                    value=lambda: None,
+                )
+                button = gr.Button("Generate Speech")
+                output = gr.Audio(type="filepath")
+                button.click(
+                    handle_audio_speech,
+                    [text, voice_dropdown, response_fromat_dropdown, speed_slider, sample_rate_slider],
+                    output,
+                )
+                demo.load(update_piper_voices_dropdown, inputs=None, outputs=voice_dropdown)
+            else:
+                gr.Textbox("Speech generation is only supported on x86_64 machines.")
 
         demo.load(update_whisper_model_dropdown, inputs=None, outputs=model_dropdown)
-        demo.load(update_piper_voices_dropdown, inputs=None, outputs=voice_dropdown)
     return demo
