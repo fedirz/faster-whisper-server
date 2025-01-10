@@ -1,5 +1,5 @@
 from collections.abc import Generator
-from functools import lru_cache
+from functools import cached_property, lru_cache
 import json
 import logging
 from pathlib import Path
@@ -8,7 +8,7 @@ from typing import Any, Literal
 
 import huggingface_hub
 from huggingface_hub.constants import HF_HUB_CACHE
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, computed_field
 
 from faster_whisper_server.api_models import Model
 
@@ -95,13 +95,51 @@ def get_whisper_models() -> Generator[Model, None, None]:
         yield transformed_model
 
 
+PiperVoiceQuality = Literal["x_low", "low", "medium", "high"]
+PIPER_VOICE_QUALITY_SAMPLE_RATE_MAP: dict[PiperVoiceQuality, int] = {
+    "x_low": 16000,
+    "low": 22050,
+    "medium": 22050,
+    "high": 22050,
+}
+
+
 class PiperModel(BaseModel):
-    id: str
+    """Similar structure to the GET /v1/models response but with extra fields."""
+
     object: Literal["model"] = "model"
     created: int
     owned_by: Literal["rhasspy"] = "rhasspy"
-    path: Path
-    config_path: Path
+    model_path: Path = Field(
+        examples=[
+            "/home/nixos/.cache/huggingface/hub/models--rhasspy--piper-voices/snapshots/3d796cc2f2c884b3517c527507e084f7bb245aea/en/en_US/amy/medium/en_US-amy-medium.onnx"
+        ]
+    )
+
+    @computed_field(examples=["rhasspy/piper-voices/en_US-amy-medium"])
+    @cached_property
+    def id(self) -> str:
+        return f"rhasspy/piper-voices/{self.model_path.name.removesuffix(".onnx")}"
+
+    @computed_field(examples=["rhasspy/piper-voices/en_US-amy-medium"])
+    @cached_property
+    def voice(self) -> str:
+        return self.model_path.name.removesuffix(".onnx")
+
+    @computed_field
+    @cached_property
+    def config_path(self) -> Path:
+        return Path(str(self.model_path) + ".json")
+
+    @computed_field
+    @cached_property
+    def quality(self) -> PiperVoiceQuality:
+        return self.id.split("-")[-1]  # pyright: ignore[reportReturnType]
+
+    @computed_field
+    @cached_property
+    def sample_rate(self) -> int:
+        return PIPER_VOICE_QUALITY_SAMPLE_RATE_MAP[self.quality]
 
 
 def get_model_path(model_id: str, *, cache_dir: str | Path | None = None) -> Path | None:
@@ -151,12 +189,9 @@ def list_model_files(
 def list_piper_models() -> Generator[PiperModel, None, None]:
     model_weights_files = list_model_files("rhasspy/piper-voices", glob_pattern="**/*.onnx")
     for model_weights_file in model_weights_files:
-        model_config_file = model_weights_file.with_suffix(".json")
         yield PiperModel(
-            id=model_weights_file.name,
             created=int(model_weights_file.stat().st_mtime),
-            path=model_weights_file,
-            config_path=model_config_file,
+            model_path=model_weights_file,
         )
 
 
