@@ -9,7 +9,7 @@ services:
       file: compose.cuda.yaml
       service: faster-whisper-server
     volumes:
-      - hugging_face_cache:/root/.cache/huggingface
+      - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
     deploy:
       resources:
         reservations:
@@ -21,4 +21,4 @@ services:
               device_ids:
                 - nvidia.com/gpu=all
 volumes:
-  hugging_face_cache:
+  hf-hub-cache:
