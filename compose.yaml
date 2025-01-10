@@ -11,7 +11,3 @@ services:
     restart: unless-stopped
     ports:
       - 8000:8000
-    develop:
-      watch:
-        - path: faster_whisper_server
-          action: rebuild
