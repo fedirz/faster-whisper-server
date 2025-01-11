@@ -17,6 +17,8 @@ theme:
     - search.highlight
     - search.share
 plugins:
+  # https://github.com/bharel/mkdocs-render-swagger-plugin
+  - render_swagger
   - mkdocstrings:
       default_handler: python
 nav:
@@ -24,6 +26,7 @@ nav:
   - Installation: installation.md
   - Configuration: configuration.md
   - Usage: usage.md
+  - API: api.md
 markdown_extensions:
   - admonition
   - pymdownx.superfences
