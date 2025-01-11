@@ -2,6 +2,8 @@ TODO: add a note about automatic downloads
 TODO: mention streaming
 TODO: add a demo
 TODO: talk about audio format
+TODO: add a note about performance
+TODO: add a note about vad
 
 !!! note
 
