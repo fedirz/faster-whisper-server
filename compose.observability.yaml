@@ -27,7 +27,7 @@ services:
       timeout: 5s
       retries: 3
   prometheus:
-    image: prom/prometheus:v2.55.1
+    image: prom/prometheus:v3.1.0
     command: ["--config.file=/etc/prometheus.yaml"]
     volumes:
       - ./configuration/prometheus.yaml:/etc/prometheus.yaml
