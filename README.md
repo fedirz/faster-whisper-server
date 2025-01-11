@@ -1,11 +1,15 @@
-# Faster Whisper Server
+> [!NOTE]
+> This project was previously named `faster-whisper-server`. I've decided to change the name from `faster-whisper-server`, as the project has evolved to support more than just transcription.
 
-`faster-whisper-server` is an OpenAI API-compatible transcription server which uses [faster-whisper](https://github.com/SYSTRAN/faster-whisper) as its backend.
+# Speaches
+
+`speaches` is an OpenAI API-compatible server supporting transcription, translation, and speech generation. For transcription/translation it uses [faster-whisper](https://github.com/SYSTRAN/faster-whisper) and for text-to-speech [piper](https://github.com/rhasspy/piper) is used.
+
 Features:
 
 - GPU and CPU support.
 - Easily deployable using Docker.
-- **Configurable through environment variables (see [config.py](./src/faster_whisper_server/config.py))**.
+- **Configurable through environment variables (see [config.py](./src/speaches/config.py))**.
 - OpenAI API compatible.
 - Streaming support (transcription is sent via [SSE](https://en.wikipedia.org/wiki/Server-sent_events) as the audio is transcribed. You don't need to wait for the audio to fully be transcribed before receiving it).
 - Live transcription support (audio is sent via websocket as it's generated).
@@ -18,7 +22,7 @@ Please create an issue if you find a bug, have a question, or a feature suggesti
 See [OpenAI API reference](https://platform.openai.com/docs/api-reference/audio) for more information.
 
 - Audio file transcription via `POST /v1/audio/transcriptions` endpoint.
-  - Unlike OpenAI's API, `faster-whisper-server` also supports streaming transcriptions (and translations). This is useful for when you want to process large audio files and would rather receive the transcription in chunks as they are processed, rather than waiting for the whole file to be transcribed. It works similarly to chat messages when chatting with LLMs.
+  - Unlike OpenAI's API, `speaches` also supports streaming transcriptions (and translations). This is useful for when you want to process large audio files and would rather receive the transcription in chunks as they are processed, rather than waiting for the whole file to be transcribed. It works similarly to chat messages when chatting with LLMs.
 - Audio file translation via `POST /v1/audio/translations` endpoint.
 - Live audio transcription via `WS /v1/audio/transcriptions` endpoint.
   - LocalAgreement2 ([paper](https://aclanthology.org/2023.ijcnlp-demo.3.pdf) | [original implementation](https://github.com/ufal/whisper_streaming)) algorithm is used for live transcription.
@@ -35,13 +39,13 @@ See [OpenAI API reference](https://platform.openai.com/docs/api-reference/audio)
 NOTE: I'm using newer Docker Compsose features. If you are using an older version of Docker Compose, you may need need to update.
 
 ```bash
-curl --silent --remote-name https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.yaml
+curl --silent --remote-name https://raw.githubusercontent.com/speaches-ai/speaches/master/compose.yaml
 
 # for GPU support
-curl --silent --remote-name https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.cuda.yaml
+curl --silent --remote-name https://raw.githubusercontent.com/speaches-ai/speaches/master/compose.cuda.yaml
 docker compose --file compose.cuda.yaml up --detach
 # for CPU only (use this if you don't have a GPU, as the image is much smaller)
-curl --silent --remote-name https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.cpu.yaml
+curl --silent --remote-name https://raw.githubusercontent.com/speaches-ai/speaches/master/compose.cpu.yaml
 docker compose --file compose.cpu.yaml up --detach
 ```
 
@@ -49,9 +53,9 @@ docker compose --file compose.cpu.yaml up --detach
 
 ```bash
 # for GPU support
-docker run --gpus=all --publish 8000:8000 --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub --detach fedirz/faster-whisper-server:latest-cuda
+docker run --gpus=all --publish 8000:8000 --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub --detach ghcr.io/speaches-ai/speaches:latest-cuda
 # for CPU only (use this if you don't have a GPU, as the image is much smaller)
-docker run --publish 8000:8000 --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub --env WHISPER__MODEL=Systran/faster-whisper-small --detach fedirz/faster-whisper-server:latest-cpu
+docker run --publish 8000:8000 --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub --env WHISPER__MODEL=Systran/faster-whisper-small --detach ghcr.io/speaches-ai/speaches:latest-cpu
 ```
 
 ### Using Kubernetes

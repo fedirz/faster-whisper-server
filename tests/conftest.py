@@ -12,9 +12,9 @@ import pytest
 import pytest_asyncio
 from pytest_mock import MockerFixture
 
-from faster_whisper_server.config import Config, WhisperConfig
-from faster_whisper_server.dependencies import get_config
-from faster_whisper_server.main import create_app
+from speaches.config import Config, WhisperConfig
+from speaches.dependencies import get_config
+from speaches.main import create_app
 
 DISABLE_LOGGERS = ["multipart.multipart", "faster_whisper"]
 OPENAI_BASE_URL = "https://api.openai.com/v1"
@@ -54,11 +54,11 @@ async def aclient_factory(mocker: MockerFixture) -> AclientFactory:
     @asynccontextmanager
     async def inner(config: Config = DEFAULT_CONFIG) -> AsyncGenerator[AsyncClient, None]:
         # NOTE: all calls to `get_config` should be patched. One way to test that this works is to update the original `get_config` to raise an exception and see if the tests fail  # noqa: E501
-        mocker.patch("faster_whisper_server.dependencies.get_config", return_value=config)
-        mocker.patch("faster_whisper_server.main.get_config", return_value=config)
+        mocker.patch("speaches.dependencies.get_config", return_value=config)
+        mocker.patch("speaches.main.get_config", return_value=config)
         # NOTE: I couldn't get the following to work but it shouldn't matter
         # mocker.patch(
-        #     "faster_whisper_server.text_utils.Transcription._ensure_no_word_overlap.get_config", return_value=config
+        #     "speaches.text_utils.Transcription._ensure_no_word_overlap.get_config", return_value=config
         # )
 
         app = create_app()

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from faster_whisper_server.api_models import TranscriptionSegment, TranscriptionWord
+    from speaches.api_models import TranscriptionSegment, TranscriptionWord
 
 
 class Transcription:
@@ -38,7 +38,7 @@ class Transcription:
         self.words.extend(words)
 
     def _ensure_no_word_overlap(self, words: list[TranscriptionWord]) -> None:
-        from faster_whisper_server.dependencies import get_config  # HACK: avoid circular import
+        from speaches.dependencies import get_config  # HACK: avoid circular import
 
         config = get_config()  # HACK
         if len(self.words) > 0 and len(words) > 0:

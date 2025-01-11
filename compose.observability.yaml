@@ -5,7 +5,7 @@ services:
     volumes:
       - ./configuration/opentelemetry-collector.yaml:/etc/opentelemetry-collector.yaml
     ports:
-      # NOTE: when `faster-whisper-server` is also running as a Docker Compose service, this doesn't need to be exposed.
+      # NOTE: when `speaches` is also running as a Docker Compose service, this doesn't need to be exposed.
       - 4317:4317 # OTLP gRPC receiver
       # - 4318:4318 # OTLP HTTP receiver
       # - 8888:8888 # Prometheus metrics exposed by the Collector

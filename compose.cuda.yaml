@@ -1,11 +1,11 @@
 # include:
 #   - compose.observability.yaml
 services:
-  faster-whisper-server:
+  speaches:
     extends:
       file: compose.yaml
-      service: faster-whisper-server
-    image: fedirz/faster-whisper-server:latest-cuda
+      service: speaches
+    image: ghcr.io/speaches-ai/speaches:latest-cuda
     build:
       args:
         BASE_IMAGE: nvidia/cuda:12.6.2-cudnn-runtime-ubuntu24.04

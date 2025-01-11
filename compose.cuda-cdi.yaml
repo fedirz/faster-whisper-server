@@ -4,10 +4,10 @@
 # https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/cdi-support.html
 # https://docs.docker.com/reference/cli/dockerd/#enable-cdi-devices
 services:
-  faster-whisper-server:
+  speaches:
     extends:
       file: compose.cuda.yaml
-      service: faster-whisper-server
+      service: speaches
     volumes:
       - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
     deploy:

@@ -10,7 +10,7 @@ import huggingface_hub
 from huggingface_hub.constants import HF_HUB_CACHE
 from pydantic import BaseModel, Field, computed_field
 
-from faster_whisper_server.api_models import Model
+from speaches.api_models import Model
 
 logger = logging.getLogger(__name__)
 
