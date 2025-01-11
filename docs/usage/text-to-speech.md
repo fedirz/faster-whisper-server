@@ -2,11 +2,13 @@
 
     This feature not supported on ARM devices only x86_64. I was unable to build [piper-phonemize](https://github.com/rhasspy/piper-phonemize)(my [fork](https://github.com/fedirz/piper-phonemize))
 
-https://platform.openai.com/docs/api-reference/audio/createSpeech
-https://platform.openai.com/docs/guides/text-to-speech
 http://localhost:8001/faster-whisper-server/api/
 TODO: add a note about automatic downloads
 TODO: add a demo
+
+!!! note
+
+    Before proceeding, make sure you are familiar with the [OpenAI Text-to-Speech](https://platform.openai.com/docs/guides/text-to-speech) and the relevant [OpenAI API reference](https://platform.openai.com/docs/api-reference/audio/createSpeech)
 
 ## Prerequisite
 
