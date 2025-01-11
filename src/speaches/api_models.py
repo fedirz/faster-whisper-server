@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from faster_whisper_server.text_utils import Transcription, canonicalize_word, segments_to_text
+from speaches.text_utils import Transcription, canonicalize_word, segments_to_text
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -23,7 +23,7 @@ class TranscriptionWord(BaseModel):
     def from_segments(cls, segments: Iterable[TranscriptionSegment]) -> list[TranscriptionWord]:
         words: list[TranscriptionWord] = []
         for segment in segments:
-            # NOTE: a temporary "fix" for https://github.com/fedirz/faster-whisper-server/issues/58.
+            # NOTE: a temporary "fix" for https://github.com/speaches-ai/speaches/issues/58.
             # TODO: properly address the issue
             assert (
                 segment.words is not None

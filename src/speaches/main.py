@@ -10,15 +10,15 @@ from fastapi import (
 )
 from fastapi.middleware.cors import CORSMiddleware
 
-from faster_whisper_server.dependencies import ApiKeyDependency, get_config, get_model_manager
-from faster_whisper_server.logger import setup_logger
-from faster_whisper_server.routers.misc import (
+from speaches.dependencies import ApiKeyDependency, get_config, get_model_manager
+from speaches.logger import setup_logger
+from speaches.routers.misc import (
     router as misc_router,
 )
-from faster_whisper_server.routers.models import (
+from speaches.routers.models import (
     router as models_router,
 )
-from faster_whisper_server.routers.stt import (
+from speaches.routers.stt import (
     router as stt_router,
 )
 
@@ -47,7 +47,7 @@ def create_app() -> FastAPI:
     logger.debug(f"Config: {config}")
 
     if platform.machine() == "x86_64":
-        from faster_whisper_server.routers.speech import (
+        from speaches.routers.speech import (
             router as speech_router,
         )
     else:
@@ -86,7 +86,7 @@ def create_app() -> FastAPI:
     if config.enable_ui:
         import gradio as gr
 
-        from faster_whisper_server.gradio_app import create_gradio_demo
+        from speaches.gradio_app import create_gradio_demo
 
         app = gr.mount_gradio_app(app, create_gradio_demo(config), path="/")
 

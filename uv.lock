@@ -267,115 +267,6 @@ wheels = [
 ]
 
 [[package]]
-name = "faster-whisper-server"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "ctranslate2" },
-    { name = "fastapi" },
-    { name = "faster-whisper" },
-    { name = "huggingface-hub", extra = ["hf-transfer"] },
-    { name = "numpy" },
-    { name = "piper-phonemize", marker = "platform_machine == 'x86_64'" },
-    { name = "piper-tts", marker = "platform_machine == 'x86_64'" },
-    { name = "pydantic" },
-    { name = "pydantic-settings" },
-    { name = "python-multipart" },
-    { name = "sounddevice" },
-    { name = "soundfile" },
-    { name = "uvicorn" },
-]
-
-[package.optional-dependencies]
-client = [
-    { name = "keyboard" },
-]
-dev = [
-    { name = "anyio" },
-    { name = "basedpyright" },
-    { name = "mdx-truly-sane-lists" },
-    { name = "mkdocs-material" },
-    { name = "mkdocs-render-swagger-plugin" },
-    { name = "mkdocstrings", extra = ["python"] },
-    { name = "pre-commit" },
-    { name = "pytest" },
-    { name = "pytest-antilru" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-mock" },
-    { name = "pytest-xdist" },
-    { name = "ruff" },
-    { name = "srt" },
-    { name = "webvtt-py" },
-]
-opentelemetry = [
-    { name = "opentelemetry-distro" },
-    { name = "opentelemetry-exporter-otlp" },
-    { name = "opentelemetry-instrumentation-asyncio" },
-    { name = "opentelemetry-instrumentation-fastapi" },
-    { name = "opentelemetry-instrumentation-grpc" },
-    { name = "opentelemetry-instrumentation-httpx" },
-    { name = "opentelemetry-instrumentation-logging" },
-    { name = "opentelemetry-instrumentation-requests" },
-    { name = "opentelemetry-instrumentation-threading" },
-    { name = "opentelemetry-instrumentation-urllib" },
-    { name = "opentelemetry-instrumentation-urllib3" },
-]
-ui = [
-    { name = "gradio" },
-    { name = "httpx" },
-    { name = "httpx-sse" },
-    { name = "openai" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "anyio", marker = "extra == 'dev'", specifier = ">=4.4.0" },
-    { name = "basedpyright", marker = "extra == 'dev'", specifier = ">=1.18.0" },
-    { name = "ctranslate2", specifier = ">=4.5.0" },
-    { name = "fastapi", specifier = ">=0.115.0" },
-    { name = "faster-whisper", specifier = ">=1.1.0" },
-    { name = "gradio", marker = "extra == 'ui'", specifier = ">=5.0.2" },
-    { name = "httpx", marker = "extra == 'ui'", specifier = ">=0.27.2" },
-    { name = "httpx-sse", marker = "extra == 'ui'", specifier = ">=0.4.0" },
-    { name = "huggingface-hub", extras = ["hf-transfer"], specifier = ">=0.25.1" },
-    { name = "keyboard", marker = "extra == 'client'", specifier = ">=0.13.5" },
-    { name = "mdx-truly-sane-lists", marker = "extra == 'dev'", specifier = ">=1.3" },
-    { name = "mkdocs-material", marker = "extra == 'dev'", specifier = ">=9.5.39" },
-    { name = "mkdocs-render-swagger-plugin", marker = "extra == 'dev'", specifier = ">=0.1.2" },
-    { name = "mkdocstrings", extras = ["python"], marker = "extra == 'dev'", specifier = ">=0.26.1" },
-    { name = "numpy", specifier = ">=2.1.1" },
-    { name = "openai", marker = "extra == 'ui'", specifier = ">=1.48.0" },
-    { name = "opentelemetry-distro", marker = "extra == 'opentelemetry'", specifier = ">=0.48b0" },
-    { name = "opentelemetry-exporter-otlp", marker = "extra == 'opentelemetry'", specifier = ">=1.27.0" },
-    { name = "opentelemetry-instrumentation-asyncio", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
-    { name = "opentelemetry-instrumentation-fastapi", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
-    { name = "opentelemetry-instrumentation-grpc", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
-    { name = "opentelemetry-instrumentation-httpx", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
-    { name = "opentelemetry-instrumentation-logging", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
-    { name = "opentelemetry-instrumentation-requests", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
-    { name = "opentelemetry-instrumentation-threading", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
-    { name = "opentelemetry-instrumentation-urllib", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
-    { name = "opentelemetry-instrumentation-urllib3", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
-    { name = "piper-phonemize", marker = "platform_machine == 'x86_64'", url = "https://github.com/fedirz/piper-phonemize/raw/refs/heads/master/dist/piper_phonemize-1.2.0-cp312-cp312-manylinux_2_28_x86_64.whl" },
-    { name = "piper-tts", marker = "platform_machine == 'x86_64'", specifier = ">=1.2.0" },
-    { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.0.1" },
-    { name = "pydantic", specifier = ">=2.9.0" },
-    { name = "pydantic-settings", specifier = ">=2.5.2" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.3" },
-    { name = "pytest-antilru", marker = "extra == 'dev'", specifier = ">=2.0.0" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.24.0" },
-    { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=3.14.0" },
-    { name = "pytest-xdist", marker = "extra == 'dev'", specifier = ">=3.6.1" },
-    { name = "python-multipart", specifier = ">=0.0.10" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.7.1" },
-    { name = "sounddevice", specifier = ">=0.5.1" },
-    { name = "soundfile", specifier = ">=0.12.1" },
-    { name = "srt", marker = "extra == 'dev'", specifier = ">=3.5.3" },
-    { name = "uvicorn", specifier = ">=0.30.6" },
-    { name = "webvtt-py", marker = "extra == 'dev'", specifier = ">=0.5.1" },
-]
-
-[[package]]
 name = "ffmpy"
 version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -4239,6 +4130,115 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/c1/07/7591f4efd29e65071c3a61b53725036ea8f73366a4920a481ebddaf8d0ca/soundfile-0.12.1-py2.py3-none-manylinux_2_31_x86_64.whl", hash = "sha256:074247b771a181859d2bc1f98b5ebf6d5153d2c397b86ee9e29ba602a8dfe2a6", size = 1174746 },
     { url = "https://files.pythonhosted.org/packages/03/0f/49941ed8a2d94e5b36ea94346fb1d2b22e847fede902e05be4c96f26be7d/soundfile-0.12.1-py2.py3-none-win32.whl", hash = "sha256:59dfd88c79b48f441bbf6994142a19ab1de3b9bb7c12863402c2bc621e49091a", size = 888234 },
     { url = "https://files.pythonhosted.org/packages/50/ff/26a4ee48d0b66625a4e4028a055b9f25bc9d7c7b2d17d21a45137621a50d/soundfile-0.12.1-py2.py3-none-win_amd64.whl", hash = "sha256:0d86924c00b62552b650ddd28af426e3ff2d4dc2e9047dae5b3d8452e0a49a77", size = 1009109 },
+]
+
+[[package]]
+name = "speaches"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "ctranslate2" },
+    { name = "fastapi" },
+    { name = "faster-whisper" },
+    { name = "huggingface-hub", extra = ["hf-transfer"] },
+    { name = "numpy" },
+    { name = "piper-phonemize", marker = "platform_machine == 'x86_64'" },
+    { name = "piper-tts", marker = "platform_machine == 'x86_64'" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "python-multipart" },
+    { name = "sounddevice" },
+    { name = "soundfile" },
+    { name = "uvicorn" },
+]
+
+[package.optional-dependencies]
+client = [
+    { name = "keyboard" },
+]
+dev = [
+    { name = "anyio" },
+    { name = "basedpyright" },
+    { name = "mdx-truly-sane-lists" },
+    { name = "mkdocs-material" },
+    { name = "mkdocs-render-swagger-plugin" },
+    { name = "mkdocstrings", extra = ["python"] },
+    { name = "pre-commit" },
+    { name = "pytest" },
+    { name = "pytest-antilru" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-mock" },
+    { name = "pytest-xdist" },
+    { name = "ruff" },
+    { name = "srt" },
+    { name = "webvtt-py" },
+]
+opentelemetry = [
+    { name = "opentelemetry-distro" },
+    { name = "opentelemetry-exporter-otlp" },
+    { name = "opentelemetry-instrumentation-asyncio" },
+    { name = "opentelemetry-instrumentation-fastapi" },
+    { name = "opentelemetry-instrumentation-grpc" },
+    { name = "opentelemetry-instrumentation-httpx" },
+    { name = "opentelemetry-instrumentation-logging" },
+    { name = "opentelemetry-instrumentation-requests" },
+    { name = "opentelemetry-instrumentation-threading" },
+    { name = "opentelemetry-instrumentation-urllib" },
+    { name = "opentelemetry-instrumentation-urllib3" },
+]
+ui = [
+    { name = "gradio" },
+    { name = "httpx" },
+    { name = "httpx-sse" },
+    { name = "openai" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "anyio", marker = "extra == 'dev'", specifier = ">=4.4.0" },
+    { name = "basedpyright", marker = "extra == 'dev'", specifier = ">=1.18.0" },
+    { name = "ctranslate2", specifier = ">=4.5.0" },
+    { name = "fastapi", specifier = ">=0.115.0" },
+    { name = "faster-whisper", specifier = ">=1.1.0" },
+    { name = "gradio", marker = "extra == 'ui'", specifier = ">=5.0.2" },
+    { name = "httpx", marker = "extra == 'ui'", specifier = ">=0.27.2" },
+    { name = "httpx-sse", marker = "extra == 'ui'", specifier = ">=0.4.0" },
+    { name = "huggingface-hub", extras = ["hf-transfer"], specifier = ">=0.25.1" },
+    { name = "keyboard", marker = "extra == 'client'", specifier = ">=0.13.5" },
+    { name = "mdx-truly-sane-lists", marker = "extra == 'dev'", specifier = ">=1.3" },
+    { name = "mkdocs-material", marker = "extra == 'dev'", specifier = ">=9.5.39" },
+    { name = "mkdocs-render-swagger-plugin", marker = "extra == 'dev'", specifier = ">=0.1.2" },
+    { name = "mkdocstrings", extras = ["python"], marker = "extra == 'dev'", specifier = ">=0.26.1" },
+    { name = "numpy", specifier = ">=2.1.1" },
+    { name = "openai", marker = "extra == 'ui'", specifier = ">=1.48.0" },
+    { name = "opentelemetry-distro", marker = "extra == 'opentelemetry'", specifier = ">=0.48b0" },
+    { name = "opentelemetry-exporter-otlp", marker = "extra == 'opentelemetry'", specifier = ">=1.27.0" },
+    { name = "opentelemetry-instrumentation-asyncio", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
+    { name = "opentelemetry-instrumentation-fastapi", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
+    { name = "opentelemetry-instrumentation-grpc", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
+    { name = "opentelemetry-instrumentation-httpx", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
+    { name = "opentelemetry-instrumentation-logging", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
+    { name = "opentelemetry-instrumentation-requests", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
+    { name = "opentelemetry-instrumentation-threading", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
+    { name = "opentelemetry-instrumentation-urllib", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
+    { name = "opentelemetry-instrumentation-urllib3", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
+    { name = "piper-phonemize", marker = "platform_machine == 'x86_64'", url = "https://github.com/fedirz/piper-phonemize/raw/refs/heads/master/dist/piper_phonemize-1.2.0-cp312-cp312-manylinux_2_28_x86_64.whl" },
+    { name = "piper-tts", marker = "platform_machine == 'x86_64'", specifier = ">=1.2.0" },
+    { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.0.1" },
+    { name = "pydantic", specifier = ">=2.9.0" },
+    { name = "pydantic-settings", specifier = ">=2.5.2" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.3" },
+    { name = "pytest-antilru", marker = "extra == 'dev'", specifier = ">=2.0.0" },
+    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.24.0" },
+    { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=3.14.0" },
+    { name = "pytest-xdist", marker = "extra == 'dev'", specifier = ">=3.6.1" },
+    { name = "python-multipart", specifier = ">=0.0.10" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.7.1" },
+    { name = "sounddevice", specifier = ">=0.5.1" },
+    { name = "soundfile", specifier = ">=0.12.1" },
+    { name = "srt", marker = "extra == 'dev'", specifier = ">=3.5.3" },
+    { name = "uvicorn", specifier = ">=0.30.6" },
+    { name = "webvtt-py", marker = "extra == 'dev'", specifier = ">=0.5.1" },
 ]
 
 [[package]]

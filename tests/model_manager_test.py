@@ -3,7 +3,7 @@ import asyncio
 import anyio
 import pytest
 
-from faster_whisper_server.config import Config, WhisperConfig
+from speaches.config import Config, WhisperConfig
 from tests.conftest import DEFAULT_WHISPER_MODEL, AclientFactory
 
 MODEL = DEFAULT_WHISPER_MODEL  # just to make the test more readable

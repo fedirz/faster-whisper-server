@@ -7,8 +7,8 @@ import httpx
 from httpx_sse import aconnect_sse
 from openai import AsyncOpenAI
 
-from faster_whisper_server.config import Config, Task
-from faster_whisper_server.hf_utils import PiperModel
+from speaches.config import Config, Task
+from speaches.hf_utils import PiperModel
 
 TRANSCRIPTION_ENDPOINT = "/v1/audio/transcriptions"
 TRANSLATION_ENDPOINT = "/v1/audio/translations"
@@ -128,9 +128,9 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
             file.write(audio_bytes)
         return file_path
 
-    with gr.Blocks(title="faster-whisper-server Playground") as demo:
+    with gr.Blocks(title="Speaches Playground") as demo:
         gr.Markdown(
-            "### Consider supporting the project by starring the [repository on GitHub](https://github.com/fedirz/faster-whisper-server)."
+            "### Consider supporting the project by starring the [repository on GitHub](https://github.com/speaches-ai/speaches)."
         )
         with gr.Tab(label="Transcribe/Translate"):
             audio = gr.Audio(type="filepath")
@@ -157,7 +157,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
 
         with gr.Tab(label="Speech Generation"):
             if platform.machine() != "x86_64":
-                from faster_whisper_server.routers.speech import (
+                from speaches.routers.speech import (
                     DEFAULT_VOICE,
                     MAX_SAMPLE_RATE,
                     MIN_SAMPLE_RATE,

@@ -9,8 +9,8 @@ from openai import AsyncOpenAI
 from openai.resources.audio import AsyncSpeech, AsyncTranscriptions
 from openai.resources.chat.completions import AsyncCompletions
 
-from faster_whisper_server.config import Config
-from faster_whisper_server.model_manager import PiperModelManager, WhisperModelManager
+from speaches.config import Config
+from speaches.model_manager import PiperModelManager, WhisperModelManager
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ def get_speech_client() -> AsyncSpeech:
     config = get_config()
     if config.speech_base_url is None:
         # this might not work as expected if `speech_router` won't have shared state (access to the same `model_manager`) with the main FastAPI `app`. TODO: verify  # noqa: E501
-        from faster_whisper_server.routers.speech import (
+        from speaches.routers.speech import (
             router as speech_router,
         )
 
@@ -94,7 +94,7 @@ def get_transcription_client() -> AsyncTranscriptions:
     config = get_config()
     if config.transcription_base_url is None:
         # this might not work as expected if `transcription_router` won't have shared state (access to the same `model_manager`) with the main FastAPI `app`. TODO: verify  # noqa: E501
-        from faster_whisper_server.routers.stt import (
+        from speaches.routers.stt import (
             router as stt_router,
         )
 

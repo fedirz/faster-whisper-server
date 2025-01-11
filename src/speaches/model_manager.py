@@ -9,14 +9,14 @@ from typing import TYPE_CHECKING
 
 from faster_whisper import WhisperModel
 
-from faster_whisper_server.hf_utils import get_piper_voice_model_file
+from speaches.hf_utils import get_piper_voice_model_file
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from piper.voice import PiperVoice
 
-    from faster_whisper_server.config import (
+    from speaches.config import (
         WhisperConfig,
     )
 

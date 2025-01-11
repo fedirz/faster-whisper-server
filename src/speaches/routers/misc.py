@@ -7,8 +7,8 @@ from fastapi import (
 import huggingface_hub
 from huggingface_hub.hf_api import RepositoryNotFoundError
 
-from faster_whisper_server import hf_utils
-from faster_whisper_server.dependencies import ModelManagerDependency  # noqa: TCH001
+from speaches import hf_utils
+from speaches.dependencies import ModelManagerDependency  # noqa: TC001
 
 router = APIRouter()
 

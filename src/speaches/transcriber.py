@@ -3,14 +3,14 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from faster_whisper_server.audio import Audio, AudioStream
-from faster_whisper_server.text_utils import Transcription, common_prefix, to_full_sentences, word_to_text
+from speaches.audio import Audio, AudioStream
+from speaches.text_utils import Transcription, common_prefix, to_full_sentences, word_to_text
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
-    from faster_whisper_server.api_models import TranscriptionWord
-    from faster_whisper_server.asr import FasterWhisperASR
+    from speaches.api_models import TranscriptionWord
+    from speaches.asr import FasterWhisperASR
 
 logger = logging.getLogger(__name__)
 

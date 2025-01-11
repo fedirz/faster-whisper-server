@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, BinaryIO
 import numpy as np
 import soundfile as sf
 
-from faster_whisper_server.config import SAMPLES_PER_SECOND
+from speaches.config import SAMPLES_PER_SECOND
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator

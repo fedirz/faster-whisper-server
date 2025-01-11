@@ -27,7 +27,7 @@ from numpy import float32
 from numpy.typing import NDArray
 from pydantic import AfterValidator, Field
 
-from faster_whisper_server.api_models import (
+from speaches.api_models import (
     DEFAULT_TIMESTAMP_GRANULARITIES,
     TIMESTAMP_GRANULARITIES_COMBINATIONS,
     CreateTranscriptionResponseJson,
@@ -35,17 +35,17 @@ from faster_whisper_server.api_models import (
     TimestampGranularities,
     TranscriptionSegment,
 )
-from faster_whisper_server.asr import FasterWhisperASR
-from faster_whisper_server.audio import AudioStream, audio_samples_from_file
-from faster_whisper_server.config import (
+from speaches.asr import FasterWhisperASR
+from speaches.audio import AudioStream, audio_samples_from_file
+from speaches.config import (
     SAMPLES_PER_SECOND,
     Language,
     ResponseFormat,
     Task,
 )
-from faster_whisper_server.dependencies import ConfigDependency, ModelManagerDependency, get_config
-from faster_whisper_server.text_utils import segments_to_srt, segments_to_text, segments_to_vtt
-from faster_whisper_server.transcriber import audio_transcriber
+from speaches.dependencies import ConfigDependency, ModelManagerDependency, get_config
+from speaches.text_utils import segments_to_srt, segments_to_text, segments_to_vtt
+from speaches.transcriber import audio_transcriber
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable
@@ -77,7 +77,7 @@ def audio_file_dependency(
         ) from e
     except Exception as e:
         logger.exception(
-            "Failed to decode audio. This is likely a bug. Please create an issue at https://github.com/fedirz/faster-whisper-server/issues/new."
+            "Failed to decode audio. This is likely a bug. Please create an issue at https://github.com/speaches-ai/speaches/issues/new."
         )
         raise HTTPException(status_code=500, detail="Failed to decode audio.") from e
     else:
