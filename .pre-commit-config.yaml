@@ -44,4 +44,4 @@ repos:
     rev: v1.5.0
     hooks:
       - id: detect-secrets
-        exclude: 'README.md|tests/conftest.py|docs/usage.md'
+        exclude: 'README.md|tests/conftest.py|docs/usage/*'
