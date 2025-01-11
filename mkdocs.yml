@@ -32,3 +32,5 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
+  # https://github.com/mkdocs/mkdocs/issues/545
+  - mdx_truly_sane_lists

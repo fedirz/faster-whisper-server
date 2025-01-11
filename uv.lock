@@ -293,6 +293,7 @@ client = [
 dev = [
     { name = "anyio" },
     { name = "basedpyright" },
+    { name = "mdx-truly-sane-lists" },
     { name = "mkdocs-material" },
     { name = "mkdocs-render-swagger-plugin" },
     { name = "mkdocstrings", extra = ["python"] },
@@ -338,6 +339,7 @@ requires-dist = [
     { name = "httpx-sse", marker = "extra == 'ui'", specifier = ">=0.4.0" },
     { name = "huggingface-hub", extras = ["hf-transfer"], specifier = ">=0.25.1" },
     { name = "keyboard", marker = "extra == 'client'", specifier = ">=0.13.5" },
+    { name = "mdx-truly-sane-lists", marker = "extra == 'dev'", specifier = ">=1.3" },
     { name = "mkdocs-material", marker = "extra == 'dev'", specifier = ">=9.5.39" },
     { name = "mkdocs-render-swagger-plugin", marker = "extra == 'dev'", specifier = ">=0.1.2" },
     { name = "mkdocstrings", extras = ["python"], marker = "extra == 'dev'", specifier = ">=0.26.1" },
@@ -743,6 +745,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d6/54/cfe61301667036ec958cb99bd3efefba235e65cdeb9c84d24a8293ba1d90/mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba", size = 8729 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8", size = 9979 },
+]
+
+[[package]]
+name = "mdx-truly-sane-lists"
+version = "1.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "markdown" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e6/27/16456314311abac2cedef4527679924e80ac4de19dd926699c1b261e0b9b/mdx_truly_sane_lists-1.3.tar.gz", hash = "sha256:b661022df7520a1e113af7c355c62216b384c867e4f59fb8ee7ad511e6e77f45", size = 5359 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3a/9e/dcd1027f7fd193aed152e01c6651a197c36b858f2cd1425ad04cb31a34fc/mdx_truly_sane_lists-1.3-py3-none-any.whl", hash = "sha256:b9546a4c40ff8f1ab692f77cee4b6bfe8ddf9cccf23f0a24e71f3716fe290a37", size = 6071 },
 ]
 
 [[package]]
