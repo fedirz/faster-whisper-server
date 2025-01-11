@@ -1,7 +1,7 @@
 ARG BASE_IMAGE=nvidia/cuda:12.6.3-cudnn-runtime-ubuntu24.04
 # hadolint ignore=DL3006
 FROM ${BASE_IMAGE}
-LABEL org.opencontainers.image.source="https://github.com/fedirz/faster-whisper-server"
+LABEL org.opencontainers.image.source="https://github.com/speaches-ai/speaches"
 LABEL org.opencontainers.image.licenses="MIT"
 # `ffmpeg` is installed because without it `gradio` won't work with mp3(possible others as well) files
 # hadolint ignore=DL3008
@@ -15,7 +15,7 @@ RUN apt-get update && \
 USER ubuntu
 ENV HOME=/home/ubuntu \
     PATH=/home/ubuntu/.local/bin:$PATH
-WORKDIR $HOME/faster-whisper-server
+WORKDIR $HOME/speaches
 # https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
 COPY --chown=ubuntu --from=ghcr.io/astral-sh/uv:0.5.14 /uv /bin/uv
 # https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
@@ -35,7 +35,7 @@ RUN mkdir -p $HOME/.cache/huggingface/hub
 ENV WHISPER__MODEL=Systran/faster-whisper-large-v3
 ENV UVICORN_HOST=0.0.0.0
 ENV UVICORN_PORT=8000
-ENV PATH="$HOME/faster-whisper-server/.venv/bin:$PATH"
+ENV PATH="$HOME/speaches/.venv/bin:$PATH"
 # https://huggingface.co/docs/huggingface_hub/en/package_reference/environment_variables#hfhubenablehftransfer
 # NOTE: I've disabled this because it doesn't inside of Docker container. I couldn't pinpoint the exact reason. This doesn't happen when running the server locally.
 # RuntimeError: An error occurred while downloading using `hf_transfer`. Consider disabling HF_HUB_ENABLE_HF_TRANSFER for better error handling.
@@ -44,4 +44,4 @@ ENV HF_HUB_ENABLE_HF_TRANSFER=0
 # https://www.reddit.com/r/StableDiffusion/comments/1f6asvd/gradio_sends_ip_address_telemetry_by_default/
 ENV DO_NOT_TRACK=1
 EXPOSE 8000
-CMD ["uvicorn", "--factory", "faster_whisper_server.main:create_app"]
+CMD ["uvicorn", "--factory", "speaches.main:create_app"]

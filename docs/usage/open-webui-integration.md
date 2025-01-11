@@ -6,7 +6,7 @@
 2. Click on the "Audio" tab
 3. Update settings
    - Speech-to-Text Engine: OpenAI
-   - API Base URL: http://faster-whisper-server:8000/v1
+   - API Base URL: http://speaches:8000/v1
    - API Key: does-not-matter-what-you-put-but-should-not-be-empty
    - Model: Systran/faster-distil-whisper-large-v3
 4. Click "Save"
@@ -27,10 +27,10 @@ services:
       ...
       # Environment variables are documented here https://docs.openwebui.com/getting-started/env-configuration#speech-to-text
       AUDIO_STT_ENGINE: "openai"
-      AUDIO_STT_OPENAI_API_BASE_URL: "http://faster-whisper-server:8000/v1"
+      AUDIO_STT_OPENAI_API_BASE_URL: "http://speaches:8000/v1"
       AUDIO_STT_OPENAI_API_KEY: "does-not-matter-what-you-put-but-should-not-be-empty"
       AUDIO_STT_MODEL: "Systran/faster-distil-whisper-large-v3"
-  faster-whisper-server:
-    image: fedirz/faster-whisper-server:latest-cuda
+  speaches:
+    image: ghcr.io/speaches-ai/speaches:latest-cuda
     ...
 ```

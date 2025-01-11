@@ -9,10 +9,10 @@ set -e
 
 export WHISPER__MODEL=Systran/faster-distil-whisper-large-v3 # or Systran/faster-whisper-tiny.en if you are running on a CPU for a faster inference.
 
-# Ensure you have `faster-whisper-server` running. If this is your first time running it expect to wait up-to a minute for the model to be downloaded and loaded into memory. You can run `curl localhost:8000/health` to check if the server is ready or watch the logs with `docker logs -f <container_id>`.
-docker run --detach --gpus=all --publish 8000:8000 --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub --env WHISPER__MODEL=$WHISPER__MODEL fedirz/faster-whisper-server:latest-cuda
+# Ensure you have `speaches` running. If this is your first time running it expect to wait up-to a minute for the model to be downloaded and loaded into memory. You can run `curl localhost:8000/health` to check if the server is ready or watch the logs with `docker logs -f <container_id>`.
+docker run --detach --gpus=all --publish 8000:8000 --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub --env WHISPER__MODEL=$WHISPER__MODEL ghcr.io/speaches-ai/speaches:latest-cuda
 # or you can run it on a CPU
-# docker run --detach --publish 8000:8000 --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub --env WHISPER__MODEL=$WHISPER__MODEL fedirz/faster-whisper-server:latest-cpu
+# docker run --detach --publish 8000:8000 --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub --env WHISPER__MODEL=$WHISPER__MODEL ghcr.io/speaches-ai/speaches:latest-cpu
 
 # `pv` is used to limit the rate at which the audio is streamed to the server. Audio is being streamed at a rate of 32kb/s(16000 sample rate * 16-bit sample / 8 bits per byte = 32000 bytes per second). This emulutes live audio input from a microphone: `ffmpeg -loglevel quiet -f alsa -i default -ac 1 -ar 16000 -f s16le -`
 # shellcheck disable=SC2002

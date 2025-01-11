@@ -5,7 +5,7 @@ from pathlib import Path
 from openai import AsyncOpenAI
 import pytest
 
-from faster_whisper_server.api_models import TIMESTAMP_GRANULARITIES_COMBINATIONS, TimestampGranularities
+from speaches.api_models import TIMESTAMP_GRANULARITIES_COMBINATIONS, TimestampGranularities
 
 
 @pytest.mark.asyncio
