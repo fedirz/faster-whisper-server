@@ -1,10 +1,11 @@
-https://platform.openai.com/docs/api-reference/audio/createTranscription
-https://platform.openai.com/docs/guides/speech-to-text
-
 TODO: add a note about automatic downloads
 TODO: mention streaming
 TODO: add a demo
 TODO: talk about audio format
+
+!!! note
+
+    Before proceeding, make sure you are familiar with the [OpenAI Speech-to-Text](https://platform.openai.com/docs/guides/speech-to-text) and the relevant [OpenAI API reference](https://platform.openai.com/docs/api-reference/audio/createTranscription)
 
 ## Curl
 
