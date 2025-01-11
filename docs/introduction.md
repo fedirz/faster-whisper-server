@@ -1,6 +1,10 @@
 !!! note
 
-    This project was previously named `faster-whisper-server`. It has been renamed to `speaches` to ...
+    This project was previously named `faster-whisper-server`. I've decided to change the name from `faster-whisper-server`, as the project has evolved to support more than just transcription.
+
+!!! note
+
+    These docs are a work in progress. If you have any questions, suggestions, or find a bug, please create an issue.
 
 TODO: add HuggingFace Space URL
 

@@ -1,3 +1,5 @@
+TODO: live vs streaming
+
 ## Live Transcription (using WebSocket)
 
 !!! note

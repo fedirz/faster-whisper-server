@@ -5,6 +5,9 @@
 http://localhost:8001/faster-whisper-server/api/
 TODO: add a note about automatic downloads
 TODO: add a demo
+TODO: add a note about tts only running on cpu
+TODO: add a note about exploring other models
+TODO: add a note about performance
 
 !!! note
 
