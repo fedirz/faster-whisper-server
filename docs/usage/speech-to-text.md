@@ -1,0 +1,54 @@
+https://platform.openai.com/docs/api-reference/audio/createTranscription
+https://platform.openai.com/docs/guides/speech-to-text
+
+TODO: add a note about automatic downloads
+TODO: add a note about api-key
+TODO: mention streaming
+TODO: add a demo
+TODO: talk about audio format
+
+## Curl
+
+```bash
+curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav"
+```
+
+## Python
+
+=== "httpx"
+
+    ```python
+    import httpx
+
+    with open('audio.wav', 'rb') as f:
+        files = {'file': ('audio.wav', f)}
+        response = httpx.post('http://localhost:8000/v1/audio/transcriptions', files=files)
+
+    print(response.text)
+    ```
+
+## OpenAI SDKs
+
+=== "Python"
+
+    ```python
+    import httpx
+
+    with open('audio.wav', 'rb') as f:
+        files = {'file': ('audio.wav', f)}
+        response = httpx.post('http://localhost:8000/v1/audio/transcriptions', files=files)
+
+    print(response.text)
+    ```
+
+=== "CLI"
+
+    ```bash
+    export OPENAI_BASE_URL=http://localhost:8000/v1/
+    export OPENAI_API_KEY="cant-be-empty"
+    openai api audio.transcriptions.create -m Systran/faster-whisper-small -f audio.wav --response-format text
+    ```
+
+=== "Other"
+
+    See [OpenAI libraries](https://platform.openai.com/docs/libraries).

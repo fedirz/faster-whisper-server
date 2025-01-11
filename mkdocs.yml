@@ -1,6 +1,10 @@
 # yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+# https://www.mkdocs.org/user-guide/configuration/#configuration
 site_name: Faster Whisper Server Documentation
-repo_url: https://github.com/fedirz/faster-whisper-server
+site_url: https://fedirz.github.io/faster-whisper-server/
+repo_url: https://github.com/fedirz/faster-whisper-server/
+edit_uri: edit/master/docs/
+docs_dir: docs
 theme:
   language: en
   name: material
@@ -9,13 +13,15 @@ theme:
     primary: deep orange
     accent: indigo
   features:
-    - content.tabs.link
-    - content.code.copy
+    # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/
     - navigation.instant
     - navigation.instant.progress
     - navigation.instant.prefetch
+    # https://squidfunk.github.io/mkdocs-material/setup/setting-up-site-search/
     - search.highlight
     - search.share
+    - content.tabs.link
+    - content.code.copy
 plugins:
   # https://github.com/bharel/mkdocs-render-swagger-plugin
   - render_swagger
@@ -23,9 +29,13 @@ plugins:
       default_handler: python
 nav:
   - Introduction: introduction.md
+  - Capabilities / Usage:
+      - Speech-to-Text: usage/speech-to-text.md
+      - Text-to-Speech: usage/text-to-speech.md
+      - Live Transcription (using WebSockets): usage/live-transcription.md
+      - Open WebUI Intergration: usage/open-webui-integration.md
   - Installation: installation.md
   - Configuration: configuration.md
-  - Usage: usage.md
   - API: api.md
 markdown_extensions:
   - admonition
@@ -34,3 +44,4 @@ markdown_extensions:
       alternate_style: true
   # https://github.com/mkdocs/mkdocs/issues/545
   - mdx_truly_sane_lists
+# TODO: https://github.com/oprypin/markdown-callouts
