@@ -37,6 +37,7 @@ dev = [
     "webvtt-py>=0.5.1",
     "pre-commit>=4.0.1",
     "pytest-mock>=3.14.0",
+    "mkdocs-render-swagger-plugin>=0.1.2",
 ]
 ui = [
     "gradio>=5.0.2",
