@@ -1,5 +1,5 @@
-from faster_whisper_server.api_models import TranscriptionWord
-from faster_whisper_server.text_utils import (
+from speaches.api_models import TranscriptionWord
+from speaches.text_utils import (
     canonicalize_word,
     common_prefix,
     is_eos,

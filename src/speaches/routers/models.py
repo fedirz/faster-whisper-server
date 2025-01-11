@@ -9,11 +9,11 @@ from fastapi import (
 )
 import huggingface_hub
 
-from faster_whisper_server.api_models import (
+from speaches.api_models import (
     ListModelsResponse,
     Model,
 )
-from faster_whisper_server.hf_utils import list_whisper_models
+from speaches.hf_utils import list_whisper_models
 
 if TYPE_CHECKING:
     from huggingface_hub.hf_api import ModelInfo

@@ -2,7 +2,6 @@
 
     This feature not supported on ARM devices only x86_64. I was unable to build [piper-phonemize](https://github.com/rhasspy/piper-phonemize)(my [fork](https://github.com/fedirz/piper-phonemize))
 
-http://localhost:8001/faster-whisper-server/api/
 TODO: add a note about automatic downloads
 TODO: add a demo
 TODO: add a note about tts only running on cpu
@@ -19,13 +18,13 @@ Download the piper voices from [HuggingFace model repository](https://huggingfac
 
 ```bash
 # Download all voices (~15 minutes / 7.7 Gbs)
-docker exec -it faster-whisper-server huggingface-cli download rhasspy/piper-voices
+docker exec -it speaches huggingface-cli download rhasspy/piper-voices
 # Download all English voices (~4.5 minutes)
-docker exec -it faster-whisper-server huggingface-cli download rhasspy/piper-voices --include 'en/**/*' 'voices.json'
+docker exec -it speaches huggingface-cli download rhasspy/piper-voices --include 'en/**/*' 'voices.json'
 # Download all qualities of a specific voice (~4 seconds)
-docker exec -it faster-whisper-server huggingface-cli download rhasspy/piper-voices --include 'en/en_US/amy/**/*' 'voices.json'
+docker exec -it speaches huggingface-cli download rhasspy/piper-voices --include 'en/en_US/amy/**/*' 'voices.json'
 # Download specific quality of a specific voice (~2 seconds)
-docker exec -it faster-whisper-server huggingface-cli download rhasspy/piper-voices --include 'en/en_US/amy/medium/*' 'voices.json'
+docker exec -it speaches huggingface-cli download rhasspy/piper-voices --include 'en/en_US/amy/medium/*' 'voices.json'
 ```
 
 !!! note

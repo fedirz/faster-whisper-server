@@ -1,5 +1,5 @@
 /**
- * Example provided by https://github.com/Gan-Xing in https://github.com/fedirz/faster-whisper-server/issues/26
+ * Example provided by https://github.com/Gan-Xing in https://github.com/speaches-ai/speaches/issues/26
  */
 import 'dotenv/config';
 import fs from 'node:fs';

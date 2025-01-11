@@ -11,8 +11,8 @@ from piper.voice import PiperVoice
 from pydantic import BaseModel, BeforeValidator, Field, ValidationError, model_validator
 import soundfile as sf
 
-from faster_whisper_server.dependencies import PiperModelManagerDependency
-from faster_whisper_server.hf_utils import (
+from speaches.dependencies import PiperModelManagerDependency
+from speaches.hf_utils import (
     PiperModel,
     list_piper_models,
     read_piper_voices_config,

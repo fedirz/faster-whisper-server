@@ -9,7 +9,7 @@ platform_machine = platform.machine()
 if platform_machine != "x86_64":
     pytest.skip("Only supported on x86_64", allow_module_level=True)
 
-from faster_whisper_server.routers.speech import (  # noqa: E402
+from speaches.routers.speech import (  # noqa: E402
     DEFAULT_MODEL,
     DEFAULT_RESPONSE_FORMAT,
     DEFAULT_VOICE,

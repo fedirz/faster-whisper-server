@@ -1,7 +1,7 @@
 # TODO: https://docs.astral.sh/uv/guides/integration/docker/#configuring-watch-with-docker-compose
 services:
-  faster-whisper-server:
-    container_name: faster-whisper-server
+  speaches:
+    container_name: speaches
     build:
       dockerfile: Dockerfile
       context: .

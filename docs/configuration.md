@@ -1,5 +1,5 @@
 <!-- https://mkdocstrings.github.io/python/usage/configuration/general/ -->
-::: faster_whisper_server.config.Config
+::: speaches.config.Config
     options:
         show_bases: true
         show_if_no_docstring: true
@@ -16,7 +16,7 @@
             - "!speech_*"
             - "!transcription_*"
 
-::: faster_whisper_server.config.WhisperConfig
+::: speaches.config.WhisperConfig
 
 <!-- TODO: nested model `whisper`  -->
 <!-- TODO: Insert new lines for multi-line docstrings  -->
