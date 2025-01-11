@@ -65,6 +65,18 @@ TODO: just reference the existing compose file in the repo
       hf-hub-cache:
     ```
 
+??? note "Build from source"
+
+    ```bash
+    # NOTE: you need to install and enable [buildx](https://github.com/docker/buildx) for multi-platform builds
+
+    # Build image with CUDA support
+    docker compose --file compose.cuda.yaml build
+
+    # Build image without CUDA support
+    docker compose --file compose.cpu.yaml build
+    ```
+
 ## Docker
 
 === "CUDA"
@@ -103,6 +115,19 @@ TODO: just reference the existing compose file in the repo
       --name faster-whisper-server \
       --volume hf-hub-cache:/home/ubuntu/.cache/huggingface/hub \
       fedirz/faster-whisper-server:latest-cpu
+    ```
+
+??? note "Build from source"
+
+    ```bash
+    docker build --tag faster-whisper-server .
+
+    # NOTE: you need to install and enable [buildx](https://github.com/docker/buildx) for multi-platform builds
+    # Build image for both amd64 and arm64
+    docker buildx build --tag faster-whisper-server --platform linux/amd64,linux/arm64 .
+
+    # Build image without CUDA support
+    docker build --tag faster-whisper-server --build-arg BASE_IMAGE=ubuntu:24.04 .
     ```
 
 ## Kubernetes
