@@ -17,7 +17,7 @@ ENV HOME=/home/ubuntu \
     PATH=/home/ubuntu/.local/bin:$PATH
 WORKDIR $HOME/speaches
 # https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
-COPY --chown=ubuntu --from=ghcr.io/astral-sh/uv:0.5.14 /uv /bin/uv
+COPY --chown=ubuntu --from=ghcr.io/astral-sh/uv:0.5.18 /uv /bin/uv
 # https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 # https://docs.astral.sh/uv/guides/integration/docker/#compiling-bytecode
 # TODO: figure out if `/home/ubuntu/.cache/uv` should be used instead of `/root/.cache/uv`
