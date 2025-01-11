@@ -1,69 +1,41 @@
 ## Docker Compose (Recommended)
 
-TODO: just reference the existing compose file in the repo
+!!! note
+
+    I'm using newer Docker Compsose features. If you are using an older version of Docker Compose, you may need need to update.
+
+Download the necessary Docker Compose files
+
 === "CUDA"
 
-    ```yaml
-    # https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
-    services:
-      faster-whisper-server:
-        image: fedirz/faster-whisper-server:latest-cuda
-        name: faster-whisper-server
-        restart: unless-stopped
-        ports:
-          - 8000:8000
-        volumes:
-          - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
-        deploy:
-          resources:
-            reservations:
-              devices:
-                - capabilities: ["gpu"]
-    volumes:
-      hf-hub-cache:
+    ```bash
+    curl --silent --remote-name https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.yaml
+    curl --silent --remote-name https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.cuda.yaml
+    export COMPOSE_FILE=compose.cuda.yaml
     ```
 
 === "CUDA (with CDI feature enabled)"
 
-    ```yaml
-    # https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
-    services:
-      faster-whisper-server:
-        image: fedirz/faster-whisper-server:latest-cuda
-        name: faster-whisper-server
-        restart: unless-stopped
-        ports:
-          - 8000:8000
-        volumes:
-          - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
-        deploy:
-          resources:
-            reservations:
-              # https://docs.docker.com/reference/cli/dockerd/#enable-cdi-devices
-              # https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/cdi-support.html
-              devices:
-                - driver: cdi
-                  device_ids:
-                  - nvidia.com/gpu=all
-    volumes:
-      hf-hub-cache:
+    ```bash
+    curl --silent --remote-name https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.yaml
+    curl --silent --remote-name https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.cuda.yaml
+    curl --silent --remote-name https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.cuda-cdi.yaml
+    export COMPOSE_FILE=compose.cuda-cdi.yaml
     ```
 
 === "CPU"
 
-    ```yaml
-    services:
-      faster-whisper-server:
-        image: fedirz/faster-whisper-server:latest-cpu
-        name: faster-whisper-server
-        restart: unless-stopped
-        ports:
-          - 8000:8000
-        volumes:
-          - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
-    volumes:
-      hf-hub-cache:
+    ```bash
+    curl --silent --remote-name https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.yaml
+    curl --silent --remote-name https://raw.githubusercontent.com/fedirz/faster-whisper-server/master/compose.cpu.yaml
+    export COMPOSE_FILE=compose.cpu.yaml
     ```
+
+Start the service
+
+```bash
+docker compose up --detach
+```
 
 ??? note "Build from source"
 
@@ -129,11 +101,6 @@ TODO: just reference the existing compose file in the repo
     # Build image without CUDA support
     docker build --tag faster-whisper-server --build-arg BASE_IMAGE=ubuntu:24.04 .
     ```
-
-## Kubernetes
-
-WARNING: it was written few months ago and may be outdated.
-Please refer to this [blog post](https://substratus.ai/blog/deploying-faster-whisper-on-k8s)
 
 ## Python (requires Python 3.12+ and `uv` package manager)
 
