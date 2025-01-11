@@ -1,6 +1,6 @@
-!!! warning
+!!! note
 
-    Under development. I don't yet recommend using these docs as reference for now.
+    This project was previously named `faster-whisper-server`. It has been renamed to `speaches` to ...
 
 TODO: add HuggingFace Space URL
 

@@ -6,7 +6,6 @@ https://platform.openai.com/docs/api-reference/audio/createSpeech
 https://platform.openai.com/docs/guides/text-to-speech
 http://localhost:8001/faster-whisper-server/api/
 TODO: add a note about automatic downloads
-TODO: add a note about api-key
 TODO: add a demo
 
 ## Prerequisite
@@ -73,6 +72,12 @@ curl http://localhost:8000/v1/audio/speech --header "Content-Type: application/j
     ```
 
 ## OpenAI SDKs
+
+!!! note
+
+    Although this project doesn't require an API key, all OpenAI SDKs require an API key. Therefore, you will need to set it to a non-empty value. Additionally, you will need to overwrite the base URL to point to your server.
+
+    This can be done by setting the `OPENAI_API_KEY` and `OPENAI_BASE_URL` environment variables or by passing them as arguments to the SDK.
 
 === "Python"
 
