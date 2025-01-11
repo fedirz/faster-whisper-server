@@ -2,18 +2,26 @@
 
     Under development. I don't yet recommend using these docs as reference for now.
 
+TODO: add HuggingFace Space URL
+
 # Faster Whisper Server
 
-`faster-whisper-server` is an OpenAI API-compatible transcription server which uses [faster-whisper](https://github.com/SYSTRAN/faster-whisper) as its backend.
-Features:
+`faster-whisper-server` is an OpenAI API-compatible server supporting transcription, translation, and speech generation. For transcription/translation it uses [faster-whisper](https://github.com/SYSTRAN/faster-whisper) and for text-to-speech [piper](https://github.com/rhasspy/piper) is used.
+
+## Features:
 
 - GPU and CPU support.
-- Easily deployable using Docker.
-- **Configurable through environment variables (see [config.py](./src/faster_whisper_server/config.py))**.
-- OpenAI API compatible.
+- [Deployable via Docker Compose / Docker](./installation.md)
+- [Highly configurable](./configuration.md)
+- OpenAI API compatible. All tools and SDKs that work with OpenAI's API should work with `faster-whisper-server`.
 - Streaming support (transcription is sent via [SSE](https://en.wikipedia.org/wiki/Server-sent_events) as the audio is transcribed. You don't need to wait for the audio to fully be transcribed before receiving it).
 - Live transcription support (audio is sent via websocket as it's generated).
 - Dynamic model loading / offloading. Just specify which model you want to use in the request and it will be loaded automatically. It will then be unloaded after a period of inactivity.
+- (Coming soon) Audio generation (chat completions endpoint) | [OpenAI Documentation](https://platform.openai.com/docs/guides/realtime)
+  - Generate a spoken audio summary of a body of text (text in, audio out)
+  - Perform sentiment analysis on a recording (audio in, text out)
+  - Async speech to speech interactions with a model (audio in, audio out)
+- (Coming soon) Realtime API | [OpenAI Documentation](https://platform.openai.com/docs/guides/realtime)
 
 Please create an issue if you find a bug, have a question, or a feature suggestion.
 

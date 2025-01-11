@@ -78,15 +78,15 @@ openai api audio.translations.create -m Systran/faster-distil-whisper-large-v3 -
 ### OpenAI API Python SDK
 
 ```python
+from pathlib import Path
+
 from openai import OpenAI
 
-client = OpenAI(api_key="cant-be-empty", base_url="http://localhost:8000/v1/")
+client = OpenAI(base_url="http://localhost:8000/v1", api_key="cant-be-empty")
 
-audio_file = open("audio.wav", "rb")
-transcript = client.audio.transcriptions.create(
-    model="Systran/faster-distil-whisper-large-v3", file=audio_file
-)
-print(transcript.text)
+with Path("audio.wav").open("rb") as f:
+    transcript = client.audio.transcriptions.create(model="Systran/faster-distil-whisper-large-v3", file=f)
+    print(transcript.text)
 ```
 
 ### cURL
