@@ -2,7 +2,6 @@ https://platform.openai.com/docs/api-reference/audio/createTranscription
 https://platform.openai.com/docs/guides/speech-to-text
 
 TODO: add a note about automatic downloads
-TODO: add a note about api-key
 TODO: mention streaming
 TODO: add a demo
 TODO: talk about audio format
@@ -28,6 +27,12 @@ curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav"
     ```
 
 ## OpenAI SDKs
+
+!!! note
+
+    Although this project doesn't require an API key, all OpenAI SDKs require an API key. Therefore, you will need to set it to a non-empty value. Additionally, you will need to overwrite the base URL to point to your server.
+
+    This can be done by setting the `OPENAI_API_KEY` and `OPENAI_BASE_URL` environment variables or by passing them as arguments to the SDK.
 
 === "Python"
 
