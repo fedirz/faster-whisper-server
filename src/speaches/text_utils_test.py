@@ -1,4 +1,4 @@
-from speaches.api_models import TranscriptionWord
+from speaches.api_types import TranscriptionWord
 from speaches.text_utils import (
     canonicalize_word,
     common_prefix,

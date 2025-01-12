@@ -18,6 +18,9 @@ from speaches.routers.misc import (
 from speaches.routers.models import (
     router as models_router,
 )
+from speaches.routers.speech import (
+    router as speech_router,
+)
 from speaches.routers.stt import (
     router as stt_router,
 )
@@ -47,12 +50,7 @@ def create_app() -> FastAPI:
     logger.debug(f"Config: {config}")
 
     if platform.machine() == "x86_64":
-        from speaches.routers.speech import (
-            router as speech_router,
-        )
-    else:
-        logger.warning("`/v1/audio/speech` is only supported on x86_64 machines")
-        speech_router = None
+        logger.warning("`POST /v1/audio/speech` with `model=rhasspy/piper-voices` is only supported on x86_64 machines")
 
     model_manager = get_model_manager()  # HACK
 
@@ -71,8 +69,7 @@ def create_app() -> FastAPI:
     app.include_router(stt_router)
     app.include_router(models_router)
     app.include_router(misc_router)
-    if speech_router is not None:
-        app.include_router(speech_router)
+    app.include_router(speech_router)
 
     if config.allow_origins is not None:
         app.add_middleware(
