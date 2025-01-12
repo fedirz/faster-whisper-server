@@ -3,7 +3,7 @@ tasks:
   server:
     cmds:
       - pkill --signal SIGKILL --echo --full 'uvicorn --factory --host 0.0.0.0 speaches.main:create_app' || true
-      - opentelemetry-instrument uvicorn --factory --host 0.0.0.0 speaches.main:create_app {{.CLI_ARGS}}
+      - uvicorn --factory --host 0.0.0.0 speaches.main:create_app {{.CLI_ARGS}}
     sources:
       - src/**/*.py
   test:
