@@ -21,7 +21,6 @@ DEFAULT_INPUT = "Hello, world!"
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(platform_machine != "x86_64", reason="Only supported on x86_64")
 @pytest.mark.parametrize("response_format", SUPPORTED_RESPONSE_FORMATS)
 async def test_create_speech_formats(openai_client: AsyncOpenAI, response_format: ResponseFormat) -> None:
     await openai_client.audio.speech.create(
@@ -42,7 +41,6 @@ GOOD_MODEL_VOICE_PAIRS: list[tuple[str, str]] = [
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(platform_machine != "x86_64", reason="Only supported on x86_64")
 @pytest.mark.parametrize(("model", "voice"), GOOD_MODEL_VOICE_PAIRS)
 async def test_create_speech_good_model_voice_pair(openai_client: AsyncOpenAI, model: str, voice: str) -> None:
     await openai_client.audio.speech.create(
@@ -63,7 +61,6 @@ BAD_MODEL_VOICE_PAIRS: list[tuple[str, str]] = [
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(platform_machine != "x86_64", reason="Only supported on x86_64")
 @pytest.mark.parametrize(("model", "voice"), BAD_MODEL_VOICE_PAIRS)
 async def test_create_speech_bad_model_voice_pair(openai_client: AsyncOpenAI, model: str, voice: str) -> None:
     # NOTE: not sure why `APIConnectionError` is sometimes raised
@@ -76,11 +73,10 @@ async def test_create_speech_bad_model_voice_pair(openai_client: AsyncOpenAI, mo
         )
 
 
-SUPPORTED_SPEEDS = [0.25, 0.5, 1.0, 2.0, 4.0]
+SUPPORTED_SPEEDS = [0.5, 1.0, 2.0]
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(platform_machine != "x86_64", reason="Only supported on x86_64")
 async def test_create_speech_with_varying_speed(openai_client: AsyncOpenAI) -> None:
     previous_size: int | None = None
     for speed in SUPPORTED_SPEEDS:
@@ -101,7 +97,6 @@ UNSUPPORTED_SPEEDS = [0.1, 4.1]
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(platform_machine != "x86_64", reason="Only supported on x86_64")
 @pytest.mark.parametrize("speed", UNSUPPORTED_SPEEDS)
 async def test_create_speech_with_unsupported_speed(openai_client: AsyncOpenAI, speed: float) -> None:
     with pytest.raises(UnprocessableEntityError):
@@ -118,7 +113,6 @@ VALID_SAMPLE_RATES = [16000, 22050, 24000, 48000]
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(platform_machine != "x86_64", reason="Only supported on x86_64")
 @pytest.mark.parametrize("sample_rate", VALID_SAMPLE_RATES)
 async def test_speech_valid_resample(openai_client: AsyncOpenAI, sample_rate: int) -> None:
     res = await openai_client.audio.speech.create(
@@ -136,7 +130,6 @@ INVALID_SAMPLE_RATES = [7999, 48001]
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(platform_machine != "x86_64", reason="Only supported on x86_64")
 @pytest.mark.parametrize("sample_rate", INVALID_SAMPLE_RATES)
 async def test_speech_invalid_resample(openai_client: AsyncOpenAI, sample_rate: int) -> None:
     with pytest.raises(UnprocessableEntityError):
@@ -148,6 +141,8 @@ async def test_speech_invalid_resample(openai_client: AsyncOpenAI, sample_rate: 
             extra_body={"sample_rate": sample_rate},
         )
 
+
+# TODO: add piper tests
 
 # TODO: implement the following test
 

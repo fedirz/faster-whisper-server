@@ -226,13 +226,14 @@ def get_kokoro_model_path() -> Path:
 def download_kokoro_model() -> None:
     model_id = "hexgrad/Kokoro-82M"
     model_repo_path = Path(
-        huggingface_hub.snapshot_download(model_id, repo_type="model", allow_patterns="**/kokoro-v0_19.onnx")
+        huggingface_hub.snapshot_download(model_id, repo_type="model", allow_patterns=["kokoro-v0_19.onnx"])
     )
     # HACK
     res = httpx.get(
         "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files/voices.json", follow_redirects=True
     ).raise_for_status()
     voices_path = model_repo_path / "voices.json"
+    voices_path.touch(exist_ok=True)
     voices_path.write_bytes(res.content)
 
 
