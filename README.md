@@ -38,7 +38,9 @@ TODO
 
 ### Speech Generation
 
-TODO
+<video width="100%" controls>
+  <source src="[https://github.com/fedirz/faster-whisper-server/assets/76551385/e334c124-af61-41d4-839c-874be150598f](https://github.com/user-attachments/assets/7c60a7e4-a173-48a4-aaae-5b9f017e1eef)" type="video/webm">
+</video>
 
 ### Live Transcription (using WebSockets)
 
