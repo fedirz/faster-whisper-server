@@ -47,6 +47,9 @@
                 pkgs.cudaPackages_12.cuda_cudart
                 pkgs.cudaPackages_12.cuda_nvrtc
 
+                # Needed for `soundfile`
+                pkgs.portaudio
+
                 pkgs.zlib
                 pkgs.stdenv.cc.cc
                 pkgs.openssl
