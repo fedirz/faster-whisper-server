@@ -8,7 +8,9 @@ dependencies = [
     "fastapi>=0.115.0",
     "faster-whisper>=1.1.0",
     "huggingface-hub[hf-transfer]>=0.25.1",
+    "kokoro-onnx>=0.2.2",
     "numpy>=2.1.1",
+    "onnxruntime-gpu>=1.20.1 ; sys.platform != 'darwin'",
     "piper-phonemize ; platform_machine == 'x86_64'",
     "piper-tts>=1.2.0 ; platform_machine == 'x86_64'",
     "pydantic-settings>=2.5.2",
@@ -135,6 +137,9 @@ filterwarnings = [
 markers = [
     "requires_openai",
 ]
+
+[tool.uv]
+constraint-dependencies = ["llvmlite>=0.40.0"]
 
 [tool.uv.sources]
 piper-phonemize = { url = "https://github.com/fedirz/piper-phonemize/raw/refs/heads/master/dist/piper_phonemize-1.2.0-cp312-cp312-manylinux_2_28_x86_64.whl" }
