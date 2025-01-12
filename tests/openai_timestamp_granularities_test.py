@@ -5,7 +5,7 @@ from pathlib import Path
 from openai import AsyncOpenAI, BadRequestError
 import pytest
 
-from speaches.api_models import TIMESTAMP_GRANULARITIES_COMBINATIONS, TimestampGranularities
+from speaches.api_types import TIMESTAMP_GRANULARITIES_COMBINATIONS, TimestampGranularities
 
 
 @pytest.mark.asyncio

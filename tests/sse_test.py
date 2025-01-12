@@ -9,7 +9,7 @@ import srt
 import webvtt
 import webvtt.vtt
 
-from speaches.api_models import (
+from speaches.api_types import (
     CreateTranscriptionResponseJson,
     CreateTranscriptionResponseVerboseJson,
 )
