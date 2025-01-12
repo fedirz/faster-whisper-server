@@ -38,8 +38,15 @@
             # NOTE: sometimes it still doesn't work but rebooting the system fixes it
             LD_LIBRARY_PATH = "/run/opengl-driver/lib:${
               pkgs.lib.makeLibraryPath [
+                # Needed for `faster-whisper`
                 pkgs.cudaPackages_12.cudnn
                 pkgs.cudaPackages_12.libcublas
+                # The 4 cuda packages below are needed for `onnxruntime-gpu`
+                pkgs.cudaPackages_12.libcurand
+                pkgs.cudaPackages_12.libcufft
+                pkgs.cudaPackages_12.cuda_cudart
+                pkgs.cudaPackages_12.cuda_nvrtc
+
                 pkgs.zlib
                 pkgs.stdenv.cc.cc
                 pkgs.openssl
