@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
 import logging
 import platform
-from typing import TYPE_CHECKING
 
 from fastapi import (
     FastAPI,
 )
 from fastapi.middleware.cors import CORSMiddleware
 
-from speaches.dependencies import ApiKeyDependency, get_config, get_model_manager
+from speaches.dependencies import ApiKeyDependency, get_config
 from speaches.logger import setup_logger
 from speaches.routers.misc import (
     router as misc_router,
@@ -24,9 +22,6 @@ from speaches.routers.speech import (
 from speaches.routers.stt import (
     router as stt_router,
 )
-
-if TYPE_CHECKING:
-    from collections.abc import AsyncGenerator
 
 # https://swagger.io/docs/specification/v3_0/grouping-operations-with-tags/
 # https://fastapi.tiangolo.com/tutorial/metadata/#metadata-for-tags
@@ -52,19 +47,11 @@ def create_app() -> FastAPI:
     if platform.machine() == "x86_64":
         logger.warning("`POST /v1/audio/speech` with `model=rhasspy/piper-voices` is only supported on x86_64 machines")
 
-    model_manager = get_model_manager()  # HACK
-
-    @asynccontextmanager
-    async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
-        for model_name in config.preload_models:
-            model_manager.load_model(model_name)
-        yield
-
     dependencies = []
     if config.api_key is not None:
         dependencies.append(ApiKeyDependency)
 
-    app = FastAPI(lifespan=lifespan, dependencies=dependencies, openapi_tags=TAGS_METADATA)
+    app = FastAPI(dependencies=dependencies, openapi_tags=TAGS_METADATA)
 
     app.include_router(stt_router)
     app.include_router(models_router)

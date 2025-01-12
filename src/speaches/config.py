@@ -216,17 +216,6 @@ class Config(BaseSettings):
     """
     default_response_format: ResponseFormat = ResponseFormat.JSON
     whisper: WhisperConfig = WhisperConfig()
-    preload_models: list[str] = Field(
-        default_factory=list,
-        examples=[
-            ["Systran/faster-whisper-small"],
-            ["Systran/faster-whisper-medium.en", "Systran/faster-whisper-small.en"],
-        ],
-    )
-    """
-    List of Whisper models to preload on startup. By default, the model is first loaded on first request.
-    WARNING: I'd recommend not setting this, as it may be deprecated in the future.
-    """
     max_no_data_seconds: float = 1.0
     """
     Max duration to wait for the next audio chunk before transcription is finilized and connection is closed.
