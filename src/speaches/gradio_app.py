@@ -187,10 +187,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
                 model_dropdown_choices.remove("rhasspy/piper-voices")
                 gr.Textbox("Speech generation using `rhasspy/piper-voices` model is only supported on x86_64 machines.")
 
-            text = gr.Textbox(
-                label="Input Text",
-                value=DEFAULT_TEXT,
-            )
+            text = gr.Textbox(label="Input Text", value=DEFAULT_TEXT, lines=3)
             stt_model_dropdown = gr.Dropdown(
                 choices=model_dropdown_choices,
                 label="Model",
