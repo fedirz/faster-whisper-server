@@ -10,7 +10,7 @@ dependencies = [
     "huggingface-hub[hf-transfer]>=0.25.1",
     "kokoro-onnx>=0.2.2",
     "numpy>=2.1.1",
-    "onnxruntime-gpu>=1.20.1 ; sys.platform != 'darwin'",
+    "onnxruntime-gpu>=1.20.1 ; platform_machine == 'x86_64'",
     "piper-phonemize ; platform_machine == 'x86_64'",
     "piper-tts>=1.2.0 ; platform_machine == 'x86_64'",
     "pydantic-settings>=2.5.2",
