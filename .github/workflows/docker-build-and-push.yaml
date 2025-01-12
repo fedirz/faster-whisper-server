@@ -8,7 +8,7 @@ on:
     types: [published]
 env:
   REGISTRY: ghcr.io
-  FULL_IMAGE_NAME: ghcr.io/fedirz/faster-whisper-server
+  FULL_IMAGE_NAME: ghcr.io/speaches-ai/speaches
 jobs:
   docker:
     runs-on: ubuntu-latest
