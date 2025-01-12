@@ -156,7 +156,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
             )
 
         with gr.Tab(label="Speech Generation"):
-            if platform.machine() != "x86_64":
+            if platform.machine() == "x86_64":
                 from speaches.routers.speech import (
                     DEFAULT_VOICE,
                     MAX_SAMPLE_RATE,
