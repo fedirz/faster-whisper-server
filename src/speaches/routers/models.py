@@ -9,7 +9,7 @@ from fastapi import (
 )
 import huggingface_hub
 
-from speaches.api_models import (
+from speaches.api_types import (
     ListModelsResponse,
     Model,
 )

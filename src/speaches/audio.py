@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import io
 import logging
 from typing import TYPE_CHECKING, BinaryIO
 
@@ -14,8 +15,44 @@ if TYPE_CHECKING:
 
     from numpy.typing import NDArray
 
+    from speaches.routers.speech import ResponseFormat
+
 
 logger = logging.getLogger(__name__)
+
+
+# aip 'Write a function `resample_audio` which would take in RAW PCM 16-bit signed, little-endian audio data represented as bytes (`audio_bytes`) and resample it (either downsample or upsample) from `sample_rate` to `target_sample_rate` using numpy'  # noqa: E501
+def resample_audio(audio_bytes: bytes, sample_rate: int, target_sample_rate: int) -> bytes:
+    audio_data = np.frombuffer(audio_bytes, dtype=np.int16)
+    duration = len(audio_data) / sample_rate
+    target_length = int(duration * target_sample_rate)
+    resampled_data = np.interp(
+        np.linspace(0, len(audio_data), target_length, endpoint=False), np.arange(len(audio_data)), audio_data
+    )
+    return resampled_data.astype(np.int16).tobytes()
+
+
+def convert_audio_format(
+    audio_bytes: bytes,
+    sample_rate: int,
+    audio_format: ResponseFormat,
+    format: str = "RAW",  # noqa: A002
+    channels: int = 1,
+    subtype: str = "PCM_16",
+    endian: str = "LITTLE",
+) -> bytes:
+    # NOTE: the default dtype is float64. Should something else be used? Would that improve performance?
+    data, _ = sf.read(
+        io.BytesIO(audio_bytes),
+        samplerate=sample_rate,
+        format=format,
+        channels=channels,
+        subtype=subtype,
+        endian=endian,
+    )
+    converted_audio_bytes_buffer = io.BytesIO()
+    sf.write(converted_audio_bytes_buffer, data, samplerate=sample_rate, format=audio_format)
+    return converted_audio_bytes_buffer.getvalue()
 
 
 def audio_samples_from_file(file: BinaryIO) -> NDArray[np.float32]:

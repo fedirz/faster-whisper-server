@@ -2,14 +2,18 @@ from __future__ import annotations
 
 from collections import OrderedDict
 import gc
+import json
 import logging
+from pathlib import Path
 import threading
 import time
 from typing import TYPE_CHECKING
 
 from faster_whisper import WhisperModel
+from kokoro_onnx import Kokoro
+from onnxruntime import InferenceSession
 
-from speaches.hf_utils import get_piper_voice_model_file
+from speaches.hf_utils import get_kokoro_model_path, get_piper_voice_model_file
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -142,6 +146,9 @@ class WhisperModelManager:
             return self.loaded_models[model_name]
 
 
+ONNX_PROVIDERS = ["CUDAExecutionProvider", "CPUExecutionProvider"]
+
+
 class PiperModelManager:
     def __init__(self, ttl: int) -> None:
         self.ttl = ttl
@@ -149,10 +156,13 @@ class PiperModelManager:
         self._lock = threading.Lock()
 
     def _load_fn(self, model_id: str) -> PiperVoice:
-        from piper.voice import PiperVoice
+        from piper.voice import PiperConfig, PiperVoice
 
         model_path = get_piper_voice_model_file(model_id)
-        return PiperVoice.load(model_path)
+        inf_sess = InferenceSession(model_path, providers=ONNX_PROVIDERS)
+        config_path = Path(str(model_path) + ".json")
+        conf = PiperConfig.from_dict(json.loads(config_path.read_text()))
+        return PiperVoice(session=inf_sess, config=conf)
 
     def _handle_model_unload(self, model_name: str) -> None:
         with self._lock:
@@ -174,6 +184,45 @@ class PiperModelManager:
                 logger.debug(f"{model_name} model already loaded")
                 return self.loaded_models[model_name]
             self.loaded_models[model_name] = SelfDisposingModel[PiperVoice](
+                model_name,
+                load_fn=lambda: self._load_fn(model_name),
+                ttl=self.ttl,
+                unload_fn=self._handle_model_unload,
+            )
+            return self.loaded_models[model_name]
+
+
+class KokoroModelManager:
+    def __init__(self, ttl: int) -> None:
+        self.ttl = ttl
+        self.loaded_models: OrderedDict[str, SelfDisposingModel[Kokoro]] = OrderedDict()
+        self._lock = threading.Lock()
+
+    # TODO
+    def _load_fn(self, _model_id: str) -> Kokoro:
+        model_path = get_kokoro_model_path()
+        voices_path = model_path.parent / "voices.json"
+        inf_sess = InferenceSession(model_path, providers=ONNX_PROVIDERS)
+        return Kokoro.from_session(inf_sess, str(voices_path))
+
+    def _handle_model_unload(self, model_name: str) -> None:
+        with self._lock:
+            if model_name in self.loaded_models:
+                del self.loaded_models[model_name]
+
+    def unload_model(self, model_name: str) -> None:
+        with self._lock:
+            model = self.loaded_models.get(model_name)
+            if model is None:
+                raise KeyError(f"Model {model_name} not found")
+            self.loaded_models[model_name].unload()
+
+    def load_model(self, model_name: str) -> SelfDisposingModel[Kokoro]:
+        with self._lock:
+            if model_name in self.loaded_models:
+                logger.debug(f"{model_name} model already loaded")
+                return self.loaded_models[model_name]
+            self.loaded_models[model_name] = SelfDisposingModel[Kokoro](
                 model_name,
                 load_fn=lambda: self._load_fn(model_name),
                 ttl=self.ttl,

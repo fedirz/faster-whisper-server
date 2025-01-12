@@ -5,7 +5,7 @@ import logging
 import time
 from typing import TYPE_CHECKING
 
-from speaches.api_models import TranscriptionSegment, TranscriptionWord
+from speaches.api_types import TranscriptionSegment, TranscriptionWord
 from speaches.text_utils import Transcription
 
 if TYPE_CHECKING:
