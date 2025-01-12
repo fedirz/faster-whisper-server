@@ -39,8 +39,8 @@ plugins:
   - mkdocstrings:
       default_handler: python
 nav:
-  - Introduction: introduction.md
-  - Capabilities / Usage:
+  - Introduction: index.md
+  - Usage / Capabilities:
       - Speech-to-Text: usage/speech-to-text.md
       - Text-to-Speech: usage/text-to-speech.md
       - Live Transcription (using WebSockets): usage/live-transcription.md
