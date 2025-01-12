@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from speaches.api_models import TranscriptionSegment, TranscriptionWord
+    from speaches.api_types import TranscriptionSegment, TranscriptionWord
 
 
 class Transcription:

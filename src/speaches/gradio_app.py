@@ -7,13 +7,20 @@ import httpx
 from httpx_sse import aconnect_sse
 from openai import AsyncOpenAI
 
+from speaches import kokoro_utils
+from speaches.api_types import Voice
 from speaches.config import Config, Task
-from speaches.hf_utils import PiperModel
+from speaches.routers.speech import (
+    MAX_SAMPLE_RATE,
+    MIN_SAMPLE_RATE,
+    SUPPORTED_RESPONSE_FORMATS,
+)
 
 TRANSCRIPTION_ENDPOINT = "/v1/audio/transcriptions"
 TRANSLATION_ENDPOINT = "/v1/audio/translations"
 TIMEOUT_SECONDS = 180
 TIMEOUT = httpx.Timeout(timeout=TIMEOUT_SECONDS)
+DEFAULT_TEXT = "A rainbow is an optical phenomenon caused by refraction, internal reflection and dispersion of light in water droplets resulting in a continuous spectrum of light appearing in the sky."  # noqa: E501
 
 # NOTE: `gr.Request` seems to be passed in as the last positional (not keyword) argument
 
@@ -104,23 +111,34 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
             value=config.whisper.model,
         )
 
-    async def update_piper_voices_dropdown(request: gr.Request) -> gr.Dropdown:
+    async def update_voices_and_language_dropdown(model_id: str | None, request: gr.Request) -> dict:
+        params = httpx.QueryParams({"model_id": model_id})
         http_client = http_client_from_gradio_req(request, config)
-        res = (await http_client.get("/v1/audio/speech/voices")).raise_for_status()
-        piper_models = [PiperModel.model_validate(x) for x in res.json()]
-        return gr.Dropdown(choices=[model.voice for model in piper_models], label="Voice", value=DEFAULT_VOICE)
+        res = (await http_client.get("/v1/audio/speech/voices", params=params)).raise_for_status()
+        voice_ids = [Voice.model_validate(x).voice_id for x in res.json()]
+        return {
+            voice_dropdown: gr.update(choices=voice_ids, value=voice_ids[0]),
+            language_dropdown: gr.update(visible=model_id == "hexgrad/Kokoro-82M"),
+        }
 
     async def handle_audio_speech(
-        text: str, voice: str, response_format: str, speed: float, sample_rate: int | None, request: gr.Request
+        text: str,
+        model: str,
+        voice: str,
+        language: str | None,
+        response_format: str,
+        speed: float,
+        sample_rate: int | None,
+        request: gr.Request,
     ) -> Path:
         openai_client = openai_client_from_gradio_req(request, config)
         res = await openai_client.audio.speech.create(
             input=text,
-            model="piper",
+            model=model,
             voice=voice,  # pyright: ignore[reportArgumentType]
             response_format=response_format,  # pyright: ignore[reportArgumentType]
             speed=speed,
-            extra_body={"sample_rate": sample_rate},
+            extra_body={"language": language, "sample_rate": sample_rate},
         )
         audio_bytes = res.response.read()
         file_path = Path(f"audio.{response_format}")
@@ -129,12 +147,18 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
         return file_path
 
     with gr.Blocks(title="Speaches Playground") as demo:
+        gr.Markdown("# Speaches Playground")
         gr.Markdown(
-            "### Consider supporting the project by starring the [repository on GitHub](https://github.com/speaches-ai/speaches)."
+            "### Consider supporting the project by starring the [speaches-ai/speaches repository on GitHub](https://github.com/speaches-ai/speaches)."
         )
-        with gr.Tab(label="Transcribe/Translate"):
+        gr.Markdown("### Documentation Website: https://speaches-ai.github.io/speaches")
+        gr.Markdown(
+            "### For additional details regarding the parameters, see the [API Documentation](https://speaches-ai.github.io/speaches/api)"
+        )
+
+        with gr.Tab(label="Speech-to-Text"):
             audio = gr.Audio(type="filepath")
-            model_dropdown = gr.Dropdown(
+            whisper_model_dropdown = gr.Dropdown(
                 choices=[config.whisper.model],
                 label="Model",
                 value=config.whisper.model,
@@ -152,59 +176,76 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
 
             # NOTE: the inputs order must match the `whisper_handler` signature
             button.click(
-                whisper_handler, [audio, model_dropdown, task_dropdown, temperature_slider, stream_checkbox], output
+                whisper_handler,
+                [audio, whisper_model_dropdown, task_dropdown, temperature_slider, stream_checkbox],
+                output,
             )
 
-        with gr.Tab(label="Speech Generation"):
-            if platform.machine() == "x86_64":
-                from speaches.routers.speech import (
-                    DEFAULT_VOICE,
-                    MAX_SAMPLE_RATE,
-                    MIN_SAMPLE_RATE,
-                    SUPPORTED_RESPONSE_FORMATS,
-                )
+        with gr.Tab(label="Text-to-Speech"):
+            model_dropdown_choices = ["hexgrad/Kokoro-82M", "rhasspy/piper-voices"]
+            if platform.machine() != "x86_64":
+                model_dropdown_choices.remove("rhasspy/piper-voices")
+                gr.Textbox("Speech generation using `rhasspy/piper-voices` model is only supported on x86_64 machines.")
 
-                text = gr.Textbox(label="Input Text")
-                voice_dropdown = gr.Dropdown(
-                    choices=["en_US-amy-medium"],
-                    label="Voice",
-                    value="en_US-amy-medium",
-                    info="""
-The last part of the voice name is the quality (x_low, low, medium, high).
-Each quality has a different default sample rate:
-- x_low: 16000 Hz
-- low: 16000 Hz
-- medium: 22050 Hz
-- high: 22050 Hz
-""",
-                )
-                response_fromat_dropdown = gr.Dropdown(
-                    choices=SUPPORTED_RESPONSE_FORMATS,
-                    label="Response Format",
-                    value="wav",
-                )
-                speed_slider = gr.Slider(minimum=0.25, maximum=4.0, step=0.05, label="Speed", value=1.0)
-                sample_rate_slider = gr.Number(
-                    minimum=MIN_SAMPLE_RATE,
-                    maximum=MAX_SAMPLE_RATE,
-                    label="Desired Sample Rate",
-                    info="""
+            text = gr.Textbox(
+                label="Input Text",
+                value=DEFAULT_TEXT,
+            )
+            stt_model_dropdown = gr.Dropdown(
+                choices=model_dropdown_choices,
+                label="Model",
+                value="hexgrad/Kokoro-82M",
+            )
+            voice_dropdown = gr.Dropdown(
+                choices=["af"],
+                label="Voice",
+                value="af",
+            )
+            language_dropdown = gr.Dropdown(
+                choices=kokoro_utils.LANGUAGES, label="Language", value="en-us", visible=True
+            )
+            stt_model_dropdown.change(
+                update_voices_and_language_dropdown,
+                inputs=[stt_model_dropdown],
+                outputs=[voice_dropdown, language_dropdown],
+            )
+            response_fromat_dropdown = gr.Dropdown(
+                choices=SUPPORTED_RESPONSE_FORMATS,
+                label="Response Format",
+                value="wav",
+            )
+            speed_slider = gr.Slider(minimum=0.25, maximum=4.0, step=0.05, label="Speed", value=1.0)
+            sample_rate_slider = gr.Number(
+                minimum=MIN_SAMPLE_RATE,
+                maximum=MAX_SAMPLE_RATE,
+                label="Desired Sample Rate",
+                info="""
 Setting this will resample the generated audio to the desired sample rate.
-You may want to set this if you are going to use voices of different qualities but want to keep the same sample rate.
+You may want to set this if you are going to use 'rhasspy/piper-voices' with voices of different qualities but want to keep the same sample rate.
 Default: None (No resampling)
-""",
-                    value=lambda: None,
-                )
-                button = gr.Button("Generate Speech")
-                output = gr.Audio(type="filepath")
-                button.click(
-                    handle_audio_speech,
-                    [text, voice_dropdown, response_fromat_dropdown, speed_slider, sample_rate_slider],
-                    output,
-                )
-                demo.load(update_piper_voices_dropdown, inputs=None, outputs=voice_dropdown)
-            else:
-                gr.Textbox("Speech generation is only supported on x86_64 machines.")
+""",  # noqa: E501
+                value=lambda: None,
+            )
+            button = gr.Button("Generate Speech")
+            output = gr.Audio(type="filepath")
+            button.click(
+                handle_audio_speech,
+                [
+                    text,
+                    stt_model_dropdown,
+                    voice_dropdown,
+                    language_dropdown,
+                    response_fromat_dropdown,
+                    speed_slider,
+                    sample_rate_slider,
+                ],
+                output,
+            )
 
-        demo.load(update_whisper_model_dropdown, inputs=None, outputs=model_dropdown)
+        demo.load(update_whisper_model_dropdown, inputs=None, outputs=whisper_model_dropdown)
+        demo.load(
+            update_voices_and_language_dropdown,
+            inputs=[stt_model_dropdown],
+            outputs=[voice_dropdown, language_dropdown],
+        )
     return demo

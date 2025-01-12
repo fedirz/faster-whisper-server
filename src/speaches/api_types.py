@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from functools import cached_property
+from pathlib import Path  # noqa: TC003
 from typing import TYPE_CHECKING, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 from speaches.text_utils import Transcription, canonicalize_word, segments_to_text
 
@@ -25,9 +27,9 @@ class TranscriptionWord(BaseModel):
         for segment in segments:
             # NOTE: a temporary "fix" for https://github.com/speaches-ai/speaches/issues/58.
             # TODO: properly address the issue
-            assert (
-                segment.words is not None
-            ), "Segment must have words. If you are using an API ensure `timestamp_granularities[]=word` is set"
+            assert segment.words is not None, (
+                "Segment must have words. If you are using an API ensure `timestamp_granularities[]=word` is set"
+            )
             words.extend(segment.words)
         return words
 
@@ -206,3 +208,30 @@ TIMESTAMP_GRANULARITIES_COMBINATIONS: list[TimestampGranularities] = [
     ["word", "segment"],
     ["segment", "word"],  # same as ["word", "segment"] but order is different
 ]
+
+
+class Voice(BaseModel):
+    """Similar structure to the GET /v1/models response but with extra fields."""
+
+    model_id: str
+    voice_id: str
+    created: int
+    owned_by: str = Field(
+        examples=[
+            "hexgrad",
+            "rhaaspy",
+        ]
+    )
+    sample_rate: int
+    model_path: Path = Field(
+        examples=[
+            "/home/nixos/.cache/huggingface/hub/models--rhasspy--piper-voices/snapshots/3d796cc2f2c884b3517c527507e084f7bb245aea/en/en_US/amy/medium/en_US-amy-medium.onnx"
+        ]
+    )
+    object: Literal["voice"] = "voice"
+
+    @computed_field(examples=["rhasspy/piper-voices/en_US-amy-medium"])
+    @cached_property
+    def id(self) -> str:
+        """Unique identifier for the model + voice."""
+        return self.model_id + "/" + self.voice_id

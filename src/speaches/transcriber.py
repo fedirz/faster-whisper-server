@@ -9,7 +9,7 @@ from speaches.text_utils import Transcription, common_prefix, to_full_sentences,
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
-    from speaches.api_models import TranscriptionWord
+    from speaches.api_types import TranscriptionWord
     from speaches.asr import FasterWhisperASR
 
 logger = logging.getLogger(__name__)
