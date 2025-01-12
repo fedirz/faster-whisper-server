@@ -4,13 +4,9 @@
 
 !!! note
 
-    Before proceeding, make sure you are familiar with the [OpenAI Text-to-Speech](https://platform.openai.com/docs/guides/text-to-speech) and the relevant [OpenAI API reference](https://platform.openai.com/docs/api-reference/audio/createSpeech)
+    Before proceeding, you should be familiar with the [OpenAI Text-to-Speech](https://platform.openai.com/docs/guides/text-to-speech) and the relevant [OpenAI API reference](https://platform.openai.com/docs/api-reference/audio/createSpeech)
 
 ## Prerequisite
-
-!!! note
-
-    `rhasspy/piper-voices` audio samples can be found [here](https://rhasspy.github.io/piper-samples/)
 
 Download the Kokoro model and voices.
 
@@ -25,6 +21,10 @@ curl --location -O https://github.com/thewh1teagle/kokoro-onnx/releases/download
 # Replace the path with the one you got from the previous step
 docker cp voices.json speaches:/home/ubuntu/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/c97b7bbc3e60f447383c79b2f94fee861ff156ac/voices.json
 ```
+
+!!! note
+
+    `rhasspy/piper-voices` audio samples can be found [here](https://rhasspy.github.io/piper-samples/)
 
 Download the piper voices from [HuggingFace model repository](https://huggingface.co/rhasspy/piper-voices)
 
