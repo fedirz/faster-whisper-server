@@ -41,7 +41,9 @@ TODO
 
 ### Speech Generation
 
-TODO
+<video width="100%" controls>
+  <source src="https://github.com/user-attachments/assets/0021acd9-f480-4bc3-904d-831f54c4d45b" type="video/webm">
+</video>
 
 ### Live Transcription (using WebSockets)
 

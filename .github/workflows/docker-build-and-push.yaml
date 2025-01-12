@@ -13,6 +13,7 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         # https://hub.docker.com/r/nvidia/cuda/tags
         base-image: ['nvidia/cuda:12.6.3-cudnn-runtime-ubuntu24.04', 'ubuntu:24.04']
