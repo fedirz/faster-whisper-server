@@ -5,8 +5,8 @@ import os
 from typing import Protocol
 
 from fastapi.testclient import TestClient
+import httpx
 from httpx import ASGITransport, AsyncClient
-from huggingface_hub import snapshot_download
 from openai import AsyncOpenAI
 import pytest
 import pytest_asyncio
@@ -14,6 +14,7 @@ from pytest_mock import MockerFixture
 
 from speaches.config import Config, WhisperConfig
 from speaches.dependencies import get_config
+from speaches.hf_utils import download_kokoro_model
 from speaches.main import create_app
 
 DISABLE_LOGGERS = ["multipart.multipart", "faster_whisper"]
@@ -26,6 +27,7 @@ DEFAULT_CONFIG = Config(
     # disable the UI as it slightly increases the app startup time due to the imports it's doing
     enable_ui=False,
 )
+TIMEOUT = httpx.Timeout(15.0)
 
 
 def pytest_configure() -> None:
@@ -64,7 +66,7 @@ async def aclient_factory(mocker: MockerFixture) -> AclientFactory:
         app = create_app()
         # https://fastapi.tiangolo.com/advanced/testing-dependencies/
         app.dependency_overrides[get_config] = lambda: config
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as aclient:
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", timeout=TIMEOUT) as aclient:
             yield aclient
 
     return inner
@@ -91,7 +93,12 @@ def actual_openai_client() -> AsyncOpenAI:
 
 # TODO: remove the download after running the tests
 # TODO: do not download when not needed
+# @pytest.fixture(scope="session", autouse=True)
+# def download_piper_voices() -> None:
+#     # Only download `voices.json` and the default voice
+#     snapshot_download("rhasspy/piper-voices", allow_patterns=["voices.json", "en/en_US/amy/**"])
+
+
 @pytest.fixture(scope="session", autouse=True)
-def download_piper_voices() -> None:
-    # Only download `voices.json` and the default voice
-    snapshot_download("rhasspy/piper-voices", allow_patterns=["voices.json", "en/en_US/amy/**"])
+def download_kokoro() -> None:
+    download_kokoro_model()
