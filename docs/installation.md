@@ -108,7 +108,7 @@ docker compose up --detach
 git clone https://github.com/speaches-ai/speaches.git
 cd speaches
 uv venv
-sourve .venv/bin/activate
+source .venv/bin/activate
 uv sync --all-extras
 uvicorn --factory --host 0.0.0.0 speaches.main:create_app
 ```
