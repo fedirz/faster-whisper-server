@@ -1,4 +1,9 @@
 <!-- https://mkdocstrings.github.io/python/usage/configuration/general/ -->
+
+!!! note
+
+    Also checkout [customizing HuggingFace behaviour](https://huggingface.co/docs/huggingface_hub/package_reference/environment_variables#environment-variables)
+
 ::: speaches.config.Config
     options:
         show_bases: true
