@@ -253,3 +253,9 @@ class Config(BaseSettings):
 
     transcription_base_url: str | None = None
     transcription_api_key: str | None = None
+
+    loopback_host_url: str | None = None
+    """
+    If set this is the URL that the gradio app will use to connect to the API server hosting speaches.
+    If not set the gradio app will use the url that the user connects to the gradio app on.
+    """
