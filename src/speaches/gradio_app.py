@@ -25,14 +25,16 @@ DEFAULT_TEXT = "A rainbow is an optical phenomenon caused by refraction, interna
 # NOTE: `gr.Request` seems to be passed in as the last positional (not keyword) argument
 
 
-def base_url_from_gradio_req(request: gr.Request) -> str:
+def base_url_from_gradio_req(request: gr.Request, config: Config) -> str:
+    if config.loopback_host_url is not None and len(config.loopback_host_url) > 0:
+        return config.loopback_host_url
     # NOTE: `request.request.url` seems to always have a path of "/gradio_api/queue/join"
     assert request.request is not None
     return f"{request.request.url.scheme}://{request.request.url.netloc}"
 
 
 def http_client_from_gradio_req(request: gr.Request, config: Config) -> httpx.AsyncClient:
-    base_url = base_url_from_gradio_req(request)
+    base_url = base_url_from_gradio_req(request, config)
     return httpx.AsyncClient(
         base_url=base_url,
         timeout=TIMEOUT,
