@@ -139,6 +139,8 @@ def get_model_path(model_id: str, *, cache_dir: str | Path | None = None) -> Pat
             continue
         if repo_path.name == ".locks":  # skip './.locks/' folder
             continue
+        if "--" not in repo_path.name:  # cache might contain unrelated custom files
+            continue
         repo_type, repo_id = repo_path.name.split("--", maxsplit=1)
         repo_type = repo_type[:-1]  # "models" -> "model"
         repo_id = repo_id.replace("--", "/")  # google--fleurs -> "google/fleurs"
