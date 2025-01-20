@@ -5,26 +5,19 @@ from io import BytesIO
 import logging
 from typing import TYPE_CHECKING, Annotated
 
-import av.error
 from fastapi import (
     APIRouter,
-    Depends,
     Form,
     Query,
     Request,
     Response,
-    UploadFile,
     WebSocket,
     WebSocketDisconnect,
 )
-from fastapi.exceptions import HTTPException
 from fastapi.responses import StreamingResponse
 from fastapi.websockets import WebSocketState
-from faster_whisper.audio import decode_audio
 from faster_whisper.transcribe import BatchedInferencePipeline
 from faster_whisper.vad import VadOptions, get_speech_timestamps
-from numpy import float32
-from numpy.typing import NDArray
 from pydantic import AfterValidator, Field
 
 from speaches.api_types import (
@@ -43,7 +36,7 @@ from speaches.config import (
     ResponseFormat,
     Task,
 )
-from speaches.dependencies import ConfigDependency, ModelManagerDependency, get_config
+from speaches.dependencies import AudioFileDependency, ConfigDependency, ModelManagerDependency, get_config
 from speaches.text_utils import segments_to_srt, segments_to_text, segments_to_vtt
 from speaches.transcriber import audio_transcriber
 
@@ -56,35 +49,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["automatic-speech-recognition"])
-
-
-# TODO: test async vs sync performance
-def audio_file_dependency(
-    file: Annotated[UploadFile, Form()],
-) -> NDArray[float32]:
-    try:
-        audio = decode_audio(file.file)
-    except av.error.InvalidDataError as e:
-        raise HTTPException(
-            status_code=415,
-            detail="Failed to decode audio. The provided file type is not supported.",
-        ) from e
-    except av.error.ValueError as e:
-        raise HTTPException(
-            status_code=400,
-            # TODO: list supported file types
-            detail="Failed to decode audio. The provided file is likely empty.",
-        ) from e
-    except Exception as e:
-        logger.exception(
-            "Failed to decode audio. This is likely a bug. Please create an issue at https://github.com/speaches-ai/speaches/issues/new."
-        )
-        raise HTTPException(status_code=500, detail="Failed to decode audio.") from e
-    else:
-        return audio  # pyright: ignore reportReturnType
-
-
-AudioFileDependency = Annotated[NDArray[float32], Depends(audio_file_dependency)]
 
 
 def segments_to_response(

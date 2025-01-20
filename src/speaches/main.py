@@ -22,6 +22,9 @@ from speaches.routers.speech import (
 from speaches.routers.stt import (
     router as stt_router,
 )
+from speaches.routers.vad import (
+    router as vad_router,
+)
 
 # https://swagger.io/docs/specification/v3_0/grouping-operations-with-tags/
 # https://fastapi.tiangolo.com/tutorial/metadata/#metadata-for-tags
@@ -57,6 +60,7 @@ def create_app() -> FastAPI:
     app.include_router(models_router)
     app.include_router(misc_router)
     app.include_router(speech_router)
+    app.include_router(vad_router)
 
     if config.allow_origins is not None:
         app.add_middleware(
