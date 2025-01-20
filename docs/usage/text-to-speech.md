@@ -11,15 +11,11 @@
 Download the Kokoro model and voices.
 
 ```bash
-# Download the ONNX model (~346 MBs). You will find the path to the downloaded model in the output which you'll need for the next step.
-docker exec -it speaches huggingface-cli download hexgrad/Kokoro-82M --include 'kokoro-v0_19.onnx'
-# ...
-# /home/ubuntu/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/c97b7bbc3e60f447383c79b2f94fee861ff156ac
-
-# Download the voices.json (~54 MBs) file (we aren't using `docker exec` since the container doesn't have `curl` or `wget` installed)
-curl --location -O https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files/voices.json
-# Replace the path with the one you got from the previous step
-docker cp voices.json speaches:/home/ubuntu/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/c97b7bbc3e60f447383c79b2f94fee861ff156ac/voices.json
+export KOKORO_REVISION=c97b7bbc3e60f447383c79b2f94fee861ff156ac
+# Download the ONNX model (~346 MBs)
+docker exec -it speaches huggingface-cli download hexgrad/Kokoro-82M --include 'kokoro-v0_19.onnx' --revision $KOKORO_REVISION
+# Download the voices.json (~54 MBs) file
+docker exec -it speaches curl --location --output /home/ubuntu/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/$KOKORO_REVISION/voices.json https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files/voices.json
 ```
 
 !!! note
