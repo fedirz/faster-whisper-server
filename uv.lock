@@ -336,7 +336,7 @@ wheels = [
 
 [[package]]
 name = "faster-whisper"
-version = "1.1.0"
+version = "1.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "av" },
@@ -346,9 +346,9 @@ dependencies = [
     { name = "tokenizers" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/31/b1/124f6d5a547756170e11eea405ae6c08afa2b96e8ccd10947a1244b50cdb/faster-whisper-1.1.0.tar.gz", hash = "sha256:cea4bba5d4527173fdbacafa56f2ffb17dd322688f6c3fdf5fd7b6b6c193ce17", size = 1124950 }
+sdist = { url = "https://files.pythonhosted.org/packages/be/53/195e5b42ede5f09453828d3b00d52bd952ed0e07a8e5c6497affefcfa3be/faster-whisper-1.1.1.tar.gz", hash = "sha256:50d27571970c1be0c2b2680a2593d5d12f9f5d2f10484f242a1afbe7cb946604", size = 1124684 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7b/03/ab118cb743dcf671da01ad0cfd7564465dda115db32976fdc95e21ce8feb/faster_whisper-1.1.0-py3-none-any.whl", hash = "sha256:0f2d025676bbff1e46c4108b6f9a82578d6e33826c174af2990e45b33fab6182", size = 1118168 },
+    { url = "https://files.pythonhosted.org/packages/ad/69/28359d152f9e2ec1ff4dff3da47011b6346e9a472f89b409bb13017a7d1f/faster_whisper-1.1.1-py3-none-any.whl", hash = "sha256:5808dc334fb64fb4336921450abccfe5e313a859b31ba61def0ac7f639383d90", size = 1118368 },
 ]
 
 [[package]]
@@ -4497,7 +4497,7 @@ requires-dist = [
     { name = "basedpyright", marker = "extra == 'dev'", specifier = ">=1.18.0" },
     { name = "ctranslate2", specifier = ">=4.5.0" },
     { name = "fastapi", specifier = ">=0.115.0" },
-    { name = "faster-whisper", specifier = ">=1.1.0" },
+    { name = "faster-whisper", specifier = ">=1.1.1" },
     { name = "gradio", marker = "extra == 'ui'", specifier = ">=5.0.2" },
     { name = "httpx", marker = "extra == 'ui'", specifier = ">=0.27.2" },
     { name = "httpx-sse", marker = "extra == 'ui'", specifier = ">=0.4.0" },
