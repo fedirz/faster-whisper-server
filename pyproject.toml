@@ -14,7 +14,7 @@ dependencies = [
     "piper-phonemize ; platform_machine == 'x86_64'",
     "piper-tts>=1.2.0 ; platform_machine == 'x86_64'",
     "pydantic-settings>=2.5.2",
-    "pydantic>=2.9.0",
+    "pydantic>=2.10.0",
     "python-multipart>=0.0.10",
     "sounddevice>=0.5.1",
     "soundfile>=0.12.1",
