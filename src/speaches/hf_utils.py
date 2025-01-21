@@ -54,9 +54,7 @@ def list_whisper_models() -> Generator[Model, None, None]:
         yield transformed_model
 
 
-def list_local_whisper_models() -> Generator[
-    tuple[huggingface_hub.CachedRepoInfo, huggingface_hub.ModelCardData], None, None
-]:
+def list_local_whisper_models() -> Generator[Model, None, None]:
     hf_cache = huggingface_hub.scan_cache_dir()
     hf_models = [repo for repo in list(hf_cache.repos) if repo.repo_type == "model"]
     for model in hf_models:
@@ -76,7 +74,20 @@ def list_local_whisper_models() -> Generator[
             and model_card_data.tags is not None
             and TASK_NAME in model_card_data.tags
         ):
-            yield model, model_card_data
+            if model_card_data.language is None:
+                language = []
+            elif isinstance(model_card_data.language, str):
+                language = [model_card_data.language]
+            else:
+                language = model_card_data.language
+            transformed_model = Model(
+                id=model.repo_id,
+                created=int(model.last_modified),
+                object_="model",
+                owned_by=model.repo_id.split("/")[0],
+                language=language,
+            )
+            yield transformed_model
 
 
 def model_id_from_path(repo_path: Path) -> str:

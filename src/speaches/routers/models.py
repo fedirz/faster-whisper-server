@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import (
@@ -13,7 +14,7 @@ from speaches.api_types import (
     ListModelsResponse,
     Model,
 )
-from speaches.hf_utils import list_whisper_models
+from speaches.hf_utils import list_local_whisper_models, list_whisper_models
 
 if TYPE_CHECKING:
     from huggingface_hub.hf_api import ModelInfo
@@ -23,7 +24,10 @@ router = APIRouter(tags=["models"])
 
 @router.get("/v1/models")
 def get_models() -> ListModelsResponse:
-    whisper_models = list(list_whisper_models())
+    if os.getenv("HF_HUB_OFFLINE") is not None:
+        whisper_models = list(list_local_whisper_models())
+    else:
+        whisper_models = list(list_whisper_models())
     return ListModelsResponse(data=whisper_models)
 
 
