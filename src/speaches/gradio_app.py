@@ -9,7 +9,7 @@ from openai import AsyncOpenAI
 
 from speaches import kokoro_utils
 from speaches.api_types import Voice
-from speaches.config import Config, Task
+from speaches.config import Config, Task, ResponseFormat
 from speaches.routers.speech import (
     MAX_SAMPLE_RATE,
     MIN_SAMPLE_RATE,
@@ -49,7 +49,7 @@ def openai_client_from_gradio_req(request: gr.Request, config: Config) -> AsyncO
 
 def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
     async def whisper_handler(
-        file_path: str, model: str, task: Task, temperature: float, stream: bool, request: gr.Request
+        file_path: str, model: str, task: Task, temperature: float, stream: bool, format: str, request: gr.Request
     ) -> AsyncGenerator[str, None]:
         http_client = http_client_from_gradio_req(request, config)
         if task == Task.TRANSCRIBE:
@@ -59,14 +59,14 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
 
         if stream:
             previous_transcription = ""
-            async for transcription in streaming_audio_task(http_client, file_path, endpoint, temperature, model):
+            async for transcription in streaming_audio_task(http_client, file_path, endpoint, temperature, model, format):
                 previous_transcription += transcription
                 yield previous_transcription
         else:
-            yield await audio_task(http_client, file_path, endpoint, temperature, model)
+            yield await audio_task(http_client, file_path, endpoint, temperature, model, format)
 
     async def audio_task(
-        http_client: httpx.AsyncClient, file_path: str, endpoint: str, temperature: float, model: str
+        http_client: httpx.AsyncClient, file_path: str, endpoint: str, temperature: float, model: str, format: str
     ) -> str:
         with Path(file_path).open("rb") as file:  # noqa: ASYNC230
             response = await http_client.post(
@@ -76,6 +76,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
                     "model": model,
                     "response_format": "text",
                     "temperature": temperature,
+                    "response_format": format,
                 },
             )
 
@@ -83,7 +84,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
         return response.text
 
     async def streaming_audio_task(
-        http_client: httpx.AsyncClient, file_path: str, endpoint: str, temperature: float, model: str
+        http_client: httpx.AsyncClient, file_path: str, endpoint: str, temperature: float, model: str, format: str
     ) -> AsyncGenerator[str, None]:
         with Path(file_path).open("rb") as file:  # noqa: ASYNC230
             kwargs = {
@@ -92,6 +93,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
                     "response_format": "text",
                     "temperature": temperature,
                     "model": model,
+                    "response_format": format,
                     "stream": True,
                 },
             }
@@ -170,6 +172,11 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
                 label="Task",
                 value=Task.TRANSCRIBE,
             )
+            sst_response_format_dropdown = gr.Dropdown(
+                choices=[format.value for format in ResponseFormat],
+                label="Format",
+                value=ResponseFormat.TEXT,
+            )
             temperature_slider = gr.Slider(minimum=0.0, maximum=1.0, step=0.1, label="Temperature", value=0.0)
             stream_checkbox = gr.Checkbox(label="Stream", value=True)
             button = gr.Button("Generate")
@@ -179,7 +186,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:  # noqa: C901, PLR0915
             # NOTE: the inputs order must match the `whisper_handler` signature
             button.click(
                 whisper_handler,
-                [audio, whisper_model_dropdown, task_dropdown, temperature_slider, stream_checkbox],
+                [audio, whisper_model_dropdown, task_dropdown, temperature_slider, stream_checkbox, sst_response_format_dropdown],
                 output,
             )
 
