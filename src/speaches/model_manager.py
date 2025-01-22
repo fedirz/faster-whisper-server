@@ -140,7 +140,7 @@ class WhisperModelManager:
                 raise KeyError(f"Model {model_name} not found")
             self.loaded_models[model_name].unload()
 
-    def load_model(self, model_name: str) -> SelfDisposingModel[WhisperModel] | WhisperModel:
+    def load_model(self, model_name: str) -> SelfDisposingModel[WhisperModel]:
         with self._lock:
             logger.debug("Acquired lock")
             if model_name in self.loaded_models:
