@@ -11,6 +11,7 @@ services:
         BASE_IMAGE: nvidia/cuda:12.6.2-cudnn-runtime-ubuntu24.04
     environment:
       - WHISPER__MODEL=Systran/faster-whisper-large-v3
+      - ENABLE_DYNAMIC_LOADING=false
     volumes:
       - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
     deploy:
