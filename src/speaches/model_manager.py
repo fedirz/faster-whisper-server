@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict
+from contextlib import nullcontext
 import gc
 import json
 import logging
@@ -14,6 +15,7 @@ from kokoro_onnx import Kokoro
 from onnxruntime import InferenceSession
 
 from speaches.hf_utils import get_kokoro_model_path, get_piper_voice_model_file
+from speaches.config import CONFIG
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -21,7 +23,7 @@ if TYPE_CHECKING:
     from piper.voice import PiperVoice
 
     from speaches.config import (
-        WhisperConfig,
+        WhisperConfig
     )
 
 logger = logging.getLogger(__name__)
@@ -40,11 +42,14 @@ class SelfDisposingModel[T]:
         self.unload_fn = unload_fn
 
         self.ref_count: int = 0
-        self.rlock = threading.RLock()
+        self.rlock = threading.RLock() if CONFIG.enable_dynamic_loading else nullcontext()
         self.expire_timer: threading.Timer | None = None
         self.model: T | None = None
 
     def unload(self) -> None:
+        if isinstance(self.rlock, nullcontext):
+            logger.info('Dynamic loading is disabled, skipping unload')
+            return None
         with self.rlock:
             if self.model is None:
                 raise ValueError(f"Model {self.model_id} is not loaded. {self.ref_count=}")
@@ -106,7 +111,11 @@ class WhisperModelManager:
     def __init__(self, whisper_config: WhisperConfig) -> None:
         self.whisper_config = whisper_config
         self.loaded_models: OrderedDict[str, SelfDisposingModel[WhisperModel]] = OrderedDict()
-        self._lock = threading.Lock()
+        self._lock = (
+            threading.Lock() 
+            if CONFIG.enable_dynamic_loading
+            else nullcontext()
+        )
 
     def _load_fn(self, model_id: str) -> WhisperModel:
         return WhisperModel(
@@ -116,6 +125,7 @@ class WhisperModelManager:
             compute_type=self.whisper_config.compute_type,
             cpu_threads=self.whisper_config.cpu_threads,
             num_workers=self.whisper_config.num_workers,
+            local_files_only=False # True, if you dont wont to load from the internet and check cache only
         )
 
     def _handle_model_unload(self, model_name: str) -> None:
@@ -130,8 +140,7 @@ class WhisperModelManager:
                 raise KeyError(f"Model {model_name} not found")
             self.loaded_models[model_name].unload()
 
-    def load_model(self, model_name: str) -> SelfDisposingModel[WhisperModel]:
-        logger.debug(f"Loading model {model_name}")
+    def load_model(self, model_name: str) -> SelfDisposingModel[WhisperModel] | WhisperModel:
         with self._lock:
             logger.debug("Acquired lock")
             if model_name in self.loaded_models:
@@ -153,7 +162,11 @@ class PiperModelManager:
     def __init__(self, ttl: int) -> None:
         self.ttl = ttl
         self.loaded_models: OrderedDict[str, SelfDisposingModel[PiperVoice]] = OrderedDict()
-        self._lock = threading.Lock()
+        self._lock = (
+            threading.Lock() 
+            if CONFIG.enable_dynamic_loading
+            else nullcontext()
+        )
 
     def _load_fn(self, model_id: str) -> PiperVoice:
         from piper.voice import PiperConfig, PiperVoice
@@ -196,7 +209,11 @@ class KokoroModelManager:
     def __init__(self, ttl: int) -> None:
         self.ttl = ttl
         self.loaded_models: OrderedDict[str, SelfDisposingModel[Kokoro]] = OrderedDict()
-        self._lock = threading.Lock()
+        self._lock = (
+            threading.Lock() 
+            if CONFIG.enable_dynamic_loading
+            else nullcontext()
+        )
 
     # TODO
     def _load_fn(self, _model_id: str) -> Kokoro:
