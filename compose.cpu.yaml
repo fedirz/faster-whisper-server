@@ -11,7 +11,8 @@ services:
         BASE_IMAGE: ubuntu:24.04
     environment:
       - WHISPER__MODEL=Systran/faster-whisper-small
+      - ENABLE_DYNAMIC_LOADING=false
     volumes:
-      - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
+      - /home/user/.cache/huggingface/hub:/home/ubuntu/.cache/huggingface/hub
 volumes:
   hf-hub-cache:

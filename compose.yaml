@@ -5,6 +5,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
+      # Comment platforms if docker driver does not support multi-platform builds:
       platforms:
         - linux/amd64
         - linux/arm64
