@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import platform
+import uvicorn
 
 from fastapi import (
     FastAPI,
@@ -25,6 +26,13 @@ from speaches.routers.stt import (
 from speaches.routers.vad import (
     router as vad_router,
 )
+from speaches.routers.diarization import (
+    router as diarization_router,
+)
+from contextlib import asynccontextmanager
+from speaches.config import CONFIG
+import torch
+from pyannote.audio import Pipeline
 
 # https://swagger.io/docs/specification/v3_0/grouping-operations-with-tags/
 # https://fastapi.tiangolo.com/tutorial/metadata/#metadata-for-tags
@@ -38,6 +46,19 @@ TAGS_METADATA = [
         "description": "Not meant for public use yet. May change or be removed at any time.",
     },
 ]
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print('Starting up')
+    global diarization_pipeline
+    diarization_pipeline = Pipeline.from_pretrained(
+        CONFIG.diarization.model_name,
+        use_auth_token=CONFIG.diarization.auth_token,
+        
+    ).to(torch.device(CONFIG.diarization.device))
+    yield
+    print('Shutting down')
+    
 
 
 def create_app() -> FastAPI:
@@ -54,13 +75,17 @@ def create_app() -> FastAPI:
     if config.api_key is not None:
         dependencies.append(ApiKeyDependency)
 
-    app = FastAPI(dependencies=dependencies, openapi_tags=TAGS_METADATA)
-
-    app.include_router(stt_router)
-    app.include_router(models_router)
-    app.include_router(misc_router)
-    app.include_router(speech_router)
-    app.include_router(vad_router)
+    app = FastAPI(
+        dependencies=dependencies, 
+        openapi_tags=TAGS_METADATA, 
+        lifespan=lifespan
+    )
+    
+    routers = [
+        stt_router, models_router, misc_router, speech_router, vad_router, diarization_router
+    ]
+    for router in routers:
+        app.include_router(router)
 
     if config.allow_origins is not None:
         app.add_middleware(
@@ -79,3 +104,12 @@ def create_app() -> FastAPI:
         app = gr.mount_gradio_app(app, create_gradio_demo(config), path="/")
 
     return app
+
+
+if __name__ == "__main__":
+    uvicorn.run(
+        app=create_app,
+        host="127.0.0.1",
+        port=4000,
+        factory=True,
+    )
