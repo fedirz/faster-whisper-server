@@ -36,11 +36,10 @@ async def test_api_verbose_json_response_format_and_timestamp_granularities_comb
         timestamp_granularities=timestamp_granularities,
     )
 
-    assert transcription.__pydantic_extra__
     if "word" in timestamp_granularities:
-        assert transcription.__pydantic_extra__.get("segments") is not None
-        assert transcription.__pydantic_extra__.get("words") is not None
+        assert transcription.segments is not None
+        assert transcription.words is not None
     else:
         # Unless explicitly requested, words are not present
-        assert transcription.__pydantic_extra__.get("segments") is not None
-        assert transcription.__pydantic_extra__.get("words") is None
+        assert transcription.segments is not None
+        assert transcription.words is None
