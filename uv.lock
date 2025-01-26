@@ -1059,7 +1059,7 @@ wheels = [
 
 [[package]]
 name = "openai"
-version = "1.48.0"
+version = "1.60.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -1071,9 +1071,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/6b/f6/b479749993a2cade6554dd81e6178e5b585536955dc985b8d4f3100c90dd/openai-1.48.0.tar.gz", hash = "sha256:1d3b69ea62c287c4885a6f3ce840768564cd5f52c60ac5f890fef80d43cc4799", size = 301361 }
+sdist = { url = "https://files.pythonhosted.org/packages/d4/2d/9bdf4435d7669b4d027d6d69b4ac82f6be76153d9e90d3155d4224626a29/openai-1.60.0.tar.gz", hash = "sha256:7fa536cd4b644718645b874d2706e36dbbef38b327e42ca0623275da347ee1a9", size = 347844 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1e/5c/6b963ce9780aa7500d91aa2464c73a741d8c865bb4afc5cfff58086fbcfb/openai-1.48.0-py3-none-any.whl", hash = "sha256:7c4af223f0bf615ce4a12453729952c9a8b04ffe8c78aa77981b12fd970149cf", size = 376096 },
+    { url = "https://files.pythonhosted.org/packages/c0/53/782008d94f5f3141795e65bd7f87afaebb97e7516342299c1b1a08d5aaf8/openai-1.60.0-py3-none-any.whl", hash = "sha256:df06c43be8018274980ac363da07d4b417bd835ead1c66e14396f6f15a0d5dda", size = 456109 },
 ]
 
 [[package]]
@@ -4442,6 +4442,7 @@ dependencies = [
     { name = "kokoro-onnx" },
     { name = "numpy" },
     { name = "onnxruntime-gpu", marker = "platform_machine == 'x86_64'" },
+    { name = "openai" },
     { name = "piper-phonemize", marker = "platform_machine == 'x86_64'" },
     { name = "piper-tts", marker = "platform_machine == 'x86_64'" },
     { name = "pydantic" },
@@ -4512,7 +4513,8 @@ requires-dist = [
     { name = "mkdocstrings", extras = ["python"], marker = "extra == 'dev'", specifier = ">=0.26.1" },
     { name = "numpy", specifier = ">=2.1.1" },
     { name = "onnxruntime-gpu", marker = "platform_machine == 'x86_64'", specifier = ">=1.20.1" },
-    { name = "openai", marker = "extra == 'ui'", specifier = ">=1.48.0" },
+    { name = "openai", specifier = ">=1.60.0" },
+    { name = "openai", marker = "extra == 'ui'", specifier = ">=1.60.0" },
     { name = "opentelemetry-distro", marker = "extra == 'opentelemetry'", specifier = ">=0.48b0" },
     { name = "opentelemetry-exporter-otlp", marker = "extra == 'opentelemetry'", specifier = ">=1.27.0" },
     { name = "opentelemetry-instrumentation-asyncio", marker = "extra == 'opentelemetry'", specifier = "==0.48b0" },
