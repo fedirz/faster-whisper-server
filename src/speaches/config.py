@@ -245,6 +245,7 @@ class Config(BaseSettings):
 
     chat_completion_base_url: str = "https://api.openai.com/v1"
     chat_completion_api_key: str | None = None
+    chat_completion_model: str | None = None
 
     speech_base_url: str | None = None
     speech_api_key: str | None = None
