@@ -44,6 +44,7 @@ dev = [
     "pytest-mock>=3.14.0",
     "mkdocs-render-swagger-plugin>=0.1.2",
     "mdx-truly-sane-lists>=1.3",
+    "datamodel-code-generator>=0.26.5",
 ]
 ui = [
     "gradio>=5.13.0",
