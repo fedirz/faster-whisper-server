@@ -20,6 +20,7 @@ dependencies = [
     "soundfile>=0.12.1",
     "uvicorn>=0.30.6",
     "openai>=1.60.0",
+    "aiostream>=0.6.4",
 ]
 
 [project.optional-dependencies]
