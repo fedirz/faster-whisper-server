@@ -2,7 +2,7 @@ from collections.abc import AsyncGenerator, Generator
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
 import logging
 import os
-from typing import Protocol
+from typing import Literal, Protocol
 
 from fastapi.testclient import TestClient
 import httpx
@@ -26,6 +26,10 @@ DEFAULT_CONFIG = Config(
     whisper=DEFAULT_WHISPER_CONFIG,
     # disable the UI as it slightly increases the app startup time due to the imports it's doing
     enable_ui=False,
+    transcription_base_url=None,
+    speech_base_url=None,
+    chat_completion_base_url="https://api.openai.com/v1",
+    chat_completion_api_key=os.getenv("OPENAI_API_KEY"),
 )
 TIMEOUT = httpx.Timeout(15.0)
 
@@ -89,6 +93,19 @@ def actual_openai_client() -> AsyncOpenAI:
         # `base_url` is provided in case `OPENAI_BASE_URL` is set to a different value
         base_url=OPENAI_BASE_URL
     )
+
+
+# NOTE: I don't quite dig this approach. There's probably a better way to do this.
+@pytest_asyncio.fixture()
+async def dynamic_openai_client(
+    target: Literal["speaches", "openai"], aclient_factory: AclientFactory
+) -> AsyncGenerator[AsyncOpenAI, None]:
+    assert target in ["speaches", "openai"]
+    if target == "openai":
+        yield AsyncOpenAI(base_url=OPENAI_BASE_URL, max_retries=0)
+    elif target == "speaches":
+        async with aclient_factory() as aclient:
+            yield AsyncOpenAI(api_key="cant-be-empty", http_client=aclient, max_retries=0)
 
 
 # TODO: remove the download after running the tests
