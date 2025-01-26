@@ -46,15 +46,14 @@ async def test_openai_verbose_json_response_format_and_timestamp_granularities_c
         timestamp_granularities=timestamp_granularities,
     )
 
-    assert transcription.__pydantic_extra__
     if timestamp_granularities == ["word"]:
         # This is an exception where segments are not present
-        assert transcription.__pydantic_extra__.get("segments") is None
-        assert transcription.__pydantic_extra__.get("words") is not None
+        assert transcription.segments is None
+        assert transcription.words is not None
     elif "word" in timestamp_granularities:
-        assert transcription.__pydantic_extra__.get("segments") is not None
-        assert transcription.__pydantic_extra__.get("words") is not None
+        assert transcription.segments is not None
+        assert transcription.words is not None
     else:
         # Unless explicitly requested, words are not present
-        assert transcription.__pydantic_extra__.get("segments") is not None
-        assert transcription.__pydantic_extra__.get("words") is None
+        assert transcription.segments is not None
+        assert transcription.words is None
