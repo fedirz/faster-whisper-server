@@ -232,9 +232,9 @@ def download_kokoro_model() -> None:
     )
     # HACK
     res = httpx.get(
-        "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files/voices.json", follow_redirects=True
+        "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files/voices.bin", follow_redirects=True
     ).raise_for_status()
-    voices_path = model_repo_path / "voices.json"
+    voices_path = model_repo_path / "voices.bin"
     voices_path.touch(exist_ok=True)
     voices_path.write_bytes(res.content)
 

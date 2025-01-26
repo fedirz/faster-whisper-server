@@ -14,8 +14,8 @@ Download the Kokoro model and voices.
 export KOKORO_REVISION=c97b7bbc3e60f447383c79b2f94fee861ff156ac
 # Download the ONNX model (~346 MBs)
 docker exec -it speaches huggingface-cli download hexgrad/Kokoro-82M --include 'kokoro-v0_19.onnx' --revision $KOKORO_REVISION
-# Download the voices.json (~54 MBs) file
-docker exec -it speaches curl --location --output /home/ubuntu/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/$KOKORO_REVISION/voices.json https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files/voices.json
+# Download the voices.bin (~5.5 MBs) file
+docker exec -it speaches curl --location --output /home/ubuntu/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/$KOKORO_REVISION/voices.bin https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files/voices.bin
 ```
 
 !!! note
