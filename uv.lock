@@ -106,6 +106,15 @@ wheels = [
 ]
 
 [[package]]
+name = "cachetools"
+version = "5.5.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d9/74/57df1ab0ce6bc5f6fa868e08de20df8ac58f9c44330c7671ad922d2bbeae/cachetools-5.5.1.tar.gz", hash = "sha256:70f238fbba50383ef62e55c6aff6d9673175fe59f7c6782c7a0b9e38f4a9df95", size = 28044 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ec/4e/de4ff18bcf55857ba18d3a4bd48c8a9fde6bb0980c9d20b263f05387fd88/cachetools-5.5.1-py3-none-any.whl", hash = "sha256:b76651fdc3b24ead3c648bbdeeb940c1b04d365b38b4af66788f9ec4a81d42bb", size = 9530 },
+]
+
+[[package]]
 name = "certifi"
 version = "2024.8.30"
 source = { registry = "https://pypi.org/simple" }
@@ -4461,6 +4470,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiostream" },
+    { name = "cachetools" },
     { name = "ctranslate2" },
     { name = "fastapi" },
     { name = "faster-whisper" },
@@ -4525,6 +4535,7 @@ requires-dist = [
     { name = "aiostream", specifier = ">=0.6.4" },
     { name = "anyio", marker = "extra == 'dev'", specifier = ">=4.4.0" },
     { name = "basedpyright", marker = "extra == 'dev'", specifier = ">=1.18.0" },
+    { name = "cachetools", specifier = ">=5.5.1" },
     { name = "ctranslate2", specifier = ">=4.5.0" },
     { name = "fastapi", specifier = ">=0.115.6" },
     { name = "faster-whisper", specifier = ">=1.1.1" },
