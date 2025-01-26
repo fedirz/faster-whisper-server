@@ -114,6 +114,10 @@ ignore = [
 [tool.ruff.lint.isort]
 force-sort-within-sections = true
 
+# https://docs.astral.sh/ruff/settings/#per-file-ignores
+[tool.ruff.lint.per-file-ignores]
+"src/speaches/types/**.py" = ["PYI051"]
+
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
 quote-style = "double"
