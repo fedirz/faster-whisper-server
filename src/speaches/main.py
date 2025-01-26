@@ -74,7 +74,7 @@ def create_app() -> FastAPI:
     if config.enable_ui:
         import gradio as gr
 
-        from speaches.gradio_app import create_gradio_demo
+        from speaches.ui.app import create_gradio_demo
 
         app = gr.mount_gradio_app(app, create_gradio_demo(config), path="/")
 
