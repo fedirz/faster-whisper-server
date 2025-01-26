@@ -413,7 +413,7 @@ wheels = [
 
 [[package]]
 name = "gradio"
-version = "5.0.2"
+version = "5.13.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
@@ -435,21 +435,22 @@ dependencies = [
     { name = "python-multipart" },
     { name = "pyyaml" },
     { name = "ruff", marker = "sys_platform != 'emscripten'" },
+    { name = "safehttpx" },
     { name = "semantic-version" },
+    { name = "starlette", marker = "sys_platform != 'emscripten'" },
     { name = "tomlkit" },
     { name = "typer", marker = "sys_platform != 'emscripten'" },
     { name = "typing-extensions" },
     { name = "urllib3", marker = "sys_platform == 'emscripten'" },
     { name = "uvicorn", marker = "sys_platform != 'emscripten'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7f/48/111e503700934d5d2f4ab9b593aff9890cd6af7c0a35a649edf593ec6b13/gradio-5.0.2.tar.gz", hash = "sha256:ba49bd8d58dd74302e019aa5c0cd8c351d534ec2ea9cbc83e944be7b2f3cc56c", size = 51975122 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4b/52/4834e55fd6aab3a7a33c5cd59fd46e45bca2e41118c153b33d6393cb2206/gradio-5.0.2-py3-none-any.whl", hash = "sha256:b9077078d643d0647d2edb03ef20c81561aaaccffab6050ac5a4f26c7f616ab3", size = 42309033 },
+    { url = "https://files.pythonhosted.org/packages/70/21/db4f48eb2a26df40af8c418a506c0f984b5f007893f7153ae23377fc12d2/gradio-5.13.0-py3-none-any.whl", hash = "sha256:f631d17dfb588fe6d8cbdd01389bed95713680b7536c58a5d7e09a9a43efcc5c", size = 57633432 },
 ]
 
 [[package]]
 name = "gradio-client"
-version = "1.4.0"
+version = "1.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fsspec" },
@@ -459,9 +460,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a0/32/6225437199f88f20a8f36ad78681d9fc5be8cdf7519cbc852782ae379edb/gradio_client-1.4.0.tar.gz", hash = "sha256:bb24af01176774122f0c35e9a18f51047a22b457e6d667ba3cd7c7dfae17cd8d", size = 317874 }
+sdist = { url = "https://files.pythonhosted.org/packages/1c/d4/96a11493f6aea9d96ba5302b2e73725d07cee49c9d555190f4631372e028/gradio_client-1.6.0.tar.gz", hash = "sha256:1c6fae52181d483c010cfbc4e4df8520da33ab4365ab412acabc798d7022ad98", size = 319910 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/25/05/8a55d7fc95792b58aef5ac2656ee6f8307629ddca747a5bfdfd8197c7114/gradio_client-1.4.0-py3-none-any.whl", hash = "sha256:6cd0f2c7b83fbab1db904e577c19bccc518dc7a2e8ea02cf3e13f8a9510d83f7", size = 319789 },
+    { url = "https://files.pythonhosted.org/packages/9b/41/dc3358708c4e461bec82e9bbf5e7b1821b1fa45c5f078f3baeb3e8686f57/gradio_client-1.6.0-py3-none-any.whl", hash = "sha256:172175510a0cc92928f5d376e95e93f94d1558e4a360969fcc0dfc4c9e313872", size = 321777 },
 ]
 
 [[package]]
@@ -4162,11 +4163,11 @@ wheels = [
 
 [[package]]
 name = "python-multipart"
-version = "0.0.10"
+version = "0.0.20"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f9/29/0e5c896ec896b4e501bafa80ab555bbf3bcb0d720e9e33f908179aeb1a61/python_multipart-0.0.10.tar.gz", hash = "sha256:46eb3c6ce6fdda5fb1a03c7e11d490e407c6930a2703fe7aef4da71c374688fa", size = 34619 }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/87/f44d7c9f274c7ee665a29b885ec97089ec5dc034c7f3fafa03da9e39a09e/python_multipart-0.0.20.tar.gz", hash = "sha256:8dd0cab45b8e23064ae09147625994d090fa46f5b0d1e13af944c331a7fa9d13", size = 37158 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b8/d7/1d8acecc4621aa2b70fca28c1a651e02d936152e77d6be07d00601b31cf3/python_multipart-0.0.10-py3-none-any.whl", hash = "sha256:2b06ad9e8d50c7a8db80e3b56dab590137b323410605af2be20d62a5f1ba1dc8", size = 22680 },
+    { url = "https://files.pythonhosted.org/packages/45/58/38b5afbc1a800eeea951b9285d3912613f2603bdf897a4ab0f4bd7f405fc/python_multipart-0.0.20-py3-none-any.whl", hash = "sha256:8a62d3a8335e06589fe01f2a3e178cdcc632f3fbe0d492ad9ee0ec35aab1f104", size = 24546 },
 ]
 
 [[package]]
@@ -4339,6 +4340,18 @@ wheels = [
 ]
 
 [[package]]
+name = "safehttpx"
+version = "0.1.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "httpx" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/67/4c/19db75e6405692b2a96af8f06d1258f8aa7290bdc35ac966f03e207f6d7f/safehttpx-0.1.6.tar.gz", hash = "sha256:b356bfc82cee3a24c395b94a2dbeabbed60aff1aa5fa3b5fe97c4f2456ebce42", size = 9987 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4d/c0/1108ad9f01567f66b3154063605b350b69c3c9366732e09e45f9fd0d1deb/safehttpx-0.1.6-py3-none-any.whl", hash = "sha256:407cff0b410b071623087c63dd2080c3b44dc076888d8c5823c00d1e58cb381c", size = 8692 },
+]
+
+[[package]]
 name = "segments"
 version = "2.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -4501,7 +4514,7 @@ requires-dist = [
     { name = "ctranslate2", specifier = ">=4.5.0" },
     { name = "fastapi", specifier = ">=0.115.6" },
     { name = "faster-whisper", specifier = ">=1.1.1" },
-    { name = "gradio", marker = "extra == 'ui'", specifier = ">=5.0.2" },
+    { name = "gradio", marker = "extra == 'ui'", specifier = ">=5.13.0" },
     { name = "httpx", marker = "extra == 'ui'", specifier = ">=0.27.2" },
     { name = "httpx-sse", marker = "extra == 'ui'", specifier = ">=0.4.0" },
     { name = "huggingface-hub", extras = ["hf-transfer"], specifier = ">=0.25.1" },
