@@ -201,7 +201,7 @@ class KokoroModelManager:
     # TODO
     def _load_fn(self, _model_id: str) -> Kokoro:
         model_path = get_kokoro_model_path()
-        voices_path = model_path.parent / "voices.json"
+        voices_path = model_path.parent / "voices.bin"
         inf_sess = InferenceSession(model_path, providers=ONNX_PROVIDERS)
         return Kokoro.from_session(inf_sess, str(voices_path))
 

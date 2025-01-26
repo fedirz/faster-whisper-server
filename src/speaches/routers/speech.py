@@ -134,7 +134,7 @@ async def synthesize(
 ) -> StreamingResponse:
     match body.model:
         case "hexgrad/Kokoro-82M":
-            # TODO: download the `voices.json` file
+            # TODO: download the `voices.bin` file
             with kokoro_model_manager.load_model(body.voice) as tts:
                 audio_generator = kokoro_utils.generate_audio(
                     tts,
