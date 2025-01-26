@@ -1,6 +1,7 @@
 import gradio as gr
 
 from speaches.config import Config
+from speaches.ui.tabs.audio_chat import create_audio_chat_tab
 from speaches.ui.tabs.stt import create_stt_tab  # , update_whisper_model_dropdown
 from speaches.ui.tabs.tts import create_tts_tab
 
@@ -18,6 +19,7 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
             "### For additional details regarding the parameters, see the [API Documentation](https://speaches-ai.github.io/speaches/api)"
         )
 
+        create_audio_chat_tab(config)
         create_stt_tab(config)
         create_tts_tab(config)
 
