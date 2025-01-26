@@ -6,18 +6,21 @@ LABEL org.opencontainers.image.licenses="MIT"
 # `ffmpeg` is installed because without it `gradio` won't work with mp3(possible others as well) files
 # hadolint ignore=DL3008
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl ffmpeg python3.12 && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl ffmpeg && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 # "ubuntu" is the default user on ubuntu images with UID=1000. This user is used for two reasons:
 #   1. It's generally a good practice to run containers as non-root users. See https://www.docker.com/blog/understanding-the-docker-user-instruction/
 #   2. Docker Spaces on HuggingFace don't support running containers as root. See https://huggingface.co/docs/hub/en/spaces-sdks-docker#permissions
+# NOTE: the following command was added since nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04 doesn't have the `ubuntu` user
+RUN useradd --create-home --shell /bin/bash --uid 1000 ubuntu || true
 USER ubuntu
 ENV HOME=/home/ubuntu \
     PATH=/home/ubuntu/.local/bin:$PATH
 WORKDIR $HOME/speaches
 # https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
 COPY --chown=ubuntu --from=ghcr.io/astral-sh/uv:0.5.18 /uv /bin/uv
+# NOTE: per https://docs.astral.sh/uv/guides/install-python, `uv` will automatically install the necessary python version 
 # https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 # https://docs.astral.sh/uv/guides/integration/docker/#compiling-bytecode
 # TODO: figure out if `/home/ubuntu/.cache/uv` should be used instead of `/root/.cache/uv`
