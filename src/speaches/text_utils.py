@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 import re
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import AsyncGenerator, Iterable
 
     from speaches.api_types import TranscriptionSegment, TranscriptionWord
 
@@ -122,3 +123,56 @@ def common_prefix(a: list[TranscriptionWord], b: list[TranscriptionWord]) -> lis
     while i < len(a) and i < len(b) and canonicalize_word(a[i].word) == canonicalize_word(b[i].word):
         i += 1
     return a[:i]
+
+
+# TODO: Add tests
+# TODO: take into account various sentence endings like "..."
+# TODO: maybe create MultiSentenceChunker to return multiple sentence (when available) at a time
+# TODO: consider different handling of small sentences. i.e. if a sentence consist of only couple of words wait until more words are available  # noqa: E501
+class SentenceChunker:
+    def __init__(self) -> None:
+        self._content = ""
+        self._is_closed = False
+        self._new_token_event = asyncio.Event()
+        self._sentence_endings = {".", "!", "?"}
+        self._processed_index = 0
+
+    def add_token(self, token: str) -> None:
+        """Add a token (text chunk) to the chunker."""
+        if self._is_closed:
+            raise RuntimeError("Cannot add tokens to a closed SentenceChunker")  # noqa: EM101
+
+        self._content += token
+        self._new_token_event.set()
+
+    def close(self) -> None:
+        """Close the chunker, preventing further token additions."""
+        self._is_closed = True
+        self._new_token_event.set()
+
+    async def __aiter__(self) -> AsyncGenerator[str]:
+        while True:
+            # Find the next sentence ending after the last processed index
+            next_end = -1
+            for ending in self._sentence_endings:
+                pos = self._content.find(ending, self._processed_index)
+                if pos != -1 and (next_end == -1 or pos < next_end):
+                    next_end = pos
+
+            if next_end != -1:
+                # We found a complete sentence
+                sentence_end = next_end + 1
+                sentence = self._content[self._processed_index : sentence_end]
+                self._processed_index = sentence_end
+                yield sentence
+            else:
+                # No complete sentence found
+                if self._is_closed:
+                    # If there's any remaining content, yield it
+                    if self._processed_index < len(self._content):
+                        yield self._content[self._processed_index :]
+                    return
+
+                # Wait for more content
+                self._new_token_event.clear()
+                await self._new_token_event.wait()
