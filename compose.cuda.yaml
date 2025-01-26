@@ -5,10 +5,11 @@ services:
     extends:
       file: compose.yaml
       service: speaches
+    # NOTE: slightly older cuda version is available under 'latest-cuda-12.4.1' tag
     image: ghcr.io/speaches-ai/speaches:latest-cuda
     build:
       args:
-        BASE_IMAGE: nvidia/cuda:12.6.2-cudnn-runtime-ubuntu24.04
+        BASE_IMAGE: nvidia/cuda:12.6.3-cudnn-runtime-ubuntu24.04
     environment:
       - WHISPER__MODEL=Systran/faster-whisper-large-v3
     volumes:
