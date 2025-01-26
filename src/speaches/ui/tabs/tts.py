@@ -1,5 +1,6 @@
 from pathlib import Path
 import platform
+from tempfile import NamedTemporaryFile
 
 import gradio as gr
 import httpx
@@ -48,9 +49,9 @@ def create_tts_tab(config: Config) -> None:
             extra_body={"language": language, "sample_rate": sample_rate},
         )
         audio_bytes = res.response.read()
-        file_path = Path(f"audio.{response_format}")
-        with file_path.open("wb") as file:  # noqa: ASYNC230
+        with NamedTemporaryFile(suffix=f".{response_format}", delete=False) as file:
             file.write(audio_bytes)
+            file_path = Path(file.name)
         return file_path
 
     with gr.Tab(label="Text-to-Speech") as tab:
