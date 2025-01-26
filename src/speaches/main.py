@@ -47,7 +47,7 @@ def create_app() -> FastAPI:
 
     logger.debug(f"Config: {config}")
 
-    if platform.machine() == "x86_64":
+    if platform.machine() != "x86_64":
         logger.warning("`POST /v1/audio/speech` with `model=rhasspy/piper-voices` is only supported on x86_64 machines")
 
     dependencies = []
