@@ -10,6 +10,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from speaches.dependencies import ApiKeyDependency, get_config
 from speaches.logger import setup_logger
+from speaches.routers.chat import (
+    router as chat_router,
+)
 from speaches.routers.misc import (
     router as misc_router,
 )
@@ -56,6 +59,7 @@ def create_app() -> FastAPI:
 
     app = FastAPI(dependencies=dependencies, openapi_tags=TAGS_METADATA)
 
+    app.include_router(chat_router)
     app.include_router(stt_router)
     app.include_router(models_router)
     app.include_router(misc_router)
