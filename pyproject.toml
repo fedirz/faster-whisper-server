@@ -66,6 +66,7 @@ opentelemetry = [
     "opentelemetry-instrumentation-requests==0.50b0",
     "opentelemetry-instrumentation-urllib3==0.50b0",
     "opentelemetry-instrumentation-openai-v2>=2.1b0",
+    "opentelemetry-instrumentation-openai>=0.37.1",
 ]
 
 [build-system]
