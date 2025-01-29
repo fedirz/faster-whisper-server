@@ -76,6 +76,8 @@
             with pkgs;
             [
               act
+              docker
+              docker-compose
               ffmpeg-full
               go-task
               grafana-loki
@@ -100,4 +102,3 @@
       }
     );
 }
-
