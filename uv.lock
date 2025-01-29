@@ -1512,6 +1512,20 @@ wheels = [
 ]
 
 [[package]]
+name = "opentelemetry-instrumentation-openai-v2"
+version = "2.1b0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-instrumentation" },
+    { name = "opentelemetry-semantic-conventions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/63/2e/a405c24ea8a5aea8f512d01da4b6f6e40ccd9e0237c04d8b9189cd169d41/opentelemetry_instrumentation_openai_v2-2.1b0.tar.gz", hash = "sha256:184a95f84c28f579fbcd78b1b542d3cf75e6bd1dc9c3b8c7be4786a19cdbaf13", size = 32093 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ad/9b/ab4b335cbd0d54bbc15067b2aeb17f947836fb718cd1aff4a38f5de8d0f9/opentelemetry_instrumentation_openai_v2-2.1b0-py3-none-any.whl", hash = "sha256:176ca5aa204fd51dd9460911f87f989686ad337abeb388e4195b84abc9f72f0b", size = 16702 },
+]
+
+[[package]]
 name = "opentelemetry-instrumentation-requests"
 version = "0.50b0"
 source = { registry = "https://pypi.org/simple" }
@@ -4812,6 +4826,7 @@ opentelemetry = [
     { name = "opentelemetry-instrumentation-grpc" },
     { name = "opentelemetry-instrumentation-httpx" },
     { name = "opentelemetry-instrumentation-logging" },
+    { name = "opentelemetry-instrumentation-openai-v2" },
     { name = "opentelemetry-instrumentation-requests" },
     { name = "opentelemetry-instrumentation-threading" },
     { name = "opentelemetry-instrumentation-urllib" },
@@ -4854,6 +4869,7 @@ requires-dist = [
     { name = "opentelemetry-instrumentation-grpc", marker = "extra == 'opentelemetry'", specifier = "==0.50b0" },
     { name = "opentelemetry-instrumentation-httpx", marker = "extra == 'opentelemetry'", specifier = "==0.50b0" },
     { name = "opentelemetry-instrumentation-logging", marker = "extra == 'opentelemetry'", specifier = "==0.50b0" },
+    { name = "opentelemetry-instrumentation-openai-v2", marker = "extra == 'opentelemetry'", specifier = ">=2.1b0" },
     { name = "opentelemetry-instrumentation-requests", marker = "extra == 'opentelemetry'", specifier = "==0.50b0" },
     { name = "opentelemetry-instrumentation-threading", marker = "extra == 'opentelemetry'", specifier = "==0.50b0" },
     { name = "opentelemetry-instrumentation-urllib", marker = "extra == 'opentelemetry'", specifier = "==0.50b0" },
