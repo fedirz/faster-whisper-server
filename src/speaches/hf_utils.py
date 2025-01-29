@@ -18,6 +18,8 @@ logger = logging.getLogger(__name__)
 LIBRARY_NAME = "ctranslate2"
 TASK_NAME = "automatic-speech-recognition"
 
+KOKORO_REVISION = "c97b7bbc3e60f447383c79b2f94fee861ff156ac"
+
 
 def list_local_model_ids() -> list[str]:
     model_dirs = list(Path(HF_HUB_CACHE).glob("models--*"))
@@ -228,7 +230,12 @@ def get_kokoro_model_path() -> Path:
 def download_kokoro_model() -> None:
     model_id = "hexgrad/Kokoro-82M"
     model_repo_path = Path(
-        huggingface_hub.snapshot_download(model_id, repo_type="model", allow_patterns=["kokoro-v0_19.onnx"])
+        huggingface_hub.snapshot_download(
+            model_id,
+            repo_type="model",
+            allow_patterns=["kokoro-v0_19.onnx"],
+            revision=KOKORO_REVISION,
+        )
     )
     # HACK
     res = httpx.get(
