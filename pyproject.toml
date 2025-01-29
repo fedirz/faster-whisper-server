@@ -52,18 +52,18 @@ ui = [
     "openai>=1.60.0",
 ]
 opentelemetry = [
-    "opentelemetry-distro>=0.48b0",
+    "opentelemetry-distro>=0.50b0",
     "opentelemetry-exporter-otlp>=1.27.0",
-    "opentelemetry-instrumentation-asyncio==0.48b0",
-    "opentelemetry-instrumentation-logging==0.48b0",
-    "opentelemetry-instrumentation-threading==0.48b0",
-    "opentelemetry-instrumentation-urllib==0.48b0",
-    # "opentelemetry-instrumentation-wsgi==0.48b0"
-    "opentelemetry-instrumentation-fastapi==0.48b0",
-    "opentelemetry-instrumentation-grpc==0.48b0",
-    "opentelemetry-instrumentation-httpx==0.48b0",
-    "opentelemetry-instrumentation-requests==0.48b0",
-    "opentelemetry-instrumentation-urllib3==0.48b0",
+    "opentelemetry-instrumentation-asyncio==0.50b0",
+    "opentelemetry-instrumentation-logging==0.50b0",
+    "opentelemetry-instrumentation-threading==0.50b0",
+    "opentelemetry-instrumentation-urllib==0.50b0",
+    # "opentelemetry-instrumentation-wsgi==0.50b0"
+    "opentelemetry-instrumentation-fastapi==0.50b0",
+    "opentelemetry-instrumentation-grpc==0.50b0",
+    "opentelemetry-instrumentation-httpx==0.50b0",
+    "opentelemetry-instrumentation-requests==0.50b0",
+    "opentelemetry-instrumentation-urllib3==0.50b0",
 ]
 
 [build-system]
