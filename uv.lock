@@ -4821,6 +4821,7 @@ dev = [
 opentelemetry = [
     { name = "opentelemetry-distro" },
     { name = "opentelemetry-exporter-otlp" },
+    { name = "opentelemetry-instrumentation-asgi" },
     { name = "opentelemetry-instrumentation-asyncio" },
     { name = "opentelemetry-instrumentation-fastapi" },
     { name = "opentelemetry-instrumentation-grpc" },
@@ -4864,6 +4865,7 @@ requires-dist = [
     { name = "openai", marker = "extra == 'ui'", specifier = ">=1.60.0" },
     { name = "opentelemetry-distro", marker = "extra == 'opentelemetry'", specifier = ">=0.50b0" },
     { name = "opentelemetry-exporter-otlp", marker = "extra == 'opentelemetry'", specifier = ">=1.27.0" },
+    { name = "opentelemetry-instrumentation-asgi", marker = "extra == 'opentelemetry'", specifier = "==0.50b0" },
     { name = "opentelemetry-instrumentation-asyncio", marker = "extra == 'opentelemetry'", specifier = "==0.50b0" },
     { name = "opentelemetry-instrumentation-fastapi", marker = "extra == 'opentelemetry'", specifier = "==0.50b0" },
     { name = "opentelemetry-instrumentation-grpc", marker = "extra == 'opentelemetry'", specifier = "==0.50b0" },
