@@ -54,6 +54,7 @@ ui = [
 opentelemetry = [
     "opentelemetry-distro>=0.50b0",
     "opentelemetry-exporter-otlp>=1.27.0",
+    "opentelemetry-instrumentation-asgi==0.50b0",
     "opentelemetry-instrumentation-asyncio==0.50b0",
     "opentelemetry-instrumentation-logging==0.50b0",
     "opentelemetry-instrumentation-threading==0.50b0",
