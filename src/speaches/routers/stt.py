@@ -245,6 +245,8 @@ async def audio_receiver(ws: WebSocket, audio_stream: AudioStream, vad_auto_clos
             logger.debug(f"Received {len(bytes_)} bytes of audio data")
             audio_samples = audio_samples_from_file(BytesIO(bytes_))
             audio_stream.extend(audio_samples)
+            if not vad_auto_close:
+                continue
             if audio_stream.duration - config.inactivity_window_seconds >= 0:
                 audio = audio_stream.after(audio_stream.duration - config.inactivity_window_seconds)
                 vad_opts = VadOptions(min_silence_duration_ms=500, speech_pad_ms=0)
