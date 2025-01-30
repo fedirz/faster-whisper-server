@@ -17,7 +17,6 @@
         members_order: source
         filters:
             - "!model_config"
-            - "!chat_completion_*"
             - "!speech_*"
             - "!transcription_*"
 
