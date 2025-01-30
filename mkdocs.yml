@@ -2,6 +2,7 @@
 # https://www.mkdocs.org/user-guide/configuration/#configuration
 site_name: Speaches Documentation
 site_url: https://speaches.ai
+dev_addr: 127.0.0.1:8001
 repo_url: https://github.com/speaches-ai/speaches/
 edit_uri: edit/master/docs/
 docs_dir: docs
