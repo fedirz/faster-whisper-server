@@ -29,9 +29,9 @@ OPENAI_SUPPORTED_SPEECH_MODEL = ("tts-1", "tts-1-hd")
 OPENAI_SUPPORTED_SPEECH_VOICE_NAMES = ("alloy", "echo", "fable", "onyx", "nova", "shimmer")
 
 # https://platform.openai.com/docs/guides/text-to-speech/supported-output-formats
-type ResponseFormat = Literal["mp3", "flac", "wav", "pcm"]
-SUPPORTED_RESPONSE_FORMATS = ("mp3", "flac", "wav", "pcm")
-UNSUPORTED_RESPONSE_FORMATS = ("opus", "aac")
+type ResponseFormat = Literal["mp3", "flac", "wav", "pcm", "aac"]
+SUPPORTED_RESPONSE_FORMATS = ("mp3", "flac", "wav", "pcm", "aac")
+UNSUPORTED_RESPONSE_FORMATS = ("opus")
 
 MIN_SAMPLE_RATE = 8000
 MAX_SAMPLE_RATE = 48000

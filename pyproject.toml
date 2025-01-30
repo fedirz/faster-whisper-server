@@ -7,6 +7,7 @@ dependencies = [
     "ctranslate2>=4.5.0",
     "fastapi>=0.115.6",
     "faster-whisper>=1.1.1",
+    "ffmpeg-python>=0.2.0",
     "huggingface-hub[hf-transfer]>=0.25.1",
     "kokoro-onnx[gpu]>=0.3.6,<0.4.0",
     "numpy>=2.1.1",
