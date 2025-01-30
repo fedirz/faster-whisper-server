@@ -9,13 +9,15 @@ TODO: add a note about vad
 
     Before proceeding, you should be familiar with the [OpenAI Speech-to-Text](https://platform.openai.com/docs/guides/speech-to-text) and the relevant [OpenAI API reference](https://platform.openai.com/docs/api-reference/audio/createTranscription)
 
-## Curl
+## Usage
+
+### Curl
 
 ```bash
 curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav"
 ```
 
-## Python
+### Python
 
 === "httpx"
 
@@ -29,7 +31,7 @@ curl http://localhost:8000/v1/audio/transcriptions -F "file=@audio.wav"
     print(response.text)
     ```
 
-## OpenAI SDKs
+### OpenAI SDKs
 
 !!! note
 

@@ -35,7 +35,9 @@ docker exec -it speaches huggingface-cli download rhasspy/piper-voices --include
 docker exec -it speaches huggingface-cli download rhasspy/piper-voices --include 'en/en_US/amy/medium/*' 'voices.json'
 ```
 
-## Curl
+## Usage
+
+### Curl
 
 ```bash
 # Generate speech from text using the default values (model="hexgrad/Kokoro-82M", voice="af", response_format="mp3", speed=1.0, etc.)
@@ -60,7 +62,7 @@ curl --silent http://localhost:8000/v1/audio/speech/voices | jq --raw-output '.[
 curl http://localhost:8000/v1/audio/speech --header "Content-Type: application/json" --data '{"input": "Hello World!", "voice": "af_sky"}' --output audio.mp3
 ```
 
-## Python
+### Python
 
 === "httpx"
 
@@ -84,7 +86,7 @@ curl http://localhost:8000/v1/audio/speech --header "Content-Type: application/j
         f.write(res.read())
     ```
 
-## OpenAI SDKs
+### OpenAI SDKs
 
 !!! note
 
@@ -114,3 +116,8 @@ curl http://localhost:8000/v1/audio/speech --header "Content-Type: application/j
 === "Other"
 
     See [OpenAI libraries](https://platform.openai.com/docs/libraries)
+
+## Limitations
+
+- `response_format`: `opus` and `aac` are not supported
+- Maximuam audio generation length is 10 seconds for `rhasspy/piper-voices` and 30 seconds for `hexgrad/Kokoro-82M`

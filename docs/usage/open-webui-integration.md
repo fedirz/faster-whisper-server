@@ -1,6 +1,4 @@
-## Open WebUI
-
-### Using the UI
+## Using the UI
 
 1. Go to the [Admin Settings](http://localhost:8080/admin/settings) page
 2. Click on the "Audio" tab
@@ -11,7 +9,7 @@
    - Model: Systran/faster-distil-whisper-large-v3
 4. Click "Save"
 
-### Using environment variables (Docker Compose)
+## Using environment variables (Docker Compose)
 
 !!! warning
 
