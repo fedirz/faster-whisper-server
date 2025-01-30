@@ -1,7 +1,7 @@
 # TODO: https://docs.astral.sh/uv/guides/integration/docker/#configuring-watch-with-docker-compose
 services:
   speaches:
-    container_name: speaches
+    container_name: cm-speaches
     build:
       dockerfile: Dockerfile
       context: .
