@@ -1,6 +1,12 @@
 ARG BASE_IMAGE=nvidia/cuda:12.6.3-cudnn-runtime-ubuntu24.04
 # hadolint ignore=DL3006
 FROM ${BASE_IMAGE}
+
+# Install CA certificates
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
 LABEL org.opencontainers.image.source="https://github.com/speaches-ai/speaches"
 LABEL org.opencontainers.image.licenses="MIT"
 # `ffmpeg` is installed because without it `gradio` won't work with mp3(possible others as well) files

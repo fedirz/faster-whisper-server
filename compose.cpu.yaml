@@ -1,14 +1,22 @@
 # include:
 #   - compose.observability.yaml
 services:
-  speaches:
+  cm-speaches:
     extends:
       file: compose.yaml
       service: speaches
-    image: ghcr.io/speaches-ai/speaches:latest-cpu
+    # Expose the container on host port 8001 (rather than 8000
+    # which is used by the official / default)
+    ports:
+      - "8001:8000"
+    # Comment out the official image, use the local build instead
+    # image: ghcr.io/speaches-ai/speaches:latest-cpu
     build:
       args:
         BASE_IMAGE: ubuntu:24.04
+      tags:
+        - "cm-speaches-cpu:latest"
+        - "cm-speaches-cpu:latest-v1"
     environment:
       - WHISPER__MODEL=Systran/faster-whisper-small
     volumes:
