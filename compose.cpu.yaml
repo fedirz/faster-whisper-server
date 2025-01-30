@@ -5,10 +5,6 @@ services:
     extends:
       file: compose.yaml
       service: speaches
-    # Expose the container on host port 8001 (rather than 8000
-    # which is used by the official / default)
-    ports:
-      - "8001:8000"
     # Comment out the official image, use the local build instead
     # image: ghcr.io/speaches-ai/speaches:latest-cpu
     build:
@@ -19,6 +15,12 @@ services:
         - "cm-speaches-cpu:latest-v1"
     environment:
       - WHISPER__MODEL=Systran/faster-whisper-small
+      - MAX_NO_DATA_SECONDS=5.0  # default is 1.0
+      # # Configs for VAD
+      # - MAX_INACTIVITY_SECONDS=2.5
+      # - INACTIVITY_WINDOW_SECONDS=5.0
+      # - MIN_DURATION=1.0
+
     volumes:
       - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
 volumes:
