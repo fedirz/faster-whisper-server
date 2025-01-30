@@ -237,7 +237,7 @@ def transcribe_file(
             return segments_to_response(segments, transcription_info, response_format)
 
 
-async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
+async def audio_receiver(ws: WebSocket, audio_stream: AudioStream, vad_auto_close: bool = True) -> None:
     config = get_config()  # HACK
     try:
         while True:
@@ -245,6 +245,8 @@ async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
             logger.debug(f"Received {len(bytes_)} bytes of audio data")
             audio_samples = audio_samples_from_file(BytesIO(bytes_))
             audio_stream.extend(audio_samples)
+            if not vad_auto_close:
+                continue
             if audio_stream.duration - config.inactivity_window_seconds >= 0:
                 audio = audio_stream.after(audio_stream.duration - config.inactivity_window_seconds)
                 vad_opts = VadOptions(min_silence_duration_ms=500, speech_pad_ms=0)
@@ -278,6 +280,7 @@ async def transcribe_stream(
     response_format: Annotated[ResponseFormat | None, Query()] = None,
     temperature: Annotated[float, Query()] = 0.0,
     vad_filter: Annotated[bool, Query()] = False,
+    vad_auto_close: Annotated[bool, Query()] = True,
 ) -> None:
     if model is None:
         model = config.whisper.model
@@ -296,7 +299,7 @@ async def transcribe_stream(
         asr = FasterWhisperASR(whisper, **transcribe_opts)
         audio_stream = AudioStream()
         async with asyncio.TaskGroup() as tg:
-            tg.create_task(audio_receiver(ws, audio_stream))
+            tg.create_task(audio_receiver(ws, audio_stream, vad_auto_close=vad_auto_close))
             async for transcription in audio_transcriber(asr, audio_stream, min_duration=config.min_duration):
                 logger.debug(f"Sending transcription: {transcription.text}")
                 if ws.client_state == WebSocketState.DISCONNECTED:
