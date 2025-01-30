@@ -130,7 +130,7 @@ openai_client.chat.completions.create(
                 "role": "user",
                 "content": [
                     {"type": "text", "text": "What is in this recording?"},
-                    {"type": "input_audio", "input_audio": {"data": B64_AUDIO_DATA, "format": "wav"}},
+                    {"type": "input_audio", "input_audio": {"data": "<bytes ommitted>", "format": "wav"}},
                 ],
             },
         ],
