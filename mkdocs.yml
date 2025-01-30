@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
 # https://www.mkdocs.org/user-guide/configuration/#configuration
 site_name: Speaches Documentation
-site_url: https://speaches-ai.github.io/speaches/
+site_url: https://speaches.ai
 repo_url: https://github.com/speaches-ai/speaches/
 edit_uri: edit/master/docs/
 docs_dir: docs
