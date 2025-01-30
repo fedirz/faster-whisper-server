@@ -463,6 +463,18 @@ wheels = [
 ]
 
 [[package]]
+name = "ffmpeg-python"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "future" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/dd/5e/d5f9105d59c1325759d838af4e973695081fbbc97182baf73afc78dec266/ffmpeg-python-0.2.0.tar.gz", hash = "sha256:65225db34627c578ef0e11c8b1eb528bb35e024752f6f10b78c011f6f64c4127", size = 21543 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d7/0c/56be52741f75bad4dc6555991fabd2e07b432d333da82c11ad701123888a/ffmpeg_python-0.2.0-py3-none-any.whl", hash = "sha256:ac441a0404e053f8b6a1113a77c0f452f1cfc62f6344a769475ffdc0f56c23c5", size = 25024 },
+]
+
+[[package]]
 name = "ffmpy"
 version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -496,6 +508,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/62/7c/12b0943011daaaa9c35c2a2e22e5eb929ac90002f08f1259d69aedad84de/fsspec-2024.9.0.tar.gz", hash = "sha256:4b0afb90c2f21832df142f292649035d80b421f60a9e1c027802e5a0da2b04e8", size = 286206 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1d/a0/6aaea0c2fbea2f89bfd5db25fb1e3481896a423002ebe4e55288907a97a3/fsspec-2024.9.0-py3-none-any.whl", hash = "sha256:a0947d552d8a6efa72cc2c730b12c41d043509156966cca4fb157b0f2a0c574b", size = 179253 },
+]
+
+[[package]]
+name = "future"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a7/b2/4140c69c6a66432916b26158687e821ba631a4c9273c474343badf84d3ba/future-1.0.0.tar.gz", hash = "sha256:bd2968309307861edae1458a4f8a4f3598c03be43b97521076aebf5d94c07b05", size = 1228490 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/da/71/ae30dadffc90b9006d77af76b393cb9dfbfc9629f339fc1574a1c52e6806/future-1.0.0-py3-none-any.whl", hash = "sha256:929292d34f5872e70396626ef385ec22355a1fae8ad29e1a734c3e43f9fbc216", size = 491326 },
 ]
 
 [[package]]
@@ -4807,6 +4828,7 @@ dependencies = [
     { name = "ctranslate2" },
     { name = "fastapi" },
     { name = "faster-whisper" },
+    { name = "ffmpeg-python" },
     { name = "huggingface-hub", extra = ["hf-transfer"] },
     { name = "kokoro-onnx", extra = ["gpu"] },
     { name = "numpy" },
@@ -4876,6 +4898,7 @@ requires-dist = [
     { name = "datamodel-code-generator", marker = "extra == 'dev'", specifier = ">=0.26.5" },
     { name = "fastapi", specifier = ">=0.115.6" },
     { name = "faster-whisper", specifier = ">=1.1.1" },
+    { name = "ffmpeg-python", specifier = ">=0.2.0" },
     { name = "gradio", marker = "extra == 'ui'", specifier = ">=5.13.0" },
     { name = "httpx", marker = "extra == 'ui'", specifier = ">=0.27.2" },
     { name = "httpx-sse", marker = "extra == 'ui'", specifier = ">=0.4.0" },
