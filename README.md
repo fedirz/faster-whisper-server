@@ -7,13 +7,13 @@
 
 Try it out on the [HuggingFace Space](https://huggingface.co/spaces/speaches-ai/speaches)
 
-See the documentation for installation instructions and usage: [https://speaches-ai.github.io/speaches/](https://speaches-ai.github.io/speaches/)
+See the documentation for installation instructions and usage: [speaches.ai](https://speaches.ai/)
 
 ## Features:
 
 - GPU and CPU support.
-- [Deployable via Docker Compose / Docker](https://speaches-ai.github.io/speaches/installation/)
-- [Highly configurable](https://speaches-ai.github.io/speaches/configuration/)
+- [Deployable via Docker Compose / Docker](https://speaches.ai/installation/)
+- [Highly configurable](https://speaches.ai/configuration/)
 - OpenAI API compatible. All tools and SDKs that work with OpenAI's API should work with `speaches`.
 - Streaming support (transcription is sent via SSE as the audio is transcribed. You don't need to wait for the audio to fully be transcribed before receiving it).
 
@@ -39,7 +39,6 @@ TODO
 ### Speech Generation
 
 https://github.com/user-attachments/assets/0021acd9-f480-4bc3-904d-831f54c4d45b
-
 
 ### Live Transcription (using WebSockets)
 
