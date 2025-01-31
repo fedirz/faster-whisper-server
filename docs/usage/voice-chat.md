@@ -1,14 +1,14 @@
 !!! note
 
-    Before proceeding, you should be familiar with [OpenAI Audio Generation Guide](https://platform.openai.com/docs/guides/audio). The guide explains how the API works and provides examples on how to use. Unless stated otherwise in [Limitations](#limitations) if a feature is supported by OpenAI, it should be supported by this project as well.
+    Before proceeding, you should be familiar with [OpenAI Audio Generation Guide](https://platform.openai.com/docs/guides/audio). The guide explains how the API works and provides examples on how to use. Unless stated otherwise in [limitations](#limitations) if a feature is supported by OpenAI, it should be supported by this project as well.
 
 ## Prerequisites
 
 Follow the prerequisites in the [Text-to-Speech](./text-to-speech.md) guide. And set the following environmental variables:
 
-- `CHAT_COMPLETION_BASE_URL` to the base url of an OpenAI API compatible endpoint | [Config](../configuration.md)
-- `CHAT_COMPLETION_MODEL` to the name of the model you'd like to use. | [Config](../configuration.md)
-- `CHAT_COMPLETION_API_KEY` if the API you are using requires authentication | [Config](../configuration.md)
+- `CHAT_COMPLETION_BASE_URL` to the base URL of an OpenAI API compatible endpoint | [Config](../configuration.md#speaches.config.Config.chat_completion_base_url)
+- `CHAT_COMPLETION_MODEL` to the name of the model you'd like to use. | [Config](../configuration.md#speaches.config.Config.chat_completion_model)
+- `CHAT_COMPLETION_API_KEY` if the API you are using requires authentication | [Config](../configuration.md#speaches.config.Config.chat_completion_api_key)
 
 Ollama example:
 
@@ -143,4 +143,4 @@ openai_client.chat.completions.create(
 - User's input audio message are not cached. That means the user's input audio message will be transcribed each time it sent. This can be a performance issue when doing long multi-turn conversations.
 - Multiple choices (`n` > 1) are not supported
 
-This features utilizes [./text-to-speech.md](Text-to-Speech) and [./speech-to-text.md](Speech-to-Text) features. Therefore, the limitations of those features apply here as well.
+This features utilizes [Text-to-Speech](./text-to-speech.md) and [Speech-to-Text](./speech-to-text.md) features. Therefore, the limitations of those features apply here as well.
