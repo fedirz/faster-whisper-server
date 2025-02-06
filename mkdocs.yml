@@ -46,7 +46,7 @@ nav:
       - Speech-to-Text: usage/speech-to-text.md
       - Text-to-Speech: usage/text-to-speech.md
       - Live Transcription (using WebSockets): usage/live-transcription.md
-      - Open WebUI Intergration: usage/open-webui-integration.md
+      - Open WebUI Integration: usage/open-webui-integration.md
   - Installation: installation.md
   - Configuration: configuration.md
   - API: api.md
