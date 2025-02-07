@@ -14,9 +14,9 @@ def create_gradio_demo(config: Config) -> gr.Blocks:
         gr.Markdown(
             "### Consider supporting the project by starring the [speaches-ai/speaches repository on GitHub](https://github.com/speaches-ai/speaches)."
         )
-        gr.Markdown("### Documentation Website: https://speaches-ai.github.io/speaches")
+        gr.Markdown("### Documentation Website: https://speaches.ai")
         gr.Markdown(
-            "### For additional details regarding the parameters, see the [API Documentation](https://speaches-ai.github.io/speaches/api)"
+            "### For additional details regarding the parameters, see the [API Documentation](https://speaches.ai/api)"
         )
 
         create_audio_chat_tab(config)

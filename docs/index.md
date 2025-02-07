@@ -23,8 +23,8 @@
 - Dynamic model loading / offloading. Just specify which model you want to use in the request and it will be loaded automatically. It will then be unloaded after a period of inactivity.
 - Text-to-Speech via `kokoro`(Ranked #1 in the [TTS Arena](https://huggingface.co/spaces/Pendrokar/TTS-Spaces-Arena)) and `piper` models.
 - GPU and CPU support.
-- [Deployable via Docker Compose / Docker](https://speaches-ai.github.io/speaches/installation/)
-- [Highly configurable](https://speaches-ai.github.io/speaches/configuration/)
+- [Deployable via Docker Compose / Docker](https://speaches.ai/installation/)
+- [Highly configurable](https://speaches.ai/configuration/)
 - [Coming soon](https://github.com/speaches-ai/speaches/issues/115): Realtime API | [OpenAI Documentation](https://platform.openai.com/docs/guides/realtime)
 
 Please create an issue if you find a bug, have a question, or a feature suggestion.
