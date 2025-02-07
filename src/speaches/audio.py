@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, BinaryIO
 
 import numpy as np
 import soundfile as sf
+import ffmpeg
 
 from speaches.config import SAMPLES_PER_SECOND
 
@@ -50,9 +51,40 @@ def convert_audio_format(
         subtype=subtype,
         endian=endian,
     )
-    converted_audio_bytes_buffer = io.BytesIO()
-    sf.write(converted_audio_bytes_buffer, data, samplerate=sample_rate, format=audio_format)
-    return converted_audio_bytes_buffer.getvalue()
+
+    if audio_format == "aac":
+        try:
+            # Write to WAV in memory
+            wav_buffer = io.BytesIO()
+            sf.write(wav_buffer, data, samplerate=sample_rate, format='WAV')
+            wav_bytes = wav_buffer.getvalue()
+            
+            # Convert WAV to AAC using ffmpeg
+            input_stream = ffmpeg.input('pipe:', format='wav')
+            output_stream = ffmpeg.output(
+                input_stream,
+                'pipe:', 
+                acodec='aac',
+                ab='192k',
+                f='adts'  # AAC container format
+            )
+            
+            out_bytes, _ = ffmpeg.run(
+                output_stream, 
+                input=wav_bytes,  # Use the WAV bytes
+                capture_stdout=True,
+                capture_stderr=True
+            )
+            
+            return out_bytes
+            
+        except ffmpeg.Error as e:
+            logger.error(f"FFmpeg conversion failed: {e.stderr.decode()}")
+            raise
+    else:
+        converted_audio_bytes_buffer = io.BytesIO()
+        sf.write(converted_audio_bytes_buffer, data, samplerate=sample_rate, format=audio_format)
+        return converted_audio_bytes_buffer.getvalue()
 
 
 def audio_samples_from_file(file: BinaryIO) -> NDArray[np.float32]:
