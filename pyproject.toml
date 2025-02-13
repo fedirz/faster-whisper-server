@@ -21,6 +21,7 @@ dependencies = [
     "openai[realtime]>=1.60.0",
     "aiostream>=0.6.4",
     "cachetools>=5.5.1",
+    "httpx-ws>=0.7.1",
 ]
 
 [project.optional-dependencies]

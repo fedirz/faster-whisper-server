@@ -222,7 +222,7 @@ name = "click"
 version = "8.1.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "platform_system == 'Windows'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/96/d3/f04c7bfcf5c1862a2a5b845c6b2b360488cf47af55dfa79c98f6a6bf98b5/click-8.1.7.tar.gz", hash = "sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de", size = 336121 }
 wheels = [
@@ -679,6 +679,21 @@ wheels = [
 ]
 
 [[package]]
+name = "httpx-ws"
+version = "0.7.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "httpcore" },
+    { name = "httpx" },
+    { name = "wsproto" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a2/bc/ec7e7ac18dc6303187c7999c4b224bd3214745cd757b85ca14c8523c2a7f/httpx_ws-0.7.1.tar.gz", hash = "sha256:72f355d4b9b16d8fa59e5e68efdfcb1f3c7dca944901b373791245c8f67f9f95", size = 24114 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/00/5b/a27d1c8eda1fdce8c0668a3ea7e09bcc43986f5b306703c46b0f42d2165f/httpx_ws-0.7.1-py3-none-any.whl", hash = "sha256:7970e470840d8e6c17bd45ed4e7af06f9144a4a9decab2ff226f3ff9accb65b4", size = 14438 },
+]
+
+[[package]]
 name = "huggingface-hub"
 version = "0.25.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1040,7 +1055,7 @@ version = "1.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "platform_system == 'Windows'" },
     { name = "ghp-import" },
     { name = "jinja2" },
     { name = "markdown" },
@@ -4812,6 +4827,7 @@ dependencies = [
     { name = "ctranslate2" },
     { name = "fastapi" },
     { name = "faster-whisper" },
+    { name = "httpx-ws" },
     { name = "huggingface-hub", extra = ["hf-transfer"] },
     { name = "kokoro-onnx", extra = ["gpu"] },
     { name = "numpy" },
@@ -4884,6 +4900,7 @@ requires-dist = [
     { name = "gradio", marker = "extra == 'ui'", specifier = ">=5.13.0" },
     { name = "httpx", marker = "extra == 'ui'", specifier = ">=0.27.2" },
     { name = "httpx-sse", marker = "extra == 'ui'", specifier = ">=0.4.0" },
+    { name = "httpx-ws", specifier = ">=0.7.1" },
     { name = "huggingface-hub", extras = ["hf-transfer"], specifier = ">=0.25.1" },
     { name = "keyboard", marker = "extra == 'client'", specifier = ">=0.13.5" },
     { name = "kokoro-onnx", extras = ["gpu"], specifier = ">=0.3.6,<0.4.0" },
@@ -5030,7 +5047,7 @@ name = "tqdm"
 version = "4.66.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "platform_system == 'Windows'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/58/83/6ba9844a41128c62e810fddddd72473201f3eacde02046066142a2d96cc5/tqdm-4.66.5.tar.gz", hash = "sha256:e1020aef2e5096702d8a025ac7d16b1577279c9d63f8375b63083e9a5f0fcbad", size = 169504 }
 wheels = [
@@ -5182,6 +5199,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/a2/5b/4660897233eb2c8c4de3dc7cefed114c61bacb3c28327e64150dc44ee2f6/wrapt-1.16.0-cp312-cp312-win32.whl", hash = "sha256:685f568fa5e627e93f3b52fda002c7ed2fa1800b50ce51f6ed1d572d8ab3e7fc", size = 35568 },
     { url = "https://files.pythonhosted.org/packages/5c/cc/8297f9658506b224aa4bd71906447dea6bb0ba629861a758c28f67428b91/wrapt-1.16.0-cp312-cp312-win_amd64.whl", hash = "sha256:dcdba5c86e368442528f7060039eda390cc4091bfd1dca41e8046af7c910dda8", size = 37653 },
     { url = "https://files.pythonhosted.org/packages/ff/21/abdedb4cdf6ff41ebf01a74087740a709e2edb146490e4d9beea054b0b7a/wrapt-1.16.0-py3-none-any.whl", hash = "sha256:6906c4100a8fcbf2fa735f6059214bb13b97f75b1a61777fcf6432121ef12ef1", size = 23362 },
+]
+
+[[package]]
+name = "wsproto"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "h11" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c9/4a/44d3c295350d776427904d73c189e10aeae66d7f555bb2feee16d1e4ba5a/wsproto-1.2.0.tar.gz", hash = "sha256:ad565f26ecb92588a3e43bc3d96164de84cd9902482b130d0ddbaa9664a85065", size = 53425 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/78/58/e860788190eba3bcce367f74d29c4675466ce8dddfba85f7827588416f01/wsproto-1.2.0-py3-none-any.whl", hash = "sha256:b9acddd652b585d75b20477888c56642fdade28bdfd3579aa24a4d2c037dd736", size = 24226 },
 ]
 
 [[package]]
