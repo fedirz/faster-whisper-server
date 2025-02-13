@@ -172,7 +172,7 @@ class WhisperConfig(BaseModel):
     use_batched_mode: bool = False
     """
     Whether to use batch mode(introduced in 1.1.0 `faster-whisper` release) for inference. This will likely become the default in the future and the configuration option will be removed.
-    """  # noqa: E501
+    """
 
 
 # TODO: document `alias` behaviour within the docstring
@@ -182,7 +182,7 @@ class Config(BaseSettings):
     Pydantic will automatically handle mapping uppercased environment variables to the corresponding fields.
     To populate nested, the environment should be prefixed with the nested field name and an underscore. For example,
     the environment variable `LOG_LEVEL` will be mapped to `log_level`, `WHISPER__MODEL`(note the double underscore) to `whisper.model`, to set quantization to int8, use `WHISPER__COMPUTE_TYPE=int8`, etc.
-    """  # noqa: E501
+    """
 
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
@@ -207,7 +207,7 @@ class Config(BaseSettings):
     enable_ui: bool = True
     """
     Whether to enable the Gradio UI. You may want to disable this if you want to minimize the dependencies and slightly improve the startup time.
-    """  # noqa: E501
+    """
 
     default_language: Language | None = None
     """
@@ -234,14 +234,14 @@ class Config(BaseSettings):
     """
     Max allowed audio duration without any speech being detected before transcription is finilized and connection is closed.
     Used only for live transcription (WS /v1/audio/transcriptions).
-    """  # noqa: E501
+    """
     inactivity_window_seconds: float = 5.0
     """
     Controls how many latest seconds of audio are being passed through VAD. Should be greater than `max_inactivity_seconds`.
     Used only for live transcription (WS /v1/audio/transcriptions).
-    """  # noqa: E501
+    """
 
-    # NOTE: options below are not used yet and should be ignored. Added as a placeholder for future features I'm currently working on.  # noqa: E501
+    # NOTE: options below are not used yet and should be ignored. Added as a placeholder for future features I'm currently working on.
 
     chat_completion_base_url: str = "https://api.openai.com/v1"
     chat_completion_api_key: str | None = None

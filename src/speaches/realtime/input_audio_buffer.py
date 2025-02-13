@@ -13,7 +13,7 @@ MAX_VAD_WINDOW_SIZE_SAMPLES = 3000 * MS_SAMPLE_RATE
 class VadState(BaseModel):
     audio_start_ms: int | None = None
     audio_end_ms: int | None = None
-    # TODO: consider keeping track of what was the last audio timestamp that was processed. This value could be used to control how often the VAD is run.  # noqa: E501
+    # TODO: consider keeping track of what was the last audio timestamp that was processed. This value could be used to control how often the VAD is run.
 
 
 # TODO: use `np.int16` instead of `np.float32` for audio data

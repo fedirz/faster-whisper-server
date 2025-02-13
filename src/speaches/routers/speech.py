@@ -75,7 +75,7 @@ class CreateSpeechRequestBody(BaseModel):
         ...,
         description="The text to generate audio for. ",
         examples=[
-            "A rainbow is an optical phenomenon caused by refraction, internal reflection and dispersion of light in water droplets resulting in a continuous spectrum of light appearing in the sky. The rainbow takes the form of a multicoloured circular arc. Rainbows caused by sunlight always appear in the section of sky directly opposite the Sun. Rainbows can be caused by many forms of airborne water. These include not only rain, but also mist, spray, and airborne dew."  # noqa: E501
+            "A rainbow is an optical phenomenon caused by refraction, internal reflection and dispersion of light in water droplets resulting in a continuous spectrum of light appearing in the sky. The rainbow takes the form of a multicoloured circular arc. Rainbows caused by sunlight always appear in the section of sky directly opposite the Sun. Rainbows can be caused by many forms of airborne water. These include not only rain, but also mist, spray, and airborne dew."
         ],
     )
     voice: VoiceId = DEFAULT_VOICE_ID
@@ -93,7 +93,7 @@ Each quality has a different default sample rate:
     """
     response_format: ResponseFormat = Field(
         DEFAULT_RESPONSE_FORMAT,
-        description=f"The format to audio in. Supported formats are {', '.join(SUPPORTED_RESPONSE_FORMATS)}. {', '.join(UNSUPORTED_RESPONSE_FORMATS)} are not supported",  # noqa: E501
+        description=f"The format to audio in. Supported formats are {', '.join(SUPPORTED_RESPONSE_FORMATS)}. {', '.join(UNSUPORTED_RESPONSE_FORMATS)} are not supported",
         examples=list(SUPPORTED_RESPONSE_FORMATS),
     )
     # https://platform.openai.com/docs/api-reference/audio/createSpeech#audio-createspeech-voice
@@ -106,7 +106,7 @@ Each quality has a different default sample rate:
     """Desired sample rate to convert the generated audio to. If not provided, the model's default sample rate will be used.
     For 'hexgrad/Kokoro-82M' models, the default sample rate is 24000 Hz.
     For 'rhasspy/piper-voices' models, the sample differs based on the voice quality (see `voice`).
-    """  # noqa: E501
+    """
 
     @model_validator(mode="after")
     def verify_voice_is_valid(self) -> Self:

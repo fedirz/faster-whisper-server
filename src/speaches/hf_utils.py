@@ -127,13 +127,13 @@ def get_model_path(model_id: str, *, cache_dir: str | Path | None = None) -> Pat
     cache_dir = Path(cache_dir).expanduser().resolve()
     if not cache_dir.exists():
         raise huggingface_hub.CacheNotFound(
-            f"Cache directory not found: {cache_dir}. Please use `cache_dir` argument or set `HF_HUB_CACHE` environment variable.",  # noqa: E501
+            f"Cache directory not found: {cache_dir}. Please use `cache_dir` argument or set `HF_HUB_CACHE` environment variable.",
             cache_dir=cache_dir,
         )
 
     if cache_dir.is_file():
         raise ValueError(
-            f"Scan cache expects a directory but found a file: {cache_dir}. Please use `cache_dir` argument or set `HF_HUB_CACHE` environment variable."  # noqa: E501
+            f"Scan cache expects a directory but found a file: {cache_dir}. Please use `cache_dir` argument or set `HF_HUB_CACHE` environment variable."
         )
 
     for repo_path in cache_dir.iterdir():

@@ -20,7 +20,7 @@ from speaches.main import create_app
 DISABLE_LOGGERS = ["multipart.multipart", "faster_whisper"]
 OPENAI_BASE_URL = "https://api.openai.com/v1"
 DEFAULT_WHISPER_MODEL = "Systran/faster-whisper-tiny.en"
-# TODO: figure out a way to initialize the config without parsing environment variables, as those may interfere with the tests  # noqa: E501
+# TODO: figure out a way to initialize the config without parsing environment variables, as those may interfere with the tests
 DEFAULT_WHISPER_CONFIG = WhisperConfig(model=DEFAULT_WHISPER_MODEL, ttl=0)
 DEFAULT_CONFIG = Config(
     whisper=DEFAULT_WHISPER_CONFIG,
@@ -59,7 +59,7 @@ async def aclient_factory(mocker: MockerFixture) -> AclientFactory:
 
     @asynccontextmanager
     async def inner(config: Config = DEFAULT_CONFIG) -> AsyncGenerator[AsyncClient, None]:
-        # NOTE: all calls to `get_config` should be patched. One way to test that this works is to update the original `get_config` to raise an exception and see if the tests fail  # noqa: E501
+        # NOTE: all calls to `get_config` should be patched. One way to test that this works is to update the original `get_config` to raise an exception and see if the tests fail
         mocker.patch("speaches.dependencies.get_config", return_value=config)
         mocker.patch("speaches.main.get_config", return_value=config)
         # NOTE: I couldn't get the following to work but it shouldn't matter

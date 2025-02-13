@@ -72,8 +72,8 @@ class ConversationItemCreatedEvent(OpenAIConversationItemCreatedEvent):
     # Change `OpenAIConversationItem` to `ConversationItem`
     item: ConversationItem  # pyright: ignore[reportIncompatibleVariableOverride]
     # TODO: it's not yet clear if this one should be nullable.
-    # This needs to be verified by looking at what OpenAI's API does when a response creation is triggered without any messages.  # noqa: E501
-    # Even if this shouldn't be nullable I'm keeping it nullable as I don't have proper handling of previous_item_id yet.  # noqa: E501
+    # This needs to be verified by looking at what OpenAI's API does when a response creation is triggered without any messages.
+    # Even if this shouldn't be nullable I'm keeping it nullable as I don't have proper handling of previous_item_id yet.
     previous_item_id: str | None  # pyright: ignore[reportIncompatibleVariableOverride]
 
 

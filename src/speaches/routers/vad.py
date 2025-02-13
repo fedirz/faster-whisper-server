@@ -49,7 +49,7 @@ def detect_speech_timestamps(
         Form(
             ge=0,
             le=1,
-            description="""Speech threshold. Silero VAD outputs speech probabilities for each audio chunk, probabilities ABOVE this value are considered as SPEECH. It is better to tune this parameter for each dataset separately, but "lazy" 0.5 is pretty good for most datasets.""",  # noqa: E501
+            description="""Speech threshold. Silero VAD outputs speech probabilities for each audio chunk, probabilities ABOVE this value are considered as SPEECH. It is better to tune this parameter for each dataset separately, but "lazy" 0.5 is pretty good for most datasets.""",
         ),
     ] = 0.75,
     neg_threshold: Annotated[

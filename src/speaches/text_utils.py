@@ -45,7 +45,7 @@ class Transcription:
         if len(self.words) > 0 and len(words) > 0:
             if words[0].start + config.word_timestamp_error_margin <= self.words[-1].end:
                 raise ValueError(
-                    f"Words overlap: {self.words[-1]} and {words[0]}. Error margin: {config.word_timestamp_error_margin}"  # noqa: E501
+                    f"Words overlap: {self.words[-1]} and {words[0]}. Error margin: {config.word_timestamp_error_margin}"
                 )
         for i in range(1, len(words)):
             if words[i].start + config.word_timestamp_error_margin <= words[i - 1].end:
@@ -128,7 +128,7 @@ def common_prefix(a: list[TranscriptionWord], b: list[TranscriptionWord]) -> lis
 # TODO: Add tests
 # TODO: take into account various sentence endings like "..."
 # TODO: maybe create MultiSentenceChunker to return multiple sentence (when available) at a time
-# TODO: consider different handling of small sentences. i.e. if a sentence consist of only couple of words wait until more words are available  # noqa: E501
+# TODO: consider different handling of small sentences. i.e. if a sentence consist of only couple of words wait until more words are available
 class SentenceChunker:
     def __init__(self) -> None:
         self._content = ""

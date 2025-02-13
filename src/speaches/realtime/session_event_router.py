@@ -12,7 +12,7 @@ event_router = EventRouter()
 
 @event_router.register("session.update")
 def handle_session_update_event(ctx: SessionContext, event: SessionUpdateEvent) -> None:  # noqa: ARG001
-    # if event.session.input_audio_transcription is None or event.session.input_audio_transcription.model == "whisper-1":  # noqa: E501
+    # if event.session.input_audio_transcription is None or event.session.input_audio_transcription.model == "whisper-1":
     #     logger.warning("Invalid input_audio_transcription model")  # TODO
     #     event.session.input_audio_transcription = SessionInputAudioTranscription(
     #         model="Systran/faster-distil-whisper-large-v3"
@@ -26,10 +26,10 @@ def handle_session_update_event(ctx: SessionContext, event: SessionUpdateEvent) 
     # if event.session.instructions != ctx.configuration.instructions:
     #     logger.warning("Changing `instructions` is not supported.")
     #     event.session.instructions = DEFAULT_REALTIME_SESSION_INSTRUCTIONS
-    # if event.session.input_audio_transcription is None or event.session.input_audio_transcription.model == "whisper-1":  # noqa: E501
+    # if event.session.input_audio_transcription is None or event.session.input_audio_transcription.model == "whisper-1":
     #     logger.warning("Invalid input_audio_transcription model")
 
-    # NOTE: the updated `openai-realtime-console` sends partial `session.update.config` data which I don't currently support  # noqa: E501
+    # NOTE: the updated `openai-realtime-console` sends partial `session.update.config` data which I don't currently support
     # TODO: figure out how to apply session updates and what to do with the above checks
     # ctx.configuration = event.session  # pyright: ignore[reportAttributeAccessIssue]
     ctx.pubsub.publish_nowait(

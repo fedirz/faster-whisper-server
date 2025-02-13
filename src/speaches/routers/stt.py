@@ -215,7 +215,7 @@ def transcribe_file(
     timestamp_granularities = asyncio.run(get_timestamp_granularities(request))
     if timestamp_granularities != DEFAULT_TIMESTAMP_GRANULARITIES and response_format != ResponseFormat.VERBOSE_JSON:
         logger.warning(
-            "It only makes sense to provide `timestamp_granularities[]` when `response_format` is set to `verbose_json`. See https://platform.openai.com/docs/api-reference/audio/createTranscription#audio-createtranscription-timestamp_granularities."  # noqa: E501
+            "It only makes sense to provide `timestamp_granularities[]` when `response_format` is set to `verbose_json`. See https://platform.openai.com/docs/api-reference/audio/createTranscription#audio-createtranscription-timestamp_granularities."
         )
     with model_manager.load_model(model) as whisper:
         whisper_model = BatchedInferencePipeline(model=whisper) if config.whisper.use_batched_mode else whisper
@@ -249,7 +249,7 @@ async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
                 audio = audio_stream.after(audio_stream.duration - config.inactivity_window_seconds)
                 vad_opts = VadOptions(min_silence_duration_ms=500, speech_pad_ms=0)
                 # NOTE: This is a synchronous operation that runs every time new data is received.
-                # This shouldn't be an issue unless data is being received in tiny chunks or the user's machine is a potato.  # noqa: E501
+                # This shouldn't be an issue unless data is being received in tiny chunks or the user's machine is a potato.
                 timestamps = get_speech_timestamps(audio.data, vad_opts)
                 if len(timestamps) == 0:
                     logger.info(f"No speech detected in the last {config.inactivity_window_seconds} seconds.")

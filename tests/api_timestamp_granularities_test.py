@@ -1,4 +1,4 @@
-"""See `tests/openai_timestamp_granularities_test.py` to understand how OpenAI handles `response_type` and `timestamp_granularities`."""  # noqa: E501
+"""See `tests/openai_timestamp_granularities_test.py` to understand how OpenAI handles `response_type` and `timestamp_granularities`."""
 
 from pathlib import Path
 

@@ -22,7 +22,7 @@ OPENAI_MODEL = "gpt-4o-audio-preview"
 AUDIO_PARAM = ChatCompletionAudioParam(voice="alloy", format="wav")
 
 # TODO: for non-streaming: validate audio format matches the one sent
-# TODO: check how OpenAI behaves when more than two content parts are sent: (text, audio, audio), (audio, text, audio), etc.  # noqa: E501
+# TODO: check how OpenAI behaves when more than two content parts are sent: (text, audio, audio), (audio, text, audio), etc.
 # TODO: test with multiple input_audio content parts
 # TODO: test with alternating content parts
 # TODO: test with image content part

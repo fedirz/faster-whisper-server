@@ -14,7 +14,7 @@ import keyboard
 # It will then wait until the keybind is pressed again to stop recording.
 # The audio file will be sent to the server for transcription.
 # The transcription will be copied to the clipboard.
-# When having a short audio of a couple of sentences and running inference on a GPU the response time is very fast (less than 2 seconds).  # noqa: E501
+# When having a short audio of a couple of sentences and running inference on a GPU the response time is very fast (less than 2 seconds).
 # Run this with `sudo -E python scripts/client.py`
 
 CHUNK = 2**12

@@ -176,7 +176,7 @@ async def create_text_audio_stream_reply(
     )
 
 
-# NOTE: another option would have been to use `gr.load_chat` but I couldn't get it to work. Worth trying again in the future.  # noqa: E501
+# NOTE: another option would have been to use `gr.load_chat` but I couldn't get it to work. Worth trying again in the future.
 # gr.load_chat(
 #     "https://api.openai.com/v1",
 #     token="sk-xxx",
@@ -243,7 +243,7 @@ def create_audio_chat_tab(config: Config) -> None:  # noqa: C901
             raise ValueError(f"Unsupported response type: {type(chat_completion)}")
 
     async def update_chat_model_dropdown() -> gr.Dropdown:
-        # NOTE: not using `openai_client_from_gradio_req` because we aren't intrested in making API calls to `speaches` but rather to whatever the user specified as LLM api  # noqa: E501
+        # NOTE: not using `openai_client_from_gradio_req` because we aren't intrested in making API calls to `speaches` but rather to whatever the user specified as LLM api
         openai_client = AsyncOpenAI(base_url=config.chat_completion_base_url, api_key=config.chat_completion_api_key)
         models = (await openai_client.models.list()).data
         model_names: list[str] = [model.id for model in models]
