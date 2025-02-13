@@ -1,17 +1,12 @@
-from __future__ import annotations
-
+from collections.abc import Iterable
 from functools import cached_property
-from pathlib import Path  # noqa: TC003
-from typing import TYPE_CHECKING, Literal
+from pathlib import Path
+from typing import Literal
 
+import faster_whisper.transcribe
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
-from speaches.text_utils import Transcription, canonicalize_word, segments_to_text
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable
-
-    import faster_whisper.transcribe
+from speaches.text_utils import segments_to_text
 
 
 # https://github.com/openai/openai-openapi/blob/master/openapi.yaml#L10909
@@ -22,7 +17,7 @@ class TranscriptionWord(BaseModel):
     probability: float
 
     @classmethod
-    def from_segments(cls, segments: Iterable[TranscriptionSegment]) -> list[TranscriptionWord]:
+    def from_segments(cls, segments: Iterable["TranscriptionSegment"]) -> list["TranscriptionWord"]:
         words: list[TranscriptionWord] = []
         for segment in segments:
             # NOTE: a temporary "fix" for https://github.com/speaches-ai/speaches/issues/58.
@@ -36,13 +31,6 @@ class TranscriptionWord(BaseModel):
     def offset(self, seconds: float) -> None:
         self.start += seconds
         self.end += seconds
-
-    @classmethod
-    def common_prefix(cls, a: list[TranscriptionWord], b: list[TranscriptionWord]) -> list[TranscriptionWord]:
-        i = 0
-        while i < len(a) and i < len(b) and canonicalize_word(a[i].word) == canonicalize_word(b[i].word):
-            i += 1
-        return a[:i]
 
 
 # https://github.com/openai/openai-openapi/blob/master/openapi.yaml#L10938
@@ -62,7 +50,7 @@ class TranscriptionSegment(BaseModel):
     @classmethod
     def from_faster_whisper_segments(
         cls, segments: Iterable[faster_whisper.transcribe.Segment]
-    ) -> Iterable[TranscriptionSegment]:
+    ) -> Iterable["TranscriptionSegment"]:
         for segment in segments:
             yield cls(
                 id=segment.id,
@@ -95,12 +83,8 @@ class CreateTranscriptionResponseJson(BaseModel):
     text: str
 
     @classmethod
-    def from_segments(cls, segments: list[TranscriptionSegment]) -> CreateTranscriptionResponseJson:
+    def from_segments(cls, segments: list[TranscriptionSegment]) -> "CreateTranscriptionResponseJson":
         return cls(text=segments_to_text(segments))
-
-    @classmethod
-    def from_transcription(cls, transcription: Transcription) -> CreateTranscriptionResponseJson:
-        return cls(text=transcription.text)
 
 
 # https://platform.openai.com/docs/api-reference/audio/verbose-json-object
@@ -116,7 +100,7 @@ class CreateTranscriptionResponseVerboseJson(BaseModel):
     @classmethod
     def from_segment(
         cls, segment: TranscriptionSegment, transcription_info: faster_whisper.transcribe.TranscriptionInfo
-    ) -> CreateTranscriptionResponseVerboseJson:
+    ) -> "CreateTranscriptionResponseVerboseJson":
         return cls(
             language=transcription_info.language,
             duration=segment.end - segment.start,
@@ -128,7 +112,7 @@ class CreateTranscriptionResponseVerboseJson(BaseModel):
     @classmethod
     def from_segments(
         cls, segments: list[TranscriptionSegment], transcription_info: faster_whisper.transcribe.TranscriptionInfo
-    ) -> CreateTranscriptionResponseVerboseJson:
+    ) -> "CreateTranscriptionResponseVerboseJson":
         return cls(
             language=transcription_info.language,
             duration=transcription_info.duration,
@@ -139,20 +123,10 @@ class CreateTranscriptionResponseVerboseJson(BaseModel):
             else None,
         )
 
-    @classmethod
-    def from_transcription(cls, transcription: Transcription) -> CreateTranscriptionResponseVerboseJson:
-        return cls(
-            language="english",  # FIX: hardcoded
-            duration=transcription.duration,
-            text=transcription.text,
-            words=transcription.words,
-            segments=[],  # FIX: hardcoded
-        )
-
 
 # https://github.com/openai/openai-openapi/blob/master/openapi.yaml#L8730
 class ListModelsResponse(BaseModel):
-    data: list[Model]
+    data: list["Model"]
     object: Literal["list"] = "list"
 
 
