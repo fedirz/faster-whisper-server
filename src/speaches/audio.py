@@ -1,13 +1,18 @@
+from __future__ import annotations
+
 import io
 import logging
-from typing import BinaryIO
+from typing import TYPE_CHECKING, BinaryIO
 
 import numpy as np
-from numpy.typing import NDArray
 import soundfile as sf
 
 from speaches.config import SAMPLES_PER_SECOND
-from speaches.routers.speech import ResponseFormat
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
+    from speaches.routers.speech import ResponseFormat
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +85,7 @@ class Audio:
     def duration(self) -> float:
         return len(self.data) / SAMPLES_PER_SECOND
 
-    def after(self, ts: float) -> "Audio":
+    def after(self, ts: float) -> Audio:
         assert ts <= self.duration
         return Audio(self.data[int(ts * SAMPLES_PER_SECOND) :], start=ts)
 

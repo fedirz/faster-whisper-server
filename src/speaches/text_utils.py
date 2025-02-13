@@ -1,8 +1,12 @@
-import asyncio
-from collections.abc import AsyncGenerator, Iterable
-import re
+from __future__ import annotations
 
-from speaches.api_types import TranscriptionSegment, TranscriptionWord
+import asyncio
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator, Iterable
+
+    from speaches.api_types import TranscriptionSegment
 
 
 def segments_to_text(segments: Iterable[TranscriptionSegment]) -> str:
