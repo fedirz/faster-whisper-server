@@ -73,10 +73,10 @@ class CompletionCreateParamsBase(OpenAICompletionCreateParamsBase):
 
     @model_validator(mode="after")
     def validate_audio_format_when_stream(self) -> Self:
-        # NOTE: OpenAI only supports pcm format for streaming. We can support any format but keeping this hardcoded for consistency  # noqa: E501
+        # NOTE: OpenAI only supports pcm format for streaming. We can support any format but keeping this hardcoded for consistency
         if self.stream and self.audio is not None and self.audio.format != "pcm16":
             raise ValueError(
-                f"Unsupported value: 'audio.format' does not support '{self.audio.format}' when stream=true. Supported values are: 'pcm16'."  # noqa: E501
+                f"Unsupported value: 'audio.format' does not support '{self.audio.format}' when stream=true. Supported values are: 'pcm16'."
             )
         return self
 
@@ -220,7 +220,7 @@ async def handle_completions(  # noqa: C901
     for i, message in enumerate(body.messages):
         if message.role == "user":
             content = message.content
-            # per https://platform.openai.com/docs/guides/audio?audio-generation-quickstart-example=audio-in#quickstart, input audio should be within the `message.content` list  # noqa: E501
+            # per https://platform.openai.com/docs/guides/audio?audio-generation-quickstart-example=audio-in#quickstart, input audio should be within the `message.content` list
             if not isinstance(content, list):
                 continue
 
@@ -250,7 +250,7 @@ async def handle_completions(  # noqa: C901
                 function_call=message.function_call,
             )
 
-    # NOTE: rather than doing a `model_copy` it might be better to override the fields when doing the `model_dump` and destructuring  # noqa: E501
+    # NOTE: rather than doing a `model_copy` it might be better to override the fields when doing the `model_dump` and destructuring
     proxied_body = body.model_copy(deep=True)
     proxied_body.modalities = ["text"]
     proxied_body.audio = None

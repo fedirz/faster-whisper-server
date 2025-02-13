@@ -128,7 +128,7 @@ def vad_detection_flow(
 @event_router.register("input_audio_buffer.append")
 def handle_input_audio_buffer_append(ctx: SessionContext, event: InputAudioBufferAppendEvent) -> None:
     audio_chunk = audio_samples_from_file(BytesIO(base64.b64decode(event.audio)))
-    # convert the audio data from 24kHz (sample rate defined in the API spec) to 16kHz (sample rate used by the VAD and for transcription)  # noqa: E501
+    # convert the audio data from 24kHz (sample rate defined in the API spec) to 16kHz (sample rate used by the VAD and for transcription)
     audio_chunk = resample_audio_data(audio_chunk, 24000, 16000)
     input_audio_buffer_id = next(reversed(ctx.input_audio_buffers))
     input_audio_buffer = ctx.input_audio_buffers[input_audio_buffer_id]

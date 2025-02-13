@@ -63,7 +63,7 @@ def handle_conversation_item_create_event(ctx: SessionContext, event: Conversati
     if event.previous_item_id is not None:
         raise NotImplementedError
     # if event.item.id in ctx.conversation:
-    #     # TODO: Weirdly OpenAI's API allows creating an item with an already existing ID! Do their implementation replace the item?  # noqa: E501
+    #     # TODO: Weirdly OpenAI's API allows creating an item with an already existing ID! Do their implementation replace the item?
     #     raise NotImplementedError
     # TODO: should we assign the previous item's id when it hasn't been specified in the request?
     if event.item.id is None:
@@ -115,7 +115,7 @@ def handle_conversation_item_delete_event(ctx: SessionContext, event: Conversati
 async def handle_conversation_item_created_event(ctx: SessionContext, event: ConversationItemCreatedEvent) -> None:
     item = ctx.conversation[event.item.id]
     if item.type == "message" and item.role == "user" and item.content[0].type == "input_audio":
-        # NOTE: we aren't passing in `event.item` directly since `event.item` is a copy of the original item, meaning we won't be able to update the original item in the context.  # noqa: E501
+        # NOTE: we aren't passing in `event.item` directly since `event.item` is a copy of the original item, meaning we won't be able to update the original item in the context.
         await transcription_flow(ctx, item)
 
 

@@ -15,7 +15,7 @@ from speaches.routers.speech import (
 )
 from speaches.ui.utils import http_client_from_gradio_req, openai_client_from_gradio_req
 
-DEFAULT_TEXT = "A rainbow is an optical phenomenon caused by refraction, internal reflection and dispersion of light in water droplets resulting in a continuous spectrum of light appearing in the sky."  # noqa: E501
+DEFAULT_TEXT = "A rainbow is an optical phenomenon caused by refraction, internal reflection and dispersion of light in water droplets resulting in a continuous spectrum of light appearing in the sky."
 
 
 def create_tts_tab(config: Config) -> None:
@@ -91,7 +91,7 @@ def create_tts_tab(config: Config) -> None:
 Setting this will resample the generated audio to the desired sample rate.
 You may want to set this if you are going to use 'rhasspy/piper-voices' with voices of different qualities but want to keep the same sample rate.
 Default: None (No resampling)
-""",  # noqa: E501
+""",
             value=lambda: None,
         )
         button = gr.Button("Generate Speech")

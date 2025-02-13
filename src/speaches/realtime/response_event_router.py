@@ -103,7 +103,7 @@ def post_response_flow(ctx: SessionContext) -> None:  # TODO: on event
         )
     )
     response.status = "completed" if not cancelled else "incomplete"
-    # response.output.append(item) # FIXME: this VERY LIKELY shouldn't be commented out. I need to verify if output is appended anywhere else  # noqa: E501
+    # response.output.append(item) # FIXME: this VERY LIKELY shouldn't be commented out. I need to verify if output is appended anywhere else
     status_detail = None if not cancelled else RealtimeResponseStatus()  # XXX: this likely needs to be populated
     response.status_details = status_detail
     ctx.pubsub.publish_nowait(ResponseDoneEvent(type="response.done", event_id=generate_event_id(), response=response))
@@ -145,7 +145,7 @@ async def text_generation_flow(ctx: SessionContext) -> None:  # noqa: C901, PLR0
                         type="conversation.item.created", event_id=generate_event_id(), previous_item_id=None, item=item
                     )  # TODO: previous_item_id
                 )
-                # continue  # NOTE: this might only make sense to do for OpenAI since other implemetation might actually provide useful info in the first chunk. OpenAI doesn't  # noqa: E501
+                # continue  # NOTE: this might only make sense to do for OpenAI since other implemetation might actually provide useful info in the first chunk. OpenAI doesn't
 
             if chunk.usage is not None:
                 pass
@@ -358,5 +358,5 @@ def handle_response_audio_done_event(ctx: SessionContext, event: ResponseAudioDo
 
 @event_router.register("response.cancel")
 def handle_response_cancel_event(ctx: SessionContext, _event: ResponseCancelEvent) -> None:
-    # If there's  no response task, then it's a no-op. OpenAI's API should be monitored to see if the behaviour changes.  # noqa: E501
+    # If there's  no response task, then it's a no-op. OpenAI's API should be monitored to see if the behaviour changes.
     pass

@@ -24,11 +24,11 @@ from speaches.model_manager import KokoroModelManager, PiperModelManager, Whispe
 
 logger = logging.getLogger(__name__)
 
-# NOTE: `get_config` is called directly instead of using sub-dependencies so that these functions could be used outside of `FastAPI`  # noqa: E501
+# NOTE: `get_config` is called directly instead of using sub-dependencies so that these functions could be used outside of `FastAPI`
 
 
 # https://fastapi.tiangolo.com/advanced/settings/?h=setti#creating-the-settings-only-once-with-lru_cache
-# WARN: Any new module that ends up calling this function directly (not through `FastAPI` dependency injection) should be patched in `tests/conftest.py`  # noqa: E501
+# WARN: Any new module that ends up calling this function directly (not through `FastAPI` dependency injection) should be patched in `tests/conftest.py`
 @lru_cache
 def get_config() -> Config:
     return Config()
@@ -119,7 +119,7 @@ CompletionClientDependency = Annotated[AsyncCompletions, Depends(get_completion_
 def get_speech_client() -> AsyncSpeech:
     config = get_config()
     if config.speech_base_url is None:
-        # this might not work as expected if `speech_router` won't have shared state (access to the same `model_manager`) with the main FastAPI `app`. TODO: verify  # noqa: E501
+        # this might not work as expected if `speech_router` won't have shared state (access to the same `model_manager`) with the main FastAPI `app`. TODO: verify
         from speaches.routers.speech import (
             router as speech_router,
         )
@@ -140,7 +140,7 @@ SpeechClientDependency = Annotated[AsyncSpeech, Depends(get_speech_client)]
 def get_transcription_client() -> AsyncTranscriptions:
     config = get_config()
     if config.transcription_base_url is None:
-        # this might not work as expected if `transcription_router` won't have shared state (access to the same `model_manager`) with the main FastAPI `app`. TODO: verify  # noqa: E501
+        # this might not work as expected if `transcription_router` won't have shared state (access to the same `model_manager`) with the main FastAPI `app`. TODO: verify
         from speaches.routers.stt import (
             router as stt_router,
         )

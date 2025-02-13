@@ -77,7 +77,7 @@ build-backend = "hatchling.build"
 # https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
 line-length = 120
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -85,7 +85,6 @@ ignore = [
     "FIX",
     "TD", # disable todo warnings
     "ERA",  # allow commented out code
-
     "ANN003", # missing kwargs
     "ANN101", # missing self type
     "B006",
@@ -112,6 +111,7 @@ ignore = [
     "INP001",
     "PT018",
     "G004", # logging f string
+    "E501" # line-too-long
 ]
 
 [tool.ruff.lint.isort]
