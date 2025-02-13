@@ -216,30 +216,6 @@ class Config(BaseSettings):
     """
     default_response_format: ResponseFormat = ResponseFormat.JSON
     whisper: WhisperConfig = WhisperConfig()
-    max_no_data_seconds: float = 1.0
-    """
-    Max duration to wait for the next audio chunk before transcription is finilized and connection is closed.
-    Used only for live transcription (WS /v1/audio/transcriptions).
-    """
-    min_duration: float = 1.0
-    """
-    Minimum duration of an audio chunk that will be transcribed.
-    Used only for live transcription (WS /v1/audio/transcriptions).
-    """
-    word_timestamp_error_margin: float = 0.2
-    """
-    Used only for live transcription (WS /v1/audio/transcriptions).
-    """
-    max_inactivity_seconds: float = 2.5
-    """
-    Max allowed audio duration without any speech being detected before transcription is finilized and connection is closed.
-    Used only for live transcription (WS /v1/audio/transcriptions).
-    """
-    inactivity_window_seconds: float = 5.0
-    """
-    Controls how many latest seconds of audio are being passed through VAD. Should be greater than `max_inactivity_seconds`.
-    Used only for live transcription (WS /v1/audio/transcriptions).
-    """
 
     # NOTE: options below are not used yet and should be ignored. Added as a placeholder for future features I'm currently working on.
 

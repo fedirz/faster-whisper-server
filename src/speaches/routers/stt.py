@@ -1,23 +1,16 @@
-from __future__ import annotations
-
 import asyncio
-from io import BytesIO
+from collections.abc import Generator, Iterable
 import logging
-from typing import TYPE_CHECKING, Annotated
+from typing import Annotated
 
 from fastapi import (
     APIRouter,
     Form,
-    Query,
     Request,
     Response,
-    WebSocket,
-    WebSocketDisconnect,
 )
 from fastapi.responses import StreamingResponse
-from fastapi.websockets import WebSocketState
-from faster_whisper.transcribe import BatchedInferencePipeline
-from faster_whisper.vad import VadOptions, get_speech_timestamps
+from faster_whisper.transcribe import BatchedInferencePipeline, TranscriptionInfo
 from pydantic import AfterValidator, Field
 
 from speaches.api_types import (
@@ -28,23 +21,13 @@ from speaches.api_types import (
     TimestampGranularities,
     TranscriptionSegment,
 )
-from speaches.asr import FasterWhisperASR
-from speaches.audio import AudioStream, audio_samples_from_file
 from speaches.config import (
-    SAMPLES_PER_SECOND,
     Language,
     ResponseFormat,
     Task,
 )
 from speaches.dependencies import AudioFileDependency, ConfigDependency, ModelManagerDependency, get_config
 from speaches.text_utils import segments_to_srt, segments_to_text, segments_to_vtt
-from speaches.transcriber import audio_transcriber
-
-if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable
-
-    from faster_whisper.transcribe import TranscriptionInfo
-
 
 logger = logging.getLogger(__name__)
 
@@ -235,82 +218,3 @@ def transcribe_file(
             return segments_to_streaming_response(segments, transcription_info, response_format)
         else:
             return segments_to_response(segments, transcription_info, response_format)
-
-
-async def audio_receiver(ws: WebSocket, audio_stream: AudioStream) -> None:
-    config = get_config()  # HACK
-    try:
-        while True:
-            bytes_ = await asyncio.wait_for(ws.receive_bytes(), timeout=config.max_no_data_seconds)
-            logger.debug(f"Received {len(bytes_)} bytes of audio data")
-            audio_samples = audio_samples_from_file(BytesIO(bytes_))
-            audio_stream.extend(audio_samples)
-            if audio_stream.duration - config.inactivity_window_seconds >= 0:
-                audio = audio_stream.after(audio_stream.duration - config.inactivity_window_seconds)
-                vad_opts = VadOptions(min_silence_duration_ms=500, speech_pad_ms=0)
-                # NOTE: This is a synchronous operation that runs every time new data is received.
-                # This shouldn't be an issue unless data is being received in tiny chunks or the user's machine is a potato.
-                timestamps = get_speech_timestamps(audio.data, vad_opts)
-                if len(timestamps) == 0:
-                    logger.info(f"No speech detected in the last {config.inactivity_window_seconds} seconds.")
-                    break
-                elif (
-                    # last speech end time
-                    config.inactivity_window_seconds - timestamps[-1]["end"] / SAMPLES_PER_SECOND
-                    >= config.max_inactivity_seconds
-                ):
-                    logger.info(f"Not enough speech in the last {config.inactivity_window_seconds} seconds.")
-                    break
-    except TimeoutError:
-        logger.info(f"No data received in {config.max_no_data_seconds} seconds. Closing the connection.")
-    except WebSocketDisconnect as e:
-        logger.info(f"Client disconnected: {e}")
-    audio_stream.close()
-
-
-@router.websocket("/v1/audio/transcriptions")
-async def transcribe_stream(
-    config: ConfigDependency,
-    model_manager: ModelManagerDependency,
-    ws: WebSocket,
-    model: Annotated[ModelName | None, Query()] = None,
-    language: Annotated[Language | None, Query()] = None,
-    response_format: Annotated[ResponseFormat | None, Query()] = None,
-    temperature: Annotated[float, Query()] = 0.0,
-    vad_filter: Annotated[bool, Query()] = False,
-) -> None:
-    if model is None:
-        model = config.whisper.model
-    if language is None:
-        language = config.default_language
-    if response_format is None:
-        response_format = config.default_response_format
-    await ws.accept()
-    transcribe_opts = {
-        "language": language,
-        "temperature": temperature,
-        "vad_filter": vad_filter,
-        "condition_on_previous_text": False,
-    }
-    with model_manager.load_model(model) as whisper:
-        asr = FasterWhisperASR(whisper, **transcribe_opts)
-        audio_stream = AudioStream()
-        async with asyncio.TaskGroup() as tg:
-            tg.create_task(audio_receiver(ws, audio_stream))
-            async for transcription in audio_transcriber(asr, audio_stream, min_duration=config.min_duration):
-                logger.debug(f"Sending transcription: {transcription.text}")
-                if ws.client_state == WebSocketState.DISCONNECTED:
-                    break
-
-                if response_format == ResponseFormat.TEXT:
-                    await ws.send_text(transcription.text)
-                elif response_format == ResponseFormat.JSON:
-                    await ws.send_json(CreateTranscriptionResponseJson.from_transcription(transcription).model_dump())
-                elif response_format == ResponseFormat.VERBOSE_JSON:
-                    await ws.send_json(
-                        CreateTranscriptionResponseVerboseJson.from_transcription(transcription).model_dump()
-                    )
-
-    if ws.client_state != WebSocketState.DISCONNECTED:
-        logger.info("Closing the connection.")
-        await ws.close()
