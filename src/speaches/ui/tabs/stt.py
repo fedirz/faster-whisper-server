@@ -1,12 +1,15 @@
 from collections.abc import AsyncGenerator
 from pathlib import Path
+from typing import Literal
 
 import gradio as gr
 import httpx
 from httpx_sse import aconnect_sse
 
-from speaches.config import Config, Task
+from speaches.config import Config
 from speaches.ui.utils import http_client_from_gradio_req, openai_client_from_gradio_req
+
+type Task = Literal["transcribe", "translate"]
 
 TRANSCRIPTION_ENDPOINT = "/v1/audio/transcriptions"
 TRANSLATION_ENDPOINT = "/v1/audio/translations"
@@ -65,9 +68,9 @@ def create_stt_tab(config: Config) -> None:
         file_path: str, model: str, task: Task, temperature: float, stream: bool, request: gr.Request
     ) -> AsyncGenerator[str, None]:
         http_client = http_client_from_gradio_req(request, config)
-        if task == Task.TRANSCRIBE:
+        if task == "transcribe":
             endpoint = TRANSCRIPTION_ENDPOINT
-        elif task == Task.TRANSLATE:
+        elif task == "translate":
             endpoint = TRANSLATION_ENDPOINT
 
         if stream:
@@ -88,7 +91,7 @@ def create_stt_tab(config: Config) -> None:
         task_dropdown = gr.Dropdown(
             choices=[task.value for task in Task],
             label="Task",
-            value=Task.TRANSCRIBE,
+            value="transcribe",
         )
         temperature_slider = gr.Slider(minimum=0.0, maximum=1.0, step=0.1, label="Temperature", value=0.0)
         stream_checkbox = gr.Checkbox(label="Stream", value=True)

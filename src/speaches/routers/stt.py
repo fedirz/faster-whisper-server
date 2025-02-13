@@ -1,7 +1,7 @@
 import asyncio
 from collections.abc import Generator, Iterable
 import logging
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import (
     APIRouter,
@@ -21,17 +21,17 @@ from speaches.api_types import (
     TimestampGranularities,
     TranscriptionSegment,
 )
-from speaches.config import (
-    Language,
-    ResponseFormat,
-    Task,
-)
 from speaches.dependencies import AudioFileDependency, ConfigDependency, ModelManagerDependency, get_config
 from speaches.text_utils import segments_to_srt, segments_to_text, segments_to_vtt
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["automatic-speech-recognition"])
+
+type ResponseFormat = Literal["text", "json", "verbose_json", "srt", "vtt"]
+
+# https://platform.openai.com/docs/api-reference/audio/createTranscription#audio-createtranscription-response_format
+DEFAULT_RESPONSE_FORMAT: ResponseFormat = "json"
 
 
 def segments_to_response(
@@ -41,23 +41,23 @@ def segments_to_response(
 ) -> Response:
     segments = list(segments)
     match response_format:
-        case ResponseFormat.TEXT:
+        case "text":
             return Response(segments_to_text(segments), media_type="text/plain")
-        case ResponseFormat.JSON:
+        case "json":
             return Response(
                 CreateTranscriptionResponseJson.from_segments(segments).model_dump_json(),
                 media_type="application/json",
             )
-        case ResponseFormat.VERBOSE_JSON:
+        case "verbose_json":
             return Response(
                 CreateTranscriptionResponseVerboseJson.from_segments(segments, transcription_info).model_dump_json(),
                 media_type="application/json",
             )
-        case ResponseFormat.VTT:
+        case "vtt":
             return Response(
                 "".join(segments_to_vtt(segment, i) for i, segment in enumerate(segments)), media_type="text/vtt"
             )
-        case ResponseFormat.SRT:
+        case "srt":
             return Response(
                 "".join(segments_to_srt(segment, i) for i, segment in enumerate(segments)), media_type="text/plain"
             )
@@ -74,17 +74,17 @@ def segments_to_streaming_response(
 ) -> StreamingResponse:
     def segment_responses() -> Generator[str, None, None]:
         for i, segment in enumerate(segments):
-            if response_format == ResponseFormat.TEXT:
+            if response_format == "text":
                 data = segment.text
-            elif response_format == ResponseFormat.JSON:
+            elif response_format == "json":
                 data = CreateTranscriptionResponseJson.from_segments([segment]).model_dump_json()
-            elif response_format == ResponseFormat.VERBOSE_JSON:
+            elif response_format == "verbose_json":
                 data = CreateTranscriptionResponseVerboseJson.from_segment(
                     segment, transcription_info
                 ).model_dump_json()
-            elif response_format == ResponseFormat.VTT:
+            elif response_format == "vtt":
                 data = segments_to_vtt(segment, i)
-            elif response_format == ResponseFormat.SRT:
+            elif response_format == "srt":
                 data = segments_to_srt(segment, i)
             yield format_as_sse(data)
 
@@ -126,20 +126,18 @@ def translate_file(
     audio: AudioFileDependency,
     model: Annotated[ModelName | None, Form()] = None,
     prompt: Annotated[str | None, Form()] = None,
-    response_format: Annotated[ResponseFormat | None, Form()] = None,
+    response_format: Annotated[ResponseFormat, Form()] = DEFAULT_RESPONSE_FORMAT,
     temperature: Annotated[float, Form()] = 0.0,
     stream: Annotated[bool, Form()] = False,
     vad_filter: Annotated[bool, Form()] = False,
 ) -> Response | StreamingResponse:
     if model is None:
         model = config.whisper.model
-    if response_format is None:
-        response_format = config.default_response_format
     with model_manager.load_model(model) as whisper:
         whisper_model = BatchedInferencePipeline(model=whisper) if config.whisper.use_batched_mode else whisper
         segments, transcription_info = whisper_model.transcribe(
             audio,
-            task=Task.TRANSLATE,
+            task="translate",
             initial_prompt=prompt,
             temperature=temperature,
             vad_filter=vad_filter,
@@ -176,9 +174,9 @@ def transcribe_file(
     request: Request,
     audio: AudioFileDependency,
     model: Annotated[ModelName | None, Form()] = None,
-    language: Annotated[Language | None, Form()] = None,
+    language: Annotated[str | None, Form()] = None,
     prompt: Annotated[str | None, Form()] = None,
-    response_format: Annotated[ResponseFormat | None, Form()] = None,
+    response_format: Annotated[ResponseFormat, Form()] = DEFAULT_RESPONSE_FORMAT,
     temperature: Annotated[float, Form()] = 0.0,
     timestamp_granularities: Annotated[
         TimestampGranularities,
@@ -191,12 +189,8 @@ def transcribe_file(
 ) -> Response | StreamingResponse:
     if model is None:
         model = config.whisper.model
-    if language is None:
-        language = config.default_language
-    if response_format is None:
-        response_format = config.default_response_format
     timestamp_granularities = asyncio.run(get_timestamp_granularities(request))
-    if timestamp_granularities != DEFAULT_TIMESTAMP_GRANULARITIES and response_format != ResponseFormat.VERBOSE_JSON:
+    if timestamp_granularities != DEFAULT_TIMESTAMP_GRANULARITIES and response_format != "verbose_json":
         logger.warning(
             "It only makes sense to provide `timestamp_granularities[]` when `response_format` is set to `verbose_json`. See https://platform.openai.com/docs/api-reference/audio/createTranscription#audio-createtranscription-timestamp_granularities."
         )
@@ -204,7 +198,7 @@ def transcribe_file(
         whisper_model = BatchedInferencePipeline(model=whisper) if config.whisper.use_batched_mode else whisper
         segments, transcription_info = whisper_model.transcribe(
             audio,
-            task=Task.TRANSCRIBE,
+            task="transcribe",
             language=language,
             initial_prompt=prompt,
             word_timestamps="word" in timestamp_granularities,
