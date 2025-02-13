@@ -16,10 +16,6 @@ See the documentation for installation instructions and usage: [speaches.ai](htt
 - [Highly configurable](https://speaches.ai/configuration/)
 - OpenAI API compatible. All tools and SDKs that work with OpenAI's API should work with `speaches`.
 - Streaming support (transcription is sent via SSE as the audio is transcribed. You don't need to wait for the audio to fully be transcribed before receiving it).
-
-  - LocalAgreement2 ([paper](https://aclanthology.org/2023.ijcnlp-demo.3.pdf) | [original implementation](https://github.com/ufal/whisper_streaming)) algorithm is used for live transcription.
-
-- Live transcription support (audio is sent via websocket as it's generated).
 - Dynamic model loading / offloading. Just specify which model you want to use in the request and it will be loaded automatically. It will then be unloaded after a period of inactivity.
 - Text-to-Speech via `kokoro`(Ranked #1 in the [TTS Arena](https://huggingface.co/spaces/Pendrokar/TTS-Spaces-Arena)) and `piper` models.
 - [Coming soon](https://github.com/speaches-ai/speaches/issues/231): Audio generation (chat completions endpoint) | [OpenAI Documentation](https://platform.openai.com/docs/guides/realtime)
@@ -39,7 +35,3 @@ TODO
 ### Speech Generation
 
 https://github.com/user-attachments/assets/0021acd9-f480-4bc3-904d-831f54c4d45b
-
-### Live Transcription (using WebSockets)
-
-https://github.com/fedirz/faster-whisper-server/assets/76551385/e334c124-af61-41d4-839c-874be150598f
