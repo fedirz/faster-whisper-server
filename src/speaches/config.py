@@ -225,8 +225,8 @@ class Config(BaseSettings):
 
     speech_base_url: str | None = None
     speech_api_key: str | None = None
-    speech_model: str = "piper"
-    speech_extra_body: dict = {"sample_rate": 24000}
+    speech_model: str = "hexgrad/Kokoro-82M"
+    speech_extra_body: dict = {"sample_rate": 24000}  # TODO: should this be set by default?
 
     transcription_base_url: str | None = None
     transcription_api_key: str | None = None
