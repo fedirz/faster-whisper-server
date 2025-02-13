@@ -29,7 +29,7 @@ client = [
 ]
 dev = [
     "anyio>=4.4.0",
-    "basedpyright>=1.18.0",
+    "basedpyright>=1.26.0",
     "pytest-antilru>=2.0.0",
     "mkdocs-material>=9.5.39",
     "mkdocstrings[python]>=0.26.1",
