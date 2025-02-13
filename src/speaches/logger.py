@@ -24,6 +24,23 @@ def setup_logger(log_level: str) -> None:
                 "level": log_level.upper(),
                 "handlers": ["stdout"],
             },
+            # TODO: do I need to specify `handlers` for each logger?
+            "PIL": {
+                "level": "INFO",
+                "handlers": ["stdout"],
+            },
+            "httpx": {
+                "level": "INFO",
+                "handlers": ["stdout"],
+            },
+            "python_multipart": {
+                "level": "INFO",
+                "handlers": ["stdout"],
+            },
+            "httpcore": {
+                "level": "INFO",
+                "handlers": ["stdout"],
+            },
         },
     }
 
