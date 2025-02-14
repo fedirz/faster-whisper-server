@@ -9,8 +9,6 @@ services:
     build:
       args:
         BASE_IMAGE: ubuntu:24.04
-    environment:
-      - WHISPER__MODEL=Systran/faster-whisper-small
     volumes:
       - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
 volumes:

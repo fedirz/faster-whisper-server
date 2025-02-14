@@ -11,7 +11,7 @@ from fastapi import (
 )
 from fastapi.responses import StreamingResponse
 from faster_whisper.transcribe import BatchedInferencePipeline, TranscriptionInfo
-from pydantic import AfterValidator, Field
+from pydantic import Field
 
 from speaches.api_types import (
     DEFAULT_TIMESTAMP_GRANULARITIES,
@@ -21,7 +21,7 @@ from speaches.api_types import (
     TimestampGranularities,
     TranscriptionSegment,
 )
-from speaches.dependencies import AudioFileDependency, ConfigDependency, ModelManagerDependency, get_config
+from speaches.dependencies import AudioFileDependency, ConfigDependency, ModelManagerDependency
 from speaches.text_utils import segments_to_srt, segments_to_text, segments_to_vtt
 
 logger = logging.getLogger(__name__)
@@ -91,21 +91,8 @@ def segments_to_streaming_response(
     return StreamingResponse(segment_responses(), media_type="text/event-stream")
 
 
-def handle_default_openai_model(model_name: str) -> str:
-    """Exists because some callers may not be able override the default("whisper-1") model name.
-
-    For example, https://github.com/open-webui/open-webui/issues/2248#issuecomment-2162997623.
-    """
-    config = get_config()  # HACK
-    if model_name == "whisper-1":
-        logger.info(f"{model_name} is not a valid model name. Using {config.whisper.model} instead.")
-        return config.whisper.model
-    return model_name
-
-
 ModelName = Annotated[
     str,
-    AfterValidator(handle_default_openai_model),
     Field(
         description="The ID of the model. You can get a list of available models by calling `/v1/models`.",
         examples=[
@@ -124,15 +111,13 @@ def translate_file(
     config: ConfigDependency,
     model_manager: ModelManagerDependency,
     audio: AudioFileDependency,
-    model: Annotated[ModelName | None, Form()] = None,
+    model: Annotated[ModelName, Form()],
     prompt: Annotated[str | None, Form()] = None,
     response_format: Annotated[ResponseFormat, Form()] = DEFAULT_RESPONSE_FORMAT,
     temperature: Annotated[float, Form()] = 0.0,
     stream: Annotated[bool, Form()] = False,
     vad_filter: Annotated[bool, Form()] = False,
 ) -> Response | StreamingResponse:
-    if model is None:
-        model = config.whisper.model
     with model_manager.load_model(model) as whisper:
         whisper_model = BatchedInferencePipeline(model=whisper) if config.whisper.use_batched_mode else whisper
         segments, transcription_info = whisper_model.transcribe(
@@ -173,7 +158,7 @@ def transcribe_file(
     model_manager: ModelManagerDependency,
     request: Request,
     audio: AudioFileDependency,
-    model: Annotated[ModelName | None, Form()] = None,
+    model: Annotated[ModelName, Form()],
     language: Annotated[str | None, Form()] = None,
     prompt: Annotated[str | None, Form()] = None,
     response_format: Annotated[ResponseFormat, Form()] = DEFAULT_RESPONSE_FORMAT,
@@ -187,8 +172,6 @@ def transcribe_file(
     hotwords: Annotated[str | None, Form()] = None,
     vad_filter: Annotated[bool, Form()] = False,
 ) -> Response | StreamingResponse:
-    if model is None:
-        model = config.whisper.model
     timestamp_granularities = asyncio.run(get_timestamp_granularities(request))
     if timestamp_granularities != DEFAULT_TIMESTAMP_GRANULARITIES and response_format != "verbose_json":
         logger.warning(

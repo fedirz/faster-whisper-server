@@ -36,7 +36,7 @@ DEFAULT_SESSION_CONFIG = Session(
     voice="alloy",
     input_audio_format="pcm16",
     output_audio_format="pcm16",
-    input_audio_transcription=InputAudioTranscription(model="Systran/faster-whisper-small.en"),  # changed
+    input_audio_transcription=InputAudioTranscription(model="Systran/faster-whisper-small"),  # changed
     turn_detection=DEFAULT_TURN_DETECTION,
     temperature=0.8,
     tools=[],
