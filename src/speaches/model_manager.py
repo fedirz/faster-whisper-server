@@ -53,7 +53,6 @@ class SelfDisposingModel[T]:
             if self.expire_timer:
                 self.expire_timer.cancel()
             self.model = None
-            # WARN: ~300 MB of memory will still be held by the model. See https://github.com/SYSTRAN/faster-whisper/issues/992
             gc.collect()
             logger.info(f"Model {self.model_id} unloaded")
             if self.unload_fn is not None:
@@ -128,6 +127,7 @@ class WhisperModelManager:
             model = self.loaded_models.get(model_name)
             if model is None:
                 raise KeyError(f"Model {model_name} not found")
+            # WARN: ~300 MB of memory will still be held by the model. See https://github.com/SYSTRAN/faster-whisper/issues/992
             self.loaded_models[model_name].unload()
 
     def load_model(self, model_name: str) -> SelfDisposingModel[WhisperModel]:
