@@ -20,7 +20,7 @@ from speaches.realtime.input_audio_buffer_event_router import (
 )
 from speaches.realtime.message_manager import WsServerMessageManager
 from speaches.realtime.response_event_router import event_router as response_event_router
-from speaches.realtime.session import DEFAULT_OPENAI_REALTIME_SESSION_DURATION_SECONDS
+from speaches.realtime.session import OPENAI_REALTIME_SESSION_DURATION_SECONDS, create_session_configuration
 from speaches.realtime.session_event_router import event_router as session_event_router
 from speaches.realtime.utils import generate_event_id
 from speaches.types.realtime import (
@@ -64,6 +64,7 @@ async def event_listener(ctx: SessionContext) -> None:
 @router.websocket("/v1/realtime")
 async def realtime(
     ws: WebSocket,
+    model: str,
     transcription_client: TranscriptionClientDependency,
     completion_client: CompletionClientDependency,
     speech_client: SpeechClientDependency,
@@ -74,11 +75,12 @@ async def realtime(
         transcription_client=transcription_client,
         speech_client=speech_client,
         completion_client=completion_client,
+        configuration=create_session_configuration(model),
     )
     message_manager = WsServerMessageManager(ctx.pubsub)
     async with asyncio.TaskGroup() as tg:
         event_listener_task = tg.create_task(event_listener(ctx), name="event_listener")
-        async with asyncio.timeout(DEFAULT_OPENAI_REALTIME_SESSION_DURATION_SECONDS):
+        async with asyncio.timeout(OPENAI_REALTIME_SESSION_DURATION_SECONDS):
             mm_task = asyncio.create_task(message_manager.run(ws))
             await asyncio.sleep(0.1)  # HACK
             ctx.pubsub.publish_nowait(
