@@ -1,6 +1,5 @@
 from collections.abc import AsyncGenerator
 from pathlib import Path
-from typing import Literal
 
 import gradio as gr
 import httpx
@@ -8,8 +7,6 @@ from httpx_sse import aconnect_sse
 
 from speaches.config import Config
 from speaches.ui.utils import http_client_from_gradio_req, openai_client_from_gradio_req
-
-type Task = Literal["transcribe", "translate"]
 
 TRANSCRIPTION_ENDPOINT = "/v1/audio/transcriptions"
 TRANSLATION_ENDPOINT = "/v1/audio/translations"
@@ -60,13 +57,10 @@ def create_stt_tab(config: Config) -> None:
                     yield event.data
 
     async def whisper_handler(
-        file_path: str, model: str, task: Task, temperature: float, stream: bool, request: gr.Request
+        file_path: str, model: str, task: str, temperature: float, stream: bool, request: gr.Request
     ) -> AsyncGenerator[str, None]:
         http_client = http_client_from_gradio_req(request, config)
-        if task == "transcribe":
-            endpoint = TRANSCRIPTION_ENDPOINT
-        elif task == "translate":
-            endpoint = TRANSLATION_ENDPOINT
+        endpoint = TRANSCRIPTION_ENDPOINT if task == "transcribe" else TRANSLATION_ENDPOINT
 
         if stream:
             previous_transcription = ""
@@ -84,7 +78,7 @@ def create_stt_tab(config: Config) -> None:
             value="Systran/faster-whisper-small",
         )
         task_dropdown = gr.Dropdown(
-            choices=[task.value for task in Task],
+            choices=["transcribe", "translate"],
             label="Task",
             value="transcribe",
         )
