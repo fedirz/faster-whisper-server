@@ -10,8 +10,6 @@ services:
     build:
       args:
         BASE_IMAGE: nvidia/cuda:12.6.3-cudnn-runtime-ubuntu24.04
-    environment:
-      - WHISPER__MODEL=Systran/faster-whisper-large-v3
     volumes:
       - hf-hub-cache:/home/ubuntu/.cache/huggingface/hub
     deploy:

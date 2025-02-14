@@ -35,7 +35,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # PermissionError: [Errno 13] Permission denied: '/home/ubuntu/.cache/huggingface/hub'
 # This error occurs because the volume is mounted as root and the `ubuntu` user doesn't have permission to write to it. Pre-creating the directory solves this issue.
 RUN mkdir -p $HOME/.cache/huggingface/hub
-ENV WHISPER__MODEL=Systran/faster-whisper-large-v3
 ENV UVICORN_HOST=0.0.0.0
 ENV UVICORN_PORT=8000
 ENV PATH="$HOME/speaches/.venv/bin:$PATH"

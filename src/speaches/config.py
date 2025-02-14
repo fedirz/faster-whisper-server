@@ -21,14 +21,6 @@ type Quantization = Literal[
 class WhisperConfig(BaseModel):
     """See https://github.com/SYSTRAN/faster-whisper/blob/master/faster_whisper/transcribe.py#L599."""
 
-    model: str = Field(default="Systran/faster-whisper-small")
-    """
-    Default HuggingFace model to use for transcription. Note, the model must support being ran using CTranslate2.
-    This model will be used if no model is specified in the request.
-
-    Models created by authors of `faster-whisper` can be found at https://huggingface.co/Systran
-    You can find other supported models at https://huggingface.co/models?p=2&sort=trending&search=ctranslate2 and https://huggingface.co/models?sort=trending&search=ct2
-    """
     inference_device: Device = "auto"
     device_index: int | list[int] = 0
     compute_type: Quantization = "default"  # TODO: should this even be a configuration option?
@@ -52,7 +44,7 @@ class Config(BaseSettings):
 
     Pydantic will automatically handle mapping uppercased environment variables to the corresponding fields.
     To populate nested, the environment should be prefixed with the nested field name and an underscore. For example,
-    the environment variable `LOG_LEVEL` will be mapped to `log_level`, `WHISPER__MODEL`(note the double underscore) to `whisper.model`, to set quantization to int8, use `WHISPER__COMPUTE_TYPE=int8`, etc.
+    the environment variable `LOG_LEVEL` will be mapped to `log_level`, `WHISPER__INFERENCE_DEVICE`(note the double underscore) to `whisper.inference_device`, to set quantization to int8, use `WHISPER__COMPUTE_TYPE=int8`, etc.
     """
 
     model_config = SettingsConfigDict(env_nested_delimiter="__")

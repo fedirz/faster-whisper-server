@@ -14,6 +14,7 @@ from speaches.api_types import (
     CreateTranscriptionResponseVerboseJson,
 )
 
+MODEL = "Systran/faster-whisper-tiny.en"
 FILE_PATHS = ["audio.wav"]  # HACK
 ENDPOINTS = [
     "/v1/audio/transcriptions",
@@ -32,7 +33,7 @@ async def test_streaming_transcription_text(aclient: AsyncClient, file_path: str
         data = await f.read()
     kwargs = {
         "files": {"file": (f"audio.{extension}", data, f"audio/{extension}")},
-        "data": {"response_format": "text", "stream": True},
+        "data": {"model": MODEL, "response_format": "text", "stream": True},
     }
     async with aconnect_sse(aclient, "POST", endpoint, **kwargs) as event_source:
         async for event in event_source.aiter_sse():
@@ -48,7 +49,7 @@ async def test_streaming_transcription_json(aclient: AsyncClient, file_path: str
         data = await f.read()
     kwargs = {
         "files": {"file": (f"audio.{extension}", data, f"audio/{extension}")},
-        "data": {"response_format": "json", "stream": True},
+        "data": {"model": MODEL, "response_format": "json", "stream": True},
     }
     async with aconnect_sse(aclient, "POST", endpoint, **kwargs) as event_source:
         async for event in event_source.aiter_sse():
@@ -63,7 +64,7 @@ async def test_streaming_transcription_verbose_json(aclient: AsyncClient, file_p
         data = await f.read()
     kwargs = {
         "files": {"file": (f"audio.{extension}", data, f"audio/{extension}")},
-        "data": {"response_format": "verbose_json", "stream": True},
+        "data": {"model": MODEL, "response_format": "verbose_json", "stream": True},
     }
     async with aconnect_sse(aclient, "POST", endpoint, **kwargs) as event_source:
         async for event in event_source.aiter_sse():
@@ -76,7 +77,7 @@ async def test_transcription_vtt(aclient: AsyncClient) -> None:
         data = await f.read()
     kwargs = {
         "files": {"file": ("audio.wav", data, "audio/wav")},
-        "data": {"response_format": "vtt", "stream": False},
+        "data": {"model": MODEL, "response_format": "vtt", "stream": False},
     }
     response = await aclient.post("/v1/audio/transcriptions", **kwargs)
     assert response.status_code == 200
@@ -94,7 +95,7 @@ async def test_transcription_srt(aclient: AsyncClient) -> None:
         data = await f.read()
     kwargs = {
         "files": {"file": ("audio.wav", data, "audio/wav")},
-        "data": {"response_format": "srt", "stream": False},
+        "data": {"model": MODEL, "response_format": "srt", "stream": False},
     }
     response = await aclient.post("/v1/audio/transcriptions", **kwargs)
     assert response.status_code == 200
