@@ -6,7 +6,6 @@ from fastapi import (
     WebSocket,
 )
 from openai.types.beta.realtime.session_created_event import SessionCreatedEvent
-from opentelemetry import trace
 
 from speaches.dependencies import (
     CompletionClientDependency,
@@ -76,7 +75,6 @@ async def realtime(
         speech_client=speech_client,
         completion_client=completion_client,
     )
-    trace.get_current_span().set_attribute("session.id", ctx.session_id)
     message_manager = WsServerMessageManager(ctx.pubsub)
     async with asyncio.TaskGroup() as tg:
         event_listener_task = tg.create_task(event_listener(ctx), name="event_listener")

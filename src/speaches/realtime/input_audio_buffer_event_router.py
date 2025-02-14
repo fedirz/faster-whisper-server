@@ -8,7 +8,6 @@ from faster_whisper.vad import VadOptions
 import numpy as np
 from numpy.typing import NDArray
 from openai.types.beta.realtime.error_event import Error
-from opentelemetry import trace
 
 from speaches.audio import audio_samples_from_file
 from speaches.realtime.context import SessionContext
@@ -131,9 +130,6 @@ def handle_input_audio_buffer_append(ctx: SessionContext, event: InputAudioBuffe
     input_audio_buffer_id = next(reversed(ctx.input_audio_buffers))
     input_audio_buffer = ctx.input_audio_buffers[input_audio_buffer_id]
     input_audio_buffer.append(audio_chunk)
-    trace.get_current_span().add_event(
-        "input_audio_buffer.appended", {"size": len(audio_chunk), "duration": len(audio_chunk) / 16000}
-    )
     if ctx.configuration.turn_detection is not None:
         vad_event = vad_detection_flow(input_audio_buffer, ctx.configuration.turn_detection)
         if vad_event is not None:
