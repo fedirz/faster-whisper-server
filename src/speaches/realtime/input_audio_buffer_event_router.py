@@ -14,7 +14,7 @@ from speaches.audio import audio_samples_from_file
 from speaches.realtime.context import SessionContext
 from speaches.realtime.event_router import EventRouter
 from speaches.realtime.input_audio_buffer import InputAudioBuffer
-from speaches.realtime.utils import generate_event_id, generate_item_id
+from speaches.realtime.utils import generate_event_id
 from speaches.types.realtime import (
     ConversationItem,
     ConversationItemContent,
@@ -89,7 +89,7 @@ def vad_detection_flow(
         )
         return InputAudioBufferSpeechStartedEvent(
             type="input_audio_buffer.speech_started",
-            event_id=generate_item_id(),
+            event_id=generate_event_id(),
             item_id=input_audio_buffer.id,
             audio_start_ms=input_audio_buffer.vad_state.audio_start_ms,
         )
@@ -102,7 +102,7 @@ def vad_detection_flow(
             )
             return InputAudioBufferSpeechStoppedEvent(
                 type="input_audio_buffer.speech_stopped",
-                event_id=generate_item_id(),
+                event_id=generate_event_id(),
                 item_id=input_audio_buffer.id,
                 audio_end_ms=input_audio_buffer.vad_state.audio_end_ms,
             )
@@ -114,7 +114,7 @@ def vad_detection_flow(
 
             return InputAudioBufferSpeechStoppedEvent(
                 type="input_audio_buffer.speech_stopped",
-                event_id=generate_item_id(),
+                event_id=generate_event_id(),
                 item_id=input_audio_buffer.id,
                 audio_end_ms=input_audio_buffer.vad_state.audio_end_ms,
             )
@@ -154,7 +154,7 @@ def handle_input_audio_buffer_commit(ctx: SessionContext, _event: InputAudioBuff
         ctx.pubsub.publish_nowait(
             InputAudioBufferCommittedEvent(
                 type="input_audio_buffer.committed",
-                event_id=generate_item_id(),
+                event_id=generate_event_id(),
                 previous_item_id=next(reversed(ctx.conversation), None),  # pyright: ignore[reportArgumentType]
                 item_id=input_audio_buffer_id,
             )
@@ -170,7 +170,7 @@ def handle_input_audio_buffer_clear(ctx: SessionContext, _event: InputAudioBuffe
     ctx.pubsub.publish_nowait(
         InputAudioBufferClearedEvent(
             type="input_audio_buffer.cleared",
-            event_id=generate_item_id(),
+            event_id=generate_event_id(),
         )
     )
     input_audio_buffer = InputAudioBuffer()
@@ -191,7 +191,7 @@ def handle_input_audio_buffer_speech_stopped(ctx: SessionContext, event: InputAu
     ctx.pubsub.publish_nowait(
         InputAudioBufferCommittedEvent(
             type="input_audio_buffer.committed",
-            event_id=generate_item_id(),
+            event_id=generate_event_id(),
             previous_item_id=previous_item_id,
             item_id=event.item_id,
         )
@@ -215,7 +215,7 @@ def handle_input_audio_buffer_committed(ctx: SessionContext, event: InputAudioBu
     ctx.pubsub.publish_nowait(
         ConversationItemCreatedEvent(
             type="conversation.item.created",
-            event_id=generate_item_id(),
+            event_id=generate_event_id(),
             # previous_item_id=next(reversed(ctx.conversation), None), # TODO: incorrect this needs to be second last
             previous_item_id=None,
             item=item,
