@@ -5,13 +5,10 @@ from openai.resources.chat.completions import AsyncCompletions
 
 from speaches.realtime.input_audio_buffer import InputAudioBuffer
 from speaches.realtime.pubsub import EventPubSub
-from speaches.realtime.session import (
-    DEFAULT_SESSION_CONFIG,
-)
 from speaches.realtime.utils import (
     generate_session_id,
 )
-from speaches.types.realtime import ConversationItem, RealtimeResponse
+from speaches.types.realtime import ConversationItem, RealtimeResponse, Session
 
 
 class SessionContext:
@@ -20,13 +17,14 @@ class SessionContext:
         transcription_client: AsyncTranscriptions,
         completion_client: AsyncCompletions,
         speech_client: AsyncSpeech,
+        configuration: Session,
     ) -> None:
         self.transcription_client = transcription_client
         self.speech_client = speech_client
         self.completion_client = completion_client
 
         self.session_id = generate_session_id()
-        self.configuration = DEFAULT_SESSION_CONFIG
+        self.configuration = configuration
 
         self.conversation = OrderedDict[
             str, ConversationItem
