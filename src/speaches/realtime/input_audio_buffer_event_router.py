@@ -43,12 +43,14 @@ type SpeechTimestamp = dict[Literal["start", "end"], int]
 
 
 # NOTE: `signal.resample_poly` **might** be a better option for resampling audio data
+# TODO: also found in src/speaches/audio.py. Remove duplication
 def resample_audio_data(data: NDArray[np.float32], sample_rate: int, target_sample_rate: int) -> NDArray[np.float32]:
     ratio = target_sample_rate / sample_rate
     target_length = int(len(data) * ratio)
     return np.interp(np.linspace(0, len(data), target_length), np.arange(len(data)), data).astype(np.float32)
 
 
+# TODO: also found in src/speaches/routers/vad.py. Remove duplication
 def to_ms_speech_timestamps(speech_timestamps: list[SpeechTimestamp]) -> list[SpeechTimestamp]:
     for i in range(len(speech_timestamps)):
         speech_timestamps[i]["start"] = speech_timestamps[i]["start"] // MS_SAMPLE_RATE
@@ -103,7 +105,7 @@ def vad_detection_flow(
                 audio_end_ms=input_audio_buffer.vad_state.audio_end_ms,
             )
 
-        elif speech_timestamp["end"] < 3000 and input_audio_buffer.duration_ms > 3000:
+        elif speech_timestamp["end"] < 3000 and input_audio_buffer.duration_ms > 3000:  # FIX: magic number
             input_audio_buffer.vad_state.audio_end_ms = (
                 input_audio_buffer.duration_ms - turn_detection.prefix_padding_ms
             )
