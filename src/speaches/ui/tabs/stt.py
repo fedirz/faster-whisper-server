@@ -16,11 +16,11 @@ def create_stt_tab(config: Config) -> None:
     async def update_whisper_model_dropdown(request: gr.Request) -> gr.Dropdown:
         openai_client = openai_client_from_gradio_req(request, config)
         models = (await openai_client.models.list()).data
-        model_names: list[str] = [model.id for model in models]
-        recommended_models = {model for model in model_names if model.startswith("Systran")}
-        other_models = [model for model in model_names if model not in recommended_models]
-        model_names = list(recommended_models) + other_models
-        return gr.Dropdown(choices=model_names, label="Model", value="Systran/faster-whisper-small")
+        model_ids: list[str] = [model.id for model in models]
+        recommended_models = {model for model in model_ids if model.startswith("Systran")}
+        other_models = [model for model in model_ids if model not in recommended_models]
+        model_ids = list(recommended_models) + other_models
+        return gr.Dropdown(choices=model_ids, label="Model", value="Systran/faster-whisper-small")
 
     async def audio_task(
         http_client: httpx.AsyncClient, file_path: str, endpoint: str, temperature: float, model: str

@@ -91,7 +91,7 @@ def segments_to_streaming_response(
     return StreamingResponse(segment_responses(), media_type="text/event-stream")
 
 
-ModelName = Annotated[
+ModelId = Annotated[
     str,
     Field(
         description="The ID of the model. You can get a list of available models by calling `/v1/models`.",
@@ -111,7 +111,7 @@ def translate_file(
     config: ConfigDependency,
     model_manager: ModelManagerDependency,
     audio: AudioFileDependency,
-    model: Annotated[ModelName, Form()],
+    model: Annotated[ModelId, Form()],
     prompt: Annotated[str | None, Form()] = None,
     response_format: Annotated[ResponseFormat, Form()] = DEFAULT_RESPONSE_FORMAT,
     temperature: Annotated[float, Form()] = 0.0,
@@ -158,7 +158,7 @@ def transcribe_file(
     model_manager: ModelManagerDependency,
     request: Request,
     audio: AudioFileDependency,
-    model: Annotated[ModelName, Form()],
+    model: Annotated[ModelId, Form()],
     language: Annotated[str | None, Form()] = None,
     prompt: Annotated[str | None, Form()] = None,
     response_format: Annotated[ResponseFormat, Form()] = DEFAULT_RESPONSE_FORMAT,
