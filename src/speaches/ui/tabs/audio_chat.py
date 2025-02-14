@@ -246,11 +246,11 @@ def create_audio_chat_tab(config: Config) -> None:  # noqa: C901
         # NOTE: not using `openai_client_from_gradio_req` because we aren't intrested in making API calls to `speaches` but rather to whatever the user specified as LLM api
         openai_client = AsyncOpenAI(base_url=config.chat_completion_base_url, api_key=config.chat_completion_api_key)
         models = (await openai_client.models.list()).data
-        model_names: list[str] = [model.id for model in models]
+        model_ids: list[str] = [model.id for model in models]
         return gr.Dropdown(
-            choices=model_names,
+            choices=model_ids,
             label="Chat Model",
-            value=model_names[0],
+            value=model_ids[0],
         )
 
     with gr.Tab(label="Audio Chat") as tab:

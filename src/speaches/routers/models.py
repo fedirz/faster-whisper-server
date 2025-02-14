@@ -31,13 +31,13 @@ def get_models() -> ListModelsResponse:
     return ListModelsResponse(data=whisper_models)
 
 
-@router.get("/v1/models/{model_name:path}")
+@router.get("/v1/models/{model_id:path}")
 def get_model(
     # NOTE: `examples` doesn't work https://github.com/tiangolo/fastapi/discussions/10537
-    model_name: Annotated[str, Path(example="Systran/faster-distil-whisper-large-v3")],
+    model_id: Annotated[str, Path(example="Systran/faster-distil-whisper-large-v3")],
 ) -> Model:
     models = huggingface_hub.list_models(
-        model_name=model_name, library="ctranslate2", tags="automatic-speech-recognition", cardData=True
+        model_name=model_id, library="ctranslate2", tags="automatic-speech-recognition", cardData=True
     )
     models = list(models)
     models.sort(key=lambda model: model.downloads or -1, reverse=True)
@@ -45,7 +45,7 @@ def get_model(
         raise HTTPException(status_code=404, detail="Model doesn't exists")
     exact_match: ModelInfo | None = None
     for model in models:
-        if model.id == model_name:
+        if model.id == model_id:
             exact_match = model
             break
     if exact_match is None:
