@@ -13,7 +13,7 @@ from opentelemetry import trace
 from speaches.audio import audio_samples_from_file
 from speaches.realtime.context import SessionContext
 from speaches.realtime.event_router import EventRouter
-from speaches.realtime.input_audio_buffer import InputAudioBuffer
+from speaches.realtime.input_audio_buffer import MAX_VAD_WINDOW_SIZE_SAMPLES, MS_SAMPLE_RATE, InputAudioBuffer
 from speaches.realtime.utils import generate_event_id
 from speaches.types.realtime import (
     ConversationItem,
@@ -29,10 +29,6 @@ from speaches.types.realtime import (
     InputAudioBufferSpeechStoppedEvent,
     TurnDetection,
 )
-
-SAMPLE_RATE = 16000
-MS_SAMPLE_RATE = 16
-MAX_VAD_WINDOW_SIZE_SAMPLES = 3000 * MS_SAMPLE_RATE
 
 logger = logging.getLogger(__name__)
 
