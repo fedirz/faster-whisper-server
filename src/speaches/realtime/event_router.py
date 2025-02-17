@@ -3,7 +3,7 @@ from collections.abc import Callable
 import logging
 
 from speaches.realtime.context import SessionContext
-from speaches.types.realtime import Event
+from speaches.types.realtime import CLIENT_EVENT_TYPES, Event
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,8 @@ class EventRouter:
 
     async def dispatch(self, ctx: SessionContext, event: Event) -> None:
         if event.type not in self.event_handlers:
-            logger.warning(f"No handler registered for event: '{event.type}'")
+            if event.type in CLIENT_EVENT_TYPES:
+                logger.error(f"No handler registered for event: '{event.type}'")
             return
 
         handler = self.event_handlers[event.type]
