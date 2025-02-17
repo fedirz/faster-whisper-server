@@ -10,6 +10,7 @@ import aiostream
 from cachetools import TTLCache
 from fastapi import APIRouter, Body, Response
 from fastapi.responses import StreamingResponse
+import openai
 from openai import AsyncStream
 from openai.resources.audio import AsyncSpeech
 from openai.types.chat import (
@@ -260,7 +261,10 @@ async def handle_completions(  # noqa: C901
         config.chat_completion_model if config.chat_completion_model is not None else body.model
     )  # HACK: this is different from the one chat completion api sends
     # NOTE: Adding --use-one-literal-as-default breaks the `exclude_defaults=True` behavior
-    chat_completion = await chat_completion_client.create(**proxied_body.model_dump(exclude_defaults=True))
+    try:
+        chat_completion = await chat_completion_client.create(**proxied_body.model_dump(exclude_defaults=True))
+    except openai.BadRequestError as e:
+        return Response(content=e.message, status_code=e.status_code)
     if isinstance(chat_completion, AsyncStream):
 
         async def inner() -> AsyncGenerator[str]:
