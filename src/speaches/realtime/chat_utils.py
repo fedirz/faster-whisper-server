@@ -28,13 +28,19 @@ def create_completion_params(
     assert response.output_audio_format == "pcm16"  # HACK
 
     max_tokens = None if response.max_response_output_tokens == "inf" else response.max_response_output_tokens
-    tools = [
-        ChatCompletionToolParam(
-            type=tool.type,
-            function=FunctionDefinition(name=tool.name, description=tool.description, parameters=tool.parameters),
-        )
-        for tool in response.tools
-    ]
+    kwargs = {}
+    if len(response.tools) > 0:
+        # openai.BadRequestError: Error code: 400 - {'error': {'message': "Invalid value for 'tool_choice': 'tool_choice' is only allowed when 'tools' are specified.", 'type': 'invalid_request_error', 'param': 'tool_choice', 'code': None}}
+        # openai.BadRequestError: Error code: 400 - {'error': {'message': "Invalid 'tools': empty array. Expected an array with minimum length 1, but got an empty array instead.", 'type': 'invalid_request_error', 'param': 'tools', 'code': 'empty_array'}}
+        # TODO: I might be able to get away with not doing any conversion here, but I'm not sure. Test it out.
+        kwargs["tools"] = [
+            ChatCompletionToolParam(
+                type=tool.type,
+                function=FunctionDefinition(name=tool.name, description=tool.description, parameters=tool.parameters),
+            )
+            for tool in response.tools
+        ]
+        kwargs["tool_choice"] = response.tool_choice
 
     return CompletionCreateParamsStreaming(
         model=model_id,
