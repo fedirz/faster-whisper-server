@@ -12,7 +12,7 @@ from openai.types.beta.realtime.error_event import Error
 from pydantic import ValidationError
 
 from speaches.realtime.pubsub import EventPubSub
-from speaches.realtime.utils import generate_event_id
+from speaches.realtime.utils import generate_event_id, task_done_callback
 from speaches.types.realtime import (
     CLIENT_EVENT_TYPES,
     SERVER_EVENT_TYPES,
@@ -23,16 +23,6 @@ from speaches.types.realtime import (
 )
 
 logger = logging.getLogger(__name__)
-
-
-def task_done_callback(task: asyncio.Task, *, context: Context | None = None) -> None:  # noqa: ARG001
-    try:
-        task.result()
-        logger.info(f"Task {task.get_name()} completed successfully")
-    except BaseException:
-        logger.exception(f"Task {task.get_name()} failed")
-    finally:
-        logger.info(f"Task {task.get_name()} finished")
 
 
 class BaseMessageManager(abc.ABC):
@@ -110,10 +100,8 @@ class WsClientMessageManager(BaseMessageManager):
                 except fastapi.WebSocketDisconnect:
                     logger.info("Failed to send message due to disconnect")
                     break
-        except BaseException:
-            logger.exception("Sender task failed")
+        finally:
             self.event_pubsub.subscribers.remove(q)
-            raise
 
 
 class WsServerMessageManager(BaseMessageManager):
@@ -159,7 +147,5 @@ class WsServerMessageManager(BaseMessageManager):
                 except fastapi.WebSocketDisconnect:
                     logger.info("Failed to send message due to disconnect")
                     break
-        except BaseException:
-            logger.exception("Sender task failed")
+        finally:
             self.event_pubsub.subscribers.remove(q)
-            raise
