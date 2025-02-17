@@ -41,6 +41,10 @@ def setup_logger(log_level: str) -> None:
                 "level": "INFO",
                 "handlers": ["stdout"],
             },
+            "aiortc.rtcrtpreceiver": {
+                "level": "INFO",
+                "handlers": ["stdout"],
+            },
             "numba.core": {
                 "level": "INFO",
                 "handlers": ["stdout"],
