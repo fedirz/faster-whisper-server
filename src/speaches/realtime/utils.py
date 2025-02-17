@@ -15,6 +15,10 @@ def generate_event_id() -> str:
     return "event_" + generate_id_suffix()
 
 
+def generate_conversation_id() -> str:
+    return "conv_" + generate_id_suffix()
+
+
 def generate_item_id() -> str:
     return "item_" + generate_id_suffix()
 

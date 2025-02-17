@@ -1,14 +1,16 @@
 from collections import OrderedDict
+from typing import TYPE_CHECKING
 
-from openai.resources.audio import AsyncSpeech, AsyncTranscriptions
+from openai.resources.audio import AsyncTranscriptions
 from openai.resources.chat.completions import AsyncCompletions
 
+from speaches.realtime.conversation_event_router import Conversation
 from speaches.realtime.input_audio_buffer import InputAudioBuffer
 from speaches.realtime.pubsub import EventPubSub
-from speaches.realtime.utils import (
-    generate_session_id,
-)
-from speaches.types.realtime import ConversationItem, RealtimeResponse, Session
+from speaches.types.realtime import Session
+
+if TYPE_CHECKING:
+    from speaches.realtime.response_event_router import ResponseHandler
 
 
 class SessionContext:
@@ -16,21 +18,16 @@ class SessionContext:
         self,
         transcription_client: AsyncTranscriptions,
         completion_client: AsyncCompletions,
-        speech_client: AsyncSpeech,
-        configuration: Session,
+        session: Session,
     ) -> None:
         self.transcription_client = transcription_client
-        self.speech_client = speech_client
         self.completion_client = completion_client
 
-        self.session_id = generate_session_id()
-        self.configuration = configuration
+        self.session = session
 
-        self.conversation = OrderedDict[
-            str, ConversationItem
-        ]()  # TODO: should probaly be implemented as a linked list like structure
-        self.responses = OrderedDict[str, RealtimeResponse]()
         self.pubsub = EventPubSub()
+        self.conversation = Conversation(self.pubsub)
+        self.response: ResponseHandler | None = None
 
-        input_audio_buffer = InputAudioBuffer()
+        input_audio_buffer = InputAudioBuffer(self.pubsub)
         self.input_audio_buffers = OrderedDict[str, InputAudioBuffer]({input_audio_buffer.id: input_audio_buffer})

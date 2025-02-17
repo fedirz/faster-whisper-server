@@ -1,9 +1,15 @@
-import asyncio
-from collections.abc import Callable
-import logging
+from __future__ import annotations
 
-from speaches.realtime.context import SessionContext
+import asyncio
+import logging
+from typing import TYPE_CHECKING
+
 from speaches.types.realtime import CLIENT_EVENT_TYPES, Event
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from speaches.realtime.context import SessionContext
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +44,7 @@ class EventRouter:
         else:
             handler(ctx, event)
 
-    def include_router(self, other_router: "EventRouter") -> None:
+    def include_router(self, other_router: EventRouter) -> None:
         for event_type, handler in other_router.event_handlers.items():
             if event_type in self.event_handlers:
                 raise ValueError(f"Conflict: An event handler for '{event_type}' is already registered.")

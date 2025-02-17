@@ -1,6 +1,5 @@
 import abc
 import asyncio
-from contextvars import Context
 import json
 import logging
 from pathlib import Path
@@ -12,7 +11,7 @@ from openai.types.beta.realtime.error_event import Error
 from pydantic import ValidationError
 
 from speaches.realtime.pubsub import EventPubSub
-from speaches.realtime.utils import generate_event_id, task_done_callback
+from speaches.realtime.utils import task_done_callback
 from speaches.types.realtime import (
     CLIENT_EVENT_TYPES,
     SERVER_EVENT_TYPES,
@@ -120,8 +119,6 @@ class WsServerMessageManager(BaseMessageManager):
                 logger.exception("Received an invalid client event")
                 await ws.send_text(
                     ErrorEvent(
-                        type="error",
-                        event_id=generate_event_id(),
                         error=Error(type="invalid_request_error", message=""),  # TODO: populate `message`
                     ).model_dump_json()
                 )

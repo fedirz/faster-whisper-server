@@ -12,12 +12,13 @@ from openai.types.beta.realtime.error_event import Error
 from speaches.audio import audio_samples_from_file
 from speaches.realtime.context import SessionContext
 from speaches.realtime.event_router import EventRouter
-from speaches.realtime.input_audio_buffer import MAX_VAD_WINDOW_SIZE_SAMPLES, MS_SAMPLE_RATE, InputAudioBuffer
-from speaches.realtime.utils import generate_event_id
+from speaches.realtime.input_audio_buffer import (
+    MAX_VAD_WINDOW_SIZE_SAMPLES,
+    MS_SAMPLE_RATE,
+    InputAudioBuffer,
+    InputAudioBufferTranscriber,
+)
 from speaches.types.realtime import (
-    ConversationItem,
-    ConversationItemContent,
-    ConversationItemCreatedEvent,
     ErrorEvent,
     InputAudioBufferAppendEvent,
     InputAudioBufferClearedEvent,
@@ -85,8 +86,6 @@ def vad_detection_flow(
             input_audio_buffer.duration_ms - len(audio_window) // MS_SAMPLE_RATE + speech_timestamp["start"]
         )
         return InputAudioBufferSpeechStartedEvent(
-            type="input_audio_buffer.speech_started",
-            event_id=generate_event_id(),
             item_id=input_audio_buffer.id,
             audio_start_ms=input_audio_buffer.vad_state.audio_start_ms,
         )
@@ -98,8 +97,6 @@ def vad_detection_flow(
                 input_audio_buffer.duration_ms - turn_detection.prefix_padding_ms
             )
             return InputAudioBufferSpeechStoppedEvent(
-                type="input_audio_buffer.speech_stopped",
-                event_id=generate_event_id(),
                 item_id=input_audio_buffer.id,
                 audio_end_ms=input_audio_buffer.vad_state.audio_end_ms,
             )
@@ -110,8 +107,6 @@ def vad_detection_flow(
             )
 
             return InputAudioBufferSpeechStoppedEvent(
-                type="input_audio_buffer.speech_stopped",
-                event_id=generate_event_id(),
                 item_id=input_audio_buffer.id,
                 audio_end_ms=input_audio_buffer.vad_state.audio_end_ms,
             )
@@ -130,8 +125,8 @@ def handle_input_audio_buffer_append(ctx: SessionContext, event: InputAudioBuffe
     input_audio_buffer_id = next(reversed(ctx.input_audio_buffers))
     input_audio_buffer = ctx.input_audio_buffers[input_audio_buffer_id]
     input_audio_buffer.append(audio_chunk)
-    if ctx.configuration.turn_detection is not None:
-        vad_event = vad_detection_flow(input_audio_buffer, ctx.configuration.turn_detection)
+    if ctx.session.turn_detection is not None:
+        vad_event = vad_detection_flow(input_audio_buffer, ctx.session.turn_detection)
         if vad_event is not None:
             ctx.pubsub.publish_nowait(vad_event)
 
@@ -141,19 +136,15 @@ def handle_input_audio_buffer_commit(ctx: SessionContext, _event: InputAudioBuff
     input_audio_buffer_id = next(reversed(ctx.input_audio_buffers))
     input_audio_buffer = ctx.input_audio_buffers[input_audio_buffer_id]
     if input_audio_buffer.size == 0:
-        ctx.pubsub.publish_nowait(
-            ErrorEvent(type="error", event_id=generate_event_id(), error=empty_input_audio_buffer_commit_error)
-        )
+        ctx.pubsub.publish_nowait(ErrorEvent(error=empty_input_audio_buffer_commit_error))
     else:
         ctx.pubsub.publish_nowait(
             InputAudioBufferCommittedEvent(
-                type="input_audio_buffer.committed",
-                event_id=generate_event_id(),
-                previous_item_id=next(reversed(ctx.conversation), None),  # pyright: ignore[reportArgumentType]
+                previous_item_id=next(reversed(ctx.conversation.items), None),  # FIXME
                 item_id=input_audio_buffer_id,
             )
         )
-        input_audio_buffer = InputAudioBuffer()
+        input_audio_buffer = InputAudioBuffer(ctx.pubsub)
         ctx.input_audio_buffers[input_audio_buffer.id] = input_audio_buffer
 
 
@@ -161,13 +152,8 @@ def handle_input_audio_buffer_commit(ctx: SessionContext, _event: InputAudioBuff
 def handle_input_audio_buffer_clear(ctx: SessionContext, _event: InputAudioBufferClearEvent) -> None:
     ctx.input_audio_buffers.popitem()
     # OpenAI's doesn't send an error if the buffer is already empty.
-    ctx.pubsub.publish_nowait(
-        InputAudioBufferClearedEvent(
-            type="input_audio_buffer.cleared",
-            event_id=generate_event_id(),
-        )
-    )
-    input_audio_buffer = InputAudioBuffer()
+    ctx.pubsub.publish_nowait(InputAudioBufferClearedEvent())
+    input_audio_buffer = InputAudioBuffer(ctx.pubsub)
     ctx.input_audio_buffers[input_audio_buffer.id] = input_audio_buffer
 
 
@@ -176,43 +162,27 @@ def handle_input_audio_buffer_clear(ctx: SessionContext, _event: InputAudioBuffe
 
 @event_router.register("input_audio_buffer.speech_stopped")
 def handle_input_audio_buffer_speech_stopped(ctx: SessionContext, event: InputAudioBufferSpeechStoppedEvent) -> None:
-    input_audio_buffer = InputAudioBuffer()
+    input_audio_buffer = InputAudioBuffer(ctx.pubsub)
     ctx.input_audio_buffers[input_audio_buffer.id] = input_audio_buffer
-    previous_item_id = next(reversed(ctx.conversation), None)
-    previous_item_id = (
-        previous_item_id if previous_item_id is not None else "IDK"
-    )  # HACK: to avoid `ValidationError`. For some reason `previous_item_id` is required
     ctx.pubsub.publish_nowait(
         InputAudioBufferCommittedEvent(
-            type="input_audio_buffer.committed",
-            event_id=generate_event_id(),
-            previous_item_id=previous_item_id,
+            previous_item_id=next(reversed(ctx.conversation.items), None),  # FIXME
             item_id=event.item_id,
         )
     )
 
 
 @event_router.register("input_audio_buffer.committed")
-def handle_input_audio_buffer_committed(ctx: SessionContext, event: InputAudioBufferCommittedEvent) -> None:
-    item = ConversationItem(
-        id=event.item_id,
-        object="realtime.item",
-        status="completed",
-        role="user",
-        content=[
-            ConversationItemContent(transcript=None, type="input_audio"),
-        ],
-        type="message",
+async def handle_input_audio_buffer_committed(ctx: SessionContext, event: InputAudioBufferCommittedEvent) -> None:
+    input_audio_buffer = ctx.input_audio_buffers[event.item_id]
+
+    transcriber = InputAudioBufferTranscriber(
+        pubsub=ctx.pubsub,
+        transcription_client=ctx.transcription_client,
+        input_audio_buffer=input_audio_buffer,
+        session=ctx.session,
+        conversation=ctx.conversation,
     )
-    assert item.id is not None
-    ctx.conversation[item.id] = item
-    ctx.pubsub.publish_nowait(
-        ConversationItemCreatedEvent(
-            type="conversation.item.created",
-            event_id=generate_event_id(),
-            # previous_item_id=next(reversed(ctx.conversation), None), # TODO: incorrect this needs to be second last
-            previous_item_id=None,
-            item=item,
-        )
-    )
-    logger.info("Created user audio conversation item")
+    transcriber.start()
+    assert transcriber.task is not None
+    await transcriber.task
