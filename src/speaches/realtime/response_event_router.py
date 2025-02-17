@@ -72,58 +72,6 @@ class ChoiceDeltaAudio(BaseModel):
     expires_at: int | None = None
 
 
-def handle_chat_completion_chunk(
-    chunk: ChatCompletionChunk, item_id: str, response_id: str
-) -> list[ResponseContentDeltaEvent]:
-    events: list[ResponseContentDeltaEvent] = []
-
-    assert len(chunk.choices) == 1, chunk
-    choice = chunk.choices[0]
-
-    if choice.delta.content is not None:
-        events.append(ResponseTextDeltaEvent(item_id=item_id, response_id=response_id, delta=choice.delta.content))
-
-    if choice.delta.tool_calls is not None:
-        assert len(choice.delta.tool_calls) == 1, chunk
-        tool_call = choice.delta.tool_calls[0]
-        assert tool_call.function is not None and tool_call.function.arguments is not None, chunk
-        events.append(
-            ResponseFunctionCallArgumentsDeltaEvent(
-                item_id=item_id,
-                response_id=response_id,
-                call_id=tool_call.id or "FIXME",  # TODO
-                delta=tool_call.function.arguments,
-            )
-        )
-
-    audio = getattr(choice.delta, "audio", None)
-    if audio is not None:
-        assert isinstance(audio, dict)
-        audio = ChoiceDeltaAudio(**audio)
-        if audio.transcript is not None:
-            events.append(
-                ResponseAudioTranscriptDeltaEvent(
-                    item_id=item_id,
-                    response_id=response_id,
-                    delta=audio.transcript,
-                )
-            )
-        if audio.data is not None:
-            events.append(
-                ResponseAudioDeltaEvent(
-                    item_id=item_id,
-                    response_id=response_id,
-                    delta=audio.data,
-                )
-            )
-    if len(events) == 0:
-        logger.error(f"Could not extract any delta events from chunk: {chunk}")
-    elif len(events) > 1:
-        logger.error(f"Extracted multiple delta events from chunk: {chunk}")
-
-    return events
-
-
 class ResponseHandler:
     def __init__(
         self,
