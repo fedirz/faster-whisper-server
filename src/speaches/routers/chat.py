@@ -211,7 +211,7 @@ class AudioChatStream:
 async def handle_completions(  # noqa: C901
     config: ConfigDependency,
     chat_completion_client: CompletionClientDependency,
-    transcript_client: TranscriptionClientDependency,
+    transcription_client: TranscriptionClientDependency,
     speech_client: SpeechClientDependency,
     body: Annotated[CompletionCreateParamsBase, Body()],
 ) -> Response | StreamingResponse:
@@ -230,7 +230,7 @@ async def handle_completions(  # noqa: C901
                 if content_part.type == "input_audio":
                     audio_bytes = base64.b64decode(content_part.input_audio.data)
                     # TODO: how does the endpoint know the format lol?
-                    transcript = await transcript_client.create(
+                    transcript = await transcription_client.create(
                         file=BytesIO(audio_bytes),
                         model=body.trancription_model,
                         response_format="text",
