@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated, Any, Literal
 
 from openai.types.beta.realtime import (
@@ -67,6 +68,8 @@ from pydantic.type_adapter import TypeAdapter
 
 from speaches.realtime.utils import generate_event_id, generate_item_id
 
+logger = logging.getLogger(__name__)
+
 
 class PartText(BaseModel):
     type: Literal["text"] = "text"
@@ -129,6 +132,15 @@ class BaseConversationItem(BaseModel):
     object: Literal["realtime.item"] = "realtime.item"
     status: Literal["incomplete", "completed"]
 
+    # https://docs.pydantic.dev/latest/concepts/validators/#model-validators
+    @model_validator(mode="before")
+    @classmethod
+    # HACK: this is a workaround for `ConversationItemCreateEvent` as clients would rarely provide the status field causing a `ValidationError` to be raised. A `model_validator` is used instead of providing a default value because I want to bet getting typing errors from pyright if the field is not provided within the server code.
+    def add_default_status_value(cls, data: Any) -> Any:  # noqa: ANN401
+        if isinstance(data, dict) and "status" not in data:
+            logger.warning(f"ConversationItem: {data} is missing 'status' field. Defaulting to 'completed'.")
+            data["status"] = "completed"
+        return data
 
 
 class ConversationItemMessage(BaseConversationItem):
@@ -158,7 +170,7 @@ type ConversationItem = ConversationItemMessage | ConversationItemFunctionCall |
 class ConversationItemCreateEvent(BaseModel):
     type: Literal["conversation.item.create"] = "conversation.item.create"
     event_id: str = Field(default_factory=generate_event_id)
-    previous_item_id: str | None
+    previous_item_id: str | None = None
     item: ConversationItem
 
 
