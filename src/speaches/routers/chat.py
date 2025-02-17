@@ -141,7 +141,9 @@ class AudioChatStream:
 
     async def text_chat_completion_chunk_stream(self) -> AsyncGenerator[ChatCompletionChunk]:
         async for chunk in self.chat_completion_chunk_stream:
-            assert len(chunk.choices) == 1
+            if len(chunk.choices) == 0:
+                logger.warning(f"Received a chunk with no choices: {chunk}")
+                continue
             self.chat_completion_id = chunk.id
             self.created = chunk.created
             choice = chunk.choices[0]

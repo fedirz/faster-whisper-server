@@ -5,11 +5,10 @@ from fastapi import (
     APIRouter,
     WebSocket,
 )
-from openai.types.beta.realtime.session_created_event import SessionCreatedEvent
+from openai import AsyncOpenAI
 
 from speaches.dependencies import (
-    CompletionClientDependency,
-    SpeechClientDependency,
+    ConfigDependency,
     TranscriptionClientDependency,
 )
 from speaches.realtime.context import SessionContext
@@ -20,12 +19,10 @@ from speaches.realtime.input_audio_buffer_event_router import (
 )
 from speaches.realtime.message_manager import WsServerMessageManager
 from speaches.realtime.response_event_router import event_router as response_event_router
-from speaches.realtime.session import OPENAI_REALTIME_SESSION_DURATION_SECONDS, create_session_configuration
+from speaches.realtime.session import OPENAI_REALTIME_SESSION_DURATION_SECONDS, create_session_object_configuration
 from speaches.realtime.session_event_router import event_router as session_event_router
-from speaches.realtime.utils import generate_event_id, task_done_callback
-from speaches.types.realtime import (
-    Session,
-)
+from speaches.realtime.utils import task_done_callback
+from speaches.types.realtime import SessionCreatedEvent
 
 logger = logging.getLogger(__name__)
 
@@ -57,17 +54,19 @@ async def event_listener(ctx: SessionContext) -> None:
 async def realtime(
     ws: WebSocket,
     model: str,
+    config: ConfigDependency,
     transcription_client: TranscriptionClientDependency,
-    completion_client: CompletionClientDependency,
-    speech_client: SpeechClientDependency,
 ) -> None:
     await ws.accept()
     logger.info("Accepted websocket connection")
+
+    completion_client = AsyncOpenAI(
+        base_url=f"http://{config.host}:{config.port}/v1", api_key=config.api_key
+    ).chat.completions
     ctx = SessionContext(
         transcription_client=transcription_client,
-        speech_client=speech_client,
         completion_client=completion_client,
-        configuration=create_session_configuration(model),
+        session=create_session_object_configuration(model),
     )
     message_manager = WsServerMessageManager(ctx.pubsub)
     async with asyncio.TaskGroup() as tg:
@@ -76,14 +75,8 @@ async def realtime(
             mm_task = asyncio.create_task(message_manager.run(ws))
             # HACK: a tiny delay to ensure the message_manager.run() task is started. Otherwise, the `SessionCreatedEvent` will not be sent, as it's published before the `sender` task subscribes to the pubsub.
             await asyncio.sleep(0.001)
-            ctx.pubsub.publish_nowait(
-                SessionCreatedEvent(
-                    type="session.created",
-                    event_id=generate_event_id(),
-                    session=Session(id=ctx.session_id, **ctx.configuration.model_dump(exclude={"id"})),
-                )
-            )
+            ctx.pubsub.publish_nowait(SessionCreatedEvent(session=ctx.session))
             await mm_task
         event_listener_task.cancel()
 
-    logger.info(f"Finished handling '{ctx.session_id}' session")
+    logger.info(f"Finished handling '{ctx.session.id}' session")
