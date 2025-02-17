@@ -115,12 +115,10 @@ class WsServerMessageManager(BaseMessageManager):
                 break
             try:
                 event = client_event_type_adapter.validate_json(data)
-            except ValidationError:
+            except ValidationError as e:
                 logger.exception("Received an invalid client event")
                 await ws.send_text(
-                    ErrorEvent(
-                        error=Error(type="invalid_request_error", message=""),  # TODO: populate `message`
-                    ).model_dump_json()
+                    ErrorEvent(error=Error(type="invalid_request_error", message=str(e))).model_dump_json()
                 )
                 continue
 
