@@ -86,7 +86,6 @@ ignore = [
     "TD", # disable todo warnings
     "ERA",  # allow commented out code
     "ANN003", # missing kwargs
-    "ANN101", # missing self type
     "B006",
     "B008",
     "COM812", # trailing comma
