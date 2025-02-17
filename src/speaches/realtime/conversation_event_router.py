@@ -2,6 +2,7 @@ from io import BytesIO
 import logging
 
 from openai.types.beta.realtime.error_event import Error
+import soundfile as sf
 
 from speaches.realtime.context import SessionContext
 from speaches.realtime.event_router import EventRouter
@@ -36,13 +37,16 @@ async def transcription_flow(
 ) -> None:
     assert ctx.configuration.input_audio_transcription is not None  # HACK
     assert ctx.configuration.input_audio_transcription.model is not None
+    input_audio_buffer = last_committed_audio_buffer(ctx)
     file = BytesIO()
-    transcription = await ctx.transcription_client.create(
-        file=file,
-        model=ctx.configuration.input_audio_transcription.model,
+    sf.write(
+        file, input_audio_buffer.data_w_vad_applied, samplerate=16000, subtype="PCM_16", endian="LITTLE", format="wav"
+    )
+    transcript = await ctx.transcription_client.create(
+        file=file, model=ctx.configuration.input_audio_transcription.model, response_format="text"
     )
     assert item.content[0].type == "input_audio"  # HACK?
-    item.content[0].transcript = transcription.text
+    item.content[0].transcript = transcript
     ctx.conversation[item.id] = item
     ctx.pubsub.publish_nowait(
         ConversationItemInputAudioTranscriptionCompletedEvent(
@@ -50,7 +54,7 @@ async def transcription_flow(
             event_id=generate_event_id(),
             content_index=0,
             item_id=item.id,
-            transcript=transcription.text,
+            transcript=transcript,
         )
     )
 

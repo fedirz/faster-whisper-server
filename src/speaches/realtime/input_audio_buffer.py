@@ -41,3 +41,14 @@ class InputAudioBuffer:
     def append(self, audio_chunk: NDArray[np.float32]) -> None:
         """Append an audio chunk to the buffer."""
         self.data = np.append(self.data, audio_chunk)
+
+    # TODO: come up with a better name
+    @property
+    def data_w_vad_applied(self) -> NDArray[np.float32]:
+        if self.vad_state.audio_start_ms is None:
+            return self.data
+        else:
+            assert self.vad_state.audio_end_ms is not None
+            return self.data[
+                self.vad_state.audio_start_ms * MS_SAMPLE_RATE : self.vad_state.audio_end_ms * MS_SAMPLE_RATE
+            ]
