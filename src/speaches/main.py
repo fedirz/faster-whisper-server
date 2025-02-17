@@ -19,6 +19,9 @@ from speaches.routers.misc import (
 from speaches.routers.models import (
     router as models_router,
 )
+from speaches.routers.realtime.rtc import (
+    router as realtime_rtc_router,
+)
 from speaches.routers.realtime.ws import (
     router as realtime_ws_router,
 )
@@ -66,6 +69,7 @@ def create_app() -> FastAPI:
     app.include_router(stt_router)
     app.include_router(models_router)
     app.include_router(misc_router)
+    app.include_router(realtime_rtc_router)
     app.include_router(realtime_ws_router)
     app.include_router(speech_router)
     app.include_router(vad_router)
