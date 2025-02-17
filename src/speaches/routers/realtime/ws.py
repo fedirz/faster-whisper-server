@@ -22,7 +22,7 @@ from speaches.realtime.message_manager import WsServerMessageManager
 from speaches.realtime.response_event_router import event_router as response_event_router
 from speaches.realtime.session import OPENAI_REALTIME_SESSION_DURATION_SECONDS, create_session_configuration
 from speaches.realtime.session_event_router import event_router as session_event_router
-from speaches.realtime.utils import generate_event_id
+from speaches.realtime.utils import generate_event_id, task_done_callback
 from speaches.types.realtime import (
     Session,
 )
@@ -43,14 +43,6 @@ async def event_listener(ctx: SessionContext) -> None:
         async with asyncio.TaskGroup() as tg:
             async for event in ctx.pubsub.poll():
                 # logger.debug(f"Received event: {event.type}")
-
-                def task_done_callback(task: asyncio.Task[None]) -> None:
-                    try:
-                        task.result()
-                    except asyncio.CancelledError:
-                        logger.info(f"Task {task.get_name()} cancelled")
-                    except Exception:
-                        logger.exception("Task failed")
 
                 task = tg.create_task(event_router.dispatch(ctx, event))
                 task.add_done_callback(task_done_callback)
