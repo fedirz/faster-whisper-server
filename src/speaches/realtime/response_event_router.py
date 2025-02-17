@@ -101,6 +101,8 @@ class ResponseHandler:
         self.response.output.append(item)
         self.pubsub.publish_nowait(ResponseOutputItemAddedEvent(response_id=self.id, item=item))
         yield item
+        assert item.status != "incomplete", item
+        item.status = "completed"
         self.pubsub.publish_nowait(ResponseOutputItemDoneEvent(response_id=self.id, item=item))
         self.pubsub.publish_nowait(ResponseDoneEvent(response=self.response))
 
@@ -118,7 +120,7 @@ class ResponseHandler:
         )
 
     async def conversation_item_message_text_handler(self, chunk_stream: aiostream.Stream[ChatCompletionChunk]) -> None:
-        with self.add_output_item(ConversationItemMessage(role="assistant", content=[])) as item:
+        with self.add_output_item(ConversationItemMessage(role="assistant", status="incomplete", content=[])) as item:
             self.conversation.create_item(item)
 
             with self.add_item_content(item, ConversationItemContentText(text="")) as content:
@@ -139,7 +141,7 @@ class ResponseHandler:
     async def conversation_item_message_audio_handler(
         self, chunk_stream: aiostream.Stream[ChatCompletionChunk]
     ) -> None:
-        with self.add_output_item(ConversationItemMessage(role="assistant", content=[])) as item:
+        with self.add_output_item(ConversationItemMessage(role="assistant", status="incomplete", content=[])) as item:
             self.conversation.create_item(item)
 
             with self.add_item_content(item, ConversationItemContentAudio(audio="", transcript="")) as content:
@@ -190,7 +192,10 @@ class ResponseHandler:
             and tool_call.function.arguments is not None
         ), chunk
         item = ConversationItemFunctionCall(
-            call_id=tool_call.id, name=tool_call.function.name, arguments=tool_call.function.arguments
+            status="incomplete",
+            call_id=tool_call.id,
+            name=tool_call.function.name,
+            arguments=tool_call.function.arguments,
         )
         assert item.call_id is not None and item.arguments is not None and item.name is not None, item
 
@@ -225,7 +230,7 @@ class ResponseHandler:
         try:
             completion_params = create_completion_params(
                 self.model,
-                list(items_to_chat_messages(self.conversation.items)),
+                list(items_to_chat_messages(self.configuration.input)),
                 self.configuration,
             )
             chunk_stream = await self.completion_client.create(**completion_params)
