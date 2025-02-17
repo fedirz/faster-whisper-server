@@ -2,7 +2,8 @@ version: "3"
 tasks:
   server:
     cmds:
-      - pkill --signal SIGKILL --echo --full 'uvicorn --factory --host 0.0.0.0 speaches.main:create_app' || true
+      - cmd: lsof -ti :8000 | xargs kill -9
+        ignore_error: true
       - uvicorn --factory --host 0.0.0.0 speaches.main:create_app {{.CLI_ARGS}}
     sources:
       - src/**/*.py
