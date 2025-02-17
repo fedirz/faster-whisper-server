@@ -74,7 +74,8 @@ async def realtime(
         event_listener_task = tg.create_task(event_listener(ctx), name="event_listener")
         async with asyncio.timeout(OPENAI_REALTIME_SESSION_DURATION_SECONDS):
             mm_task = asyncio.create_task(message_manager.run(ws))
-            await asyncio.sleep(0.1)  # HACK
+            # HACK: a tiny delay to ensure the message_manager.run() task is started. Otherwise, the `SessionCreatedEvent` will not be sent, as it's published before the `sender` task subscribes to the pubsub.
+            await asyncio.sleep(0.001)
             ctx.pubsub.publish_nowait(
                 SessionCreatedEvent(
                     type="session.created",
