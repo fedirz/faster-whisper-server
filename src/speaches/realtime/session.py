@@ -17,10 +17,11 @@ def create_session_object_configuration(model: str) -> Session:
         output_audio_format="pcm16",
         input_audio_transcription=InputAudioTranscription(model="Systran/faster-whisper-small"),
         turn_detection=TurnDetection(
+            type="server_vad",
             threshold=0.9,
             prefix_padding_ms=0,
             silence_duration_ms=550,
-            create_response=False,
+            create_response=True,
         ),
         temperature=0.8,
         tools=[],
