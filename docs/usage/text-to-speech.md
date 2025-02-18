@@ -120,4 +120,4 @@ curl http://localhost:8000/v1/audio/speech --header "Content-Type: application/j
 ## Limitations
 
 - `response_format`: `opus` and `aac` are not supported
-- Maximuam audio generation length is 10 seconds for `rhasspy/piper-voices` and 30 seconds for `hexgrad/Kokoro-82M`
+- Maximum audio generation length is 10 seconds for `rhasspy/piper-voices` and 30 seconds for `hexgrad/Kokoro-82M`

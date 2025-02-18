@@ -42,9 +42,9 @@ plugins:
 nav:
   - Introduction: index.md
   - Usage / Capabilities:
-      - Voice Chat: usage/voice-chat.md
-      - Speech-to-Text: usage/speech-to-text.md
       - Text-to-Speech: usage/text-to-speech.md
+      - Speech-to-Text: usage/speech-to-text.md
+      - Voice Chat: usage/voice-chat.md
       - Open WebUI Integration: usage/open-webui-integration.md
   - Installation: installation.md
   - Configuration: configuration.md
