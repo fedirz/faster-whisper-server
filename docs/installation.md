@@ -1,8 +1,12 @@
+!!! warning
+
+    Additional steps are required to use the text-to-speech feature. Please see the [Text-to-Speech](/docs/usage/text-to-speech.md#prerequisite).
+
 ## Docker Compose (Recommended)
 
 !!! note
 
-    I'm using newer Docker Compsose features. If you are using an older version of Docker Compose, you may need need to update.
+    I'm using newer Docker Compose features. If you are using an older version of Docker Compose, you may need need to update.
 
 Download the necessary Docker Compose files
 
