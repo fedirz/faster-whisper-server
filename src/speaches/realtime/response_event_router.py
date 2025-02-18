@@ -15,6 +15,7 @@ from speaches.realtime.chat_utils import (
     items_to_chat_messages,
 )
 from speaches.realtime.event_router import EventRouter
+from speaches.realtime.session_event_router import unsupported_field_error, update_dict
 from speaches.realtime.utils import generate_response_id, task_done_callback
 from speaches.types.realtime import (
     ConversationItemContentAudio,
@@ -261,14 +262,37 @@ class ResponseHandler:
 
 
 @event_router.register("response.create")
-async def handle_response_create_event(ctx: SessionContext, _event: ResponseCreateEvent) -> None:
+async def handle_response_create_event(ctx: SessionContext, event: ResponseCreateEvent) -> None:
     if ctx.response is not None:
         ctx.response.stop()
+
+    configuration = Response(
+        conversation="auto", input=list(ctx.conversation.items.values()), **ctx.session.model_dump()
+    )
+    if event.response is not None:
+        if event.response.conversation is not None:
+            ctx.pubsub.publish_nowait(unsupported_field_error("response.conversation"))
+        if event.response.input is not None:
+            ctx.pubsub.publish_nowait(unsupported_field_error("response.input"))
+        if event.response.output_audio_format is not None:
+            ctx.pubsub.publish_nowait(unsupported_field_error("response.output_audio_format"))
+        if event.response.metadata is not None:
+            ctx.pubsub.publish_nowait(unsupported_field_error("response.metadata"))
+
+        configuration_dict = configuration.model_dump()
+        configuration_update_dict = event.response.model_dump(
+            exclude_none=True, exclude={"conversation", "input", "output_audio_format", "metadata"}
+        )
+        logger.debug(f"Applying response configuration update: {configuration_update_dict}")
+        logger.debug(f"Response configuration before update: {configuration_dict}")
+        updated_configuration = update_dict(configuration_dict, configuration_update_dict)
+        logger.debug(f"Response configuration after update: {updated_configuration}")
+        configuration = Response(**updated_configuration)
 
     ctx.response = ResponseHandler(
         completion_client=ctx.completion_client,
         model=ctx.session.model,
-        configuration=Response(**ctx.session.model_dump()),  # FIXME
+        configuration=configuration,
         conversation=ctx.conversation,
         pubsub=ctx.pubsub,
     )
