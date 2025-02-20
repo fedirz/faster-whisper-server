@@ -102,7 +102,7 @@ class ResponseHandler:
         self.response.output.append(item)
         self.pubsub.publish_nowait(ResponseOutputItemAddedEvent(response_id=self.id, item=item))
         yield item
-        assert item.status != "incomplete", item
+        assert item.status == "incomplete", item
         item.status = "completed"
         self.pubsub.publish_nowait(ResponseOutputItemDoneEvent(response_id=self.id, item=item))
         self.pubsub.publish_nowait(ResponseDoneEvent(response=self.response))
