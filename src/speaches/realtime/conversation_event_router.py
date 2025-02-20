@@ -39,16 +39,30 @@ class Conversation:
 
     def create_item(self, item: ConversationItem, previous_item_id: str | None = None) -> None:
         if item.id in self.items:
-            logger.error(f"Item with id '{item.id}' already exists in conversation")
-            # TODO: Weirdly OpenAI's API allows creating an item with an already existing ID! Do their implementation replace the item?
-            raise NotImplementedError
+            # NOTE: Weirdly OpenAI's API allows creating an item with an already existing ID! Their implementation doesn't seem to replace the existing item. Rather, it just adds a new item with the same ID at the end. Me returning an error here deviates from their implementation.
+            self.pubsub.publish_nowait(
+                ErrorEvent(
+                    error=Error(
+                        type="invalid_request_error",
+                        message=f"Error adding item: the item with id '{item.id}' already exists.",
+                    )
+                )
+            )
+            return
 
-        if previous_item_id is not None:
-            logger.error(f"Previous item with id '{previous_item_id}' not found in conversation")
-            # TODO: figure out what OpenAI does when the previous item doesn't exist
-            raise NotImplementedError
+        if previous_item_id is not None and previous_item_id not in self.items:
+            self.pubsub.publish_nowait(
+                ErrorEvent(
+                    error=Error(
+                        type="invalid_request_error",
+                        message=f"Error adding item: the previous item with id '{previous_item_id}' does not exist.",
+                    )
+                )
+            )
+            return
+        else:
+            previous_item_id = next(reversed(self.items), None)
 
-        previous_item_id = next(reversed(self.items), None)
         self.items[item.id] = item
         self.pubsub.publish_nowait(ConversationItemCreatedEvent(previous_item_id=previous_item_id, item=item))
 
@@ -72,7 +86,6 @@ class Conversation:
 @event_router.register("conversation.item.create")
 def handle_conversation_item_create_event(ctx: SessionContext, event: ConversationItemCreateEvent) -> None:
     # TODO: What should happen if this get's called when a response is being generated?
-    # TODO: Test what happens when `previous_item_id` is passed in but isn't the last item.
     ctx.conversation.create_item(event.item)
 
 
