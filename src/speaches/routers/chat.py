@@ -25,7 +25,6 @@ from pydantic import Field, model_validator
 
 from speaches.dependencies import (
     CompletionClientDependency,
-    ConfigDependency,
     SpeechClientDependency,
     TranscriptionClientDependency,
 )
@@ -212,7 +211,6 @@ class AudioChatStream:
 # https://platform.openai.com/docs/api-reference/chat/create
 @router.post("/v1/chat/completions", response_model=ChatCompletion | ChatCompletionChunk)
 async def handle_completions(  # noqa: C901
-    config: ConfigDependency,
     chat_completion_client: CompletionClientDependency,
     transcription_client: TranscriptionClientDependency,
     speech_client: SpeechClientDependency,
@@ -257,9 +255,6 @@ async def handle_completions(  # noqa: C901
     proxied_body = body.model_copy(deep=True)
     proxied_body.modalities = ["text"]
     proxied_body.audio = None
-    proxied_body.model = (
-        config.chat_completion_model if config.chat_completion_model is not None else body.model
-    )  # HACK: this is different from the one chat completion api sends
     # NOTE: Adding --use-one-literal-as-default breaks the `exclude_defaults=True` behavior
     try:
         chat_completion = await chat_completion_client.create(**proxied_body.model_dump(exclude_defaults=True))
