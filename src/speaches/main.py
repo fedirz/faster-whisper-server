@@ -40,6 +40,7 @@ from speaches.routers.vad import (
 TAGS_METADATA = [
     {"name": "automatic-speech-recognition"},
     {"name": "speech-to-text"},
+    {"name": "realtime"},
     {"name": "models"},
     {"name": "diagnostic"},
     {
