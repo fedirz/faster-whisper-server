@@ -19,7 +19,6 @@ from speaches.realtime.input_audio_buffer import (
     InputAudioBufferTranscriber,
 )
 from speaches.types.realtime import (
-    ErrorEvent,
     InputAudioBufferAppendEvent,
     InputAudioBufferClearedEvent,
     InputAudioBufferClearEvent,
@@ -28,7 +27,10 @@ from speaches.types.realtime import (
     InputAudioBufferSpeechStartedEvent,
     InputAudioBufferSpeechStoppedEvent,
     TurnDetection,
+    create_invalid_request_error,
 )
+
+MIN_AUDIO_BUFFER_DURATION_MS = 100  # based on the OpenAI's API response
 
 logger = logging.getLogger(__name__)
 
@@ -135,8 +137,12 @@ def handle_input_audio_buffer_append(ctx: SessionContext, event: InputAudioBuffe
 def handle_input_audio_buffer_commit(ctx: SessionContext, _event: InputAudioBufferCommitEvent) -> None:
     input_audio_buffer_id = next(reversed(ctx.input_audio_buffers))
     input_audio_buffer = ctx.input_audio_buffers[input_audio_buffer_id]
-    if input_audio_buffer.size == 0:
-        ctx.pubsub.publish_nowait(ErrorEvent(error=empty_input_audio_buffer_commit_error))
+    if input_audio_buffer.duration_ms < MIN_AUDIO_BUFFER_DURATION_MS:
+        ctx.pubsub.publish_nowait(
+            create_invalid_request_error(
+                message=f"Error committing input audio buffer: buffer too small. Expected at least {MIN_AUDIO_BUFFER_DURATION_MS}ms of audio, but buffer only has {input_audio_buffer.duration_ms}.00ms of audio."
+            )
+        )
     else:
         ctx.pubsub.publish_nowait(
             InputAudioBufferCommittedEvent(
