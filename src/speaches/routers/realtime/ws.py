@@ -26,7 +26,7 @@ from speaches.types.realtime import SessionCreatedEvent
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
+router = APIRouter(tags=["realtime"])
 
 event_router = EventRouter()
 event_router.include_router(conversation_event_router)
