@@ -4,6 +4,7 @@ import json
 import logging
 from pathlib import Path
 import time
+from typing import Annotated
 
 from aiortc import RTCDataChannel, RTCPeerConnection, RTCSessionDescription
 from aiortc.rtcrtpreceiver import RemoteStreamTrack
@@ -12,6 +13,7 @@ from av.audio.frame import AudioFrame
 from av.audio.resampler import AudioResampler
 from fastapi import (
     APIRouter,
+    Query,
     Request,
     Response,
 )
@@ -177,6 +179,7 @@ def track_handler(ctx: SessionContext, track: RemoteStreamTrack) -> None:
 @router.post("/v1/realtime")
 async def realtime_webrtc(
     request: Request,
+    model: Annotated[str, Query(...)],
     config: ConfigDependency,
     transcription_client: TranscriptionClientDependency,
 ) -> Response:
@@ -187,7 +190,7 @@ async def realtime_webrtc(
     ctx = SessionContext(
         transcription_client=transcription_client,
         completion_client=completion_client,
-        session=create_session_object_configuration("gpt-4o-mini"),  # FIXME
+        session=create_session_object_configuration(model),
     )
 
     # TODO: handle both application/sdp and application/json
