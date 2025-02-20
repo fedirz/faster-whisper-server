@@ -7,14 +7,12 @@ from aiortc import MediaStreamTrack
 from av.audio.frame import AudioFrame
 import numpy as np
 from openai.types.beta.realtime import ResponseAudioDeltaEvent
-from opentelemetry import trace
 
 from speaches.audio import audio_samples_from_file
 from speaches.realtime.context import SessionContext
 from speaches.realtime.input_audio_buffer_event_router import resample_audio_data
 
 logger = logging.getLogger(__name__)
-tracer = trace.get_tracer(__name__)
 
 
 class AudioStreamTrack(MediaStreamTrack):
