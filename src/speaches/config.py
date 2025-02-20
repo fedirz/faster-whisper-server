@@ -1,11 +1,11 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 SAMPLES_PER_SECOND = 16000
-BYTES_PER_SAMPLE = 2
-BYTES_PER_SECOND = SAMPLES_PER_SECOND * BYTES_PER_SAMPLE
+SAMPLE_WIDTH = 2
+BYTES_PER_SECOND = SAMPLES_PER_SECOND * SAMPLE_WIDTH
 # 2 BYTES = 16 BITS = 1 SAMPLE
 # 1 SECOND OF AUDIO = 32000 BYTES = 16000 SAMPLES
 
@@ -49,7 +49,7 @@ class Config(BaseSettings):
 
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
-    api_key: str | None = None
+    api_key: SecretStr | None = None
     """
     If set, the API key will be required for all requests.
     """
@@ -82,14 +82,14 @@ class Config(BaseSettings):
 
     # TODO: document the below configuration options
     chat_completion_base_url: str = "https://api.openai.com/v1"
-    chat_completion_api_key: str | None = None
+    chat_completion_api_key: SecretStr | None = None
     chat_completion_model: str | None = None
 
     speech_base_url: str | None = None
-    speech_api_key: str | None = None
+    speech_api_key: SecretStr | None = None
     speech_model: str = "hexgrad/Kokoro-82M"
     speech_extra_body: dict = {"sample_rate": 24000}  # TODO: should this be set by default?
 
     # TODO: mention that used by both Realtime API and audio chat
     transcription_base_url: str | None = None
-    transcription_api_key: str | None = None
+    transcription_api_key: SecretStr | None = None
