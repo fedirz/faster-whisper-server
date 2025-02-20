@@ -26,9 +26,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-client = [
-    "keyboard>=0.13.5",
-]
 dev = [
     "anyio>=4.4.0",
     "basedpyright>=1.26.0",
