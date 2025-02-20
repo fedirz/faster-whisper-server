@@ -109,8 +109,7 @@ AudioFileDependency = Annotated[NDArray[float32], Depends(audio_file_dependency)
 def get_completion_client() -> AsyncCompletions:
     config = get_config()
     oai_client = AsyncOpenAI(
-        base_url=config.chat_completion_base_url,
-        api_key=config.chat_completion_api_key.get_secret_value() if config.chat_completion_api_key else None,
+        base_url=config.chat_completion_base_url, api_key=config.chat_completion_api_key.get_secret_value()
     )
     return oai_client.chat.completions
 
@@ -120,25 +119,18 @@ CompletionClientDependency = Annotated[AsyncCompletions, Depends(get_completion_
 
 @lru_cache
 def get_speech_client() -> AsyncSpeech:
-    config = get_config()
-    if config.speech_base_url is None:
-        # this might not work as expected if `speech_router` won't have shared state (access to the same `model_manager`) with the main FastAPI `app`. TODO: verify
-        from speaches.routers.speech import (
-            router as speech_router,
-        )
+    # this might not work as expected if `speech_router` won't have shared state (access to the same `model_manager`) with the main FastAPI `app`. TODO: verify
+    from speaches.routers.speech import (
+        router as speech_router,
+    )
 
-        http_client = AsyncClient(
-            transport=ASGITransport(speech_router), base_url="http://test/v1"
-        )  # NOTE: "test" can be replaced with any other value
-        oai_client = AsyncOpenAI(
-            http_client=http_client,
-            api_key=config.speech_api_key.get_secret_value() if config.speech_api_key else None,
-        )
-    else:
-        oai_client = AsyncOpenAI(
-            base_url=config.speech_base_url,
-            api_key=config.speech_api_key.get_secret_value() if config.speech_api_key else None,
-        )
+    config = get_config()
+    http_client = AsyncClient(
+        transport=ASGITransport(speech_router), base_url="http://test/v1"
+    )  # NOTE: "test" can be replaced with any other value
+    oai_client = AsyncOpenAI(
+        http_client=http_client, api_key=config.api_key.get_secret_value() if config.api_key else "cant-be-empty"
+    )
     return oai_client.audio.speech
 
 
@@ -147,26 +139,18 @@ SpeechClientDependency = Annotated[AsyncSpeech, Depends(get_speech_client)]
 
 @lru_cache
 def get_transcription_client() -> AsyncTranscriptions:
+    # this might not work as expected if `stt_router` won't have shared state (access to the same `model_manager`) with the main FastAPI `app`. TODO: verify
+    from speaches.routers.stt import (
+        router as stt_router,
+    )
+
     config = get_config()
-    if config.transcription_base_url is None:
-        # this might not work as expected if `transcription_router` won't have shared state (access to the same `model_manager`) with the main FastAPI `app`. TODO: verify
-        from speaches.routers.stt import (
-            router as stt_router,
-        )
-
-        http_client = AsyncClient(
-            transport=ASGITransport(stt_router), base_url="http://test/v1"
-        )  # NOTE: "test" can be replaced with any other value
-
-        oai_client = AsyncOpenAI(
-            http_client=http_client,
-            api_key=config.transcription_api_key.get_secret_value() if config.transcription_api_key else None,
-        )
-    else:
-        oai_client = AsyncOpenAI(
-            base_url=config.transcription_base_url,
-            api_key=config.transcription_api_key.get_secret_value() if config.transcription_api_key else None,
-        )
+    http_client = AsyncClient(
+        transport=ASGITransport(stt_router), base_url="http://test/v1"
+    )  # NOTE: "test" can be replaced with any other value
+    oai_client = AsyncOpenAI(
+        http_client=http_client, api_key=config.api_key.get_secret_value() if config.api_key else "cant-be-empty"
+    )
     return oai_client.audio.transcriptions
 
 

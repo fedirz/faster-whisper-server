@@ -82,14 +82,4 @@ class Config(BaseSettings):
 
     # TODO: document the below configuration options
     chat_completion_base_url: str = "https://api.openai.com/v1"
-    chat_completion_api_key: SecretStr | None = None
-    chat_completion_model: str | None = None
-
-    speech_base_url: str | None = None
-    speech_api_key: SecretStr | None = None
-    speech_model: str = "hexgrad/Kokoro-82M"
-    speech_extra_body: dict = {"sample_rate": 24000}  # TODO: should this be set by default?
-
-    # TODO: mention that used by both Realtime API and audio chat
-    transcription_base_url: str | None = None
-    transcription_api_key: SecretStr | None = None
+    chat_completion_api_key: SecretStr = SecretStr("cant-be-empty")

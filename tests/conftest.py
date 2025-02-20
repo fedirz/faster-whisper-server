@@ -23,14 +23,14 @@ OPENAI_BASE_URL = "https://api.openai.com/v1"
 # TODO: figure out a way to initialize the config without parsing environment variables, as those may interfere with the tests
 DEFAULT_WHISPER_CONFIG = WhisperConfig(ttl=0)
 api_key = os.getenv("OPENAI_API_KEY")
+if api_key is None:
+    api_key = "cant-be-empty"  # HACK
 DEFAULT_CONFIG = Config(
     whisper=DEFAULT_WHISPER_CONFIG,
     # disable the UI as it slightly increases the app startup time due to the imports it's doing
     enable_ui=False,
-    transcription_base_url=None,
-    speech_base_url=None,
     chat_completion_base_url="https://api.openai.com/v1",
-    chat_completion_api_key=SecretStr(api_key) if api_key else None,
+    chat_completion_api_key=SecretStr(api_key),
 )
 TIMEOUT = httpx.Timeout(15.0)
 

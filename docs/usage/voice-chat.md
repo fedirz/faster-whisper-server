@@ -7,21 +7,18 @@
 Follow the prerequisites in the [Text-to-Speech](./text-to-speech.md) guide. And set the following environmental variables:
 
 - `CHAT_COMPLETION_BASE_URL` to the base URL of an OpenAI API compatible endpoint | [Config](../configuration.md#speaches.config.Config.chat_completion_base_url)
-- `CHAT_COMPLETION_MODEL` to the name of the model you'd like to use. | [Config](../configuration.md#speaches.config.Config.chat_completion_model)
 - `CHAT_COMPLETION_API_KEY` if the API you are using requires authentication | [Config](../configuration.md#speaches.config.Config.chat_completion_api_key)
 
 Ollama example:
 
 ```bash
 export CHAT_COMPLETION_BASE_URL=http://localhost:11434
-export CHAT_COMPLETION_MODEL=llama3.2:1
 ```
 
 OpenAI example:
 
 ```bash
 export CHAT_COMPLETION_BASE_URL=https://api.openai.com/v1
-export CHAT_COMPLETION_MODEL=gpt-4o-mini
 export CHAT_COMPLETION_API_KEY=sk-xxx
 ```
 
