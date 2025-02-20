@@ -104,9 +104,9 @@ class ResponseHandler:
         self.pubsub.publish_nowait(ResponseOutputItemAddedEvent(response_id=self.id, item=item))
         yield item
         assert item.status == "incomplete", item
-        item.status = "completed"
+        item.status = "completed"  # TODO: do not update the status if the response was cancelled
         self.pubsub.publish_nowait(ResponseOutputItemDoneEvent(response_id=self.id, item=item))
-        self.response.status = "completed"
+        self.response.status = "completed"  # TODO: set to "cancelled" if the response was cancelled. Additionally, populate the `respones.status_details`
         self.pubsub.publish_nowait(ResponseDoneEvent(response=self.response))
 
     @contextmanager
