@@ -105,6 +105,7 @@ class ResponseHandler:
         assert item.status == "incomplete", item
         item.status = "completed"
         self.pubsub.publish_nowait(ResponseOutputItemDoneEvent(response_id=self.id, item=item))
+        self.response.status = "completed"
         self.pubsub.publish_nowait(ResponseDoneEvent(response=self.response))
 
     @contextmanager
