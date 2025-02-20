@@ -258,9 +258,10 @@ def create_audio_chat_tab(config: Config) -> None:  # noqa: C901
     with gr.Tab(label="Audio Chat") as tab:
         state = gr.State(VoiceChatState())
         chat_model_dropdown = gr.Dropdown(
-            choices=["gpt-4o-mini"],
+            choices=[],
             label="Chat Model",
-            value="gpt-4o-mini",
+            info="For this dropdown to be populated, you need to switch to a different tab and then come back to this tab.",  # FIXME
+            value=None,
         )
         stream_checkbox = gr.Checkbox(label="Stream", value=True)
         gr.ChatInterface(
@@ -277,6 +278,7 @@ def create_audio_chat_tab(config: Config) -> None:  # noqa: C901
             additional_inputs=[chat_model_dropdown, stream_checkbox, state],
         )
 
+        # FIXME: doesn't work when this is the first tab that gets loaded
         tab.select(
             update_chat_model_dropdown,
             inputs=None,
