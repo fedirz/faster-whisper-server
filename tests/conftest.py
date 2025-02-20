@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 import httpx
 from httpx import ASGITransport, AsyncClient
 from openai import AsyncOpenAI
+from pydantic import SecretStr
 import pytest
 import pytest_asyncio
 from pytest_mock import MockerFixture
@@ -21,6 +22,7 @@ DISABLE_LOGGERS = ["multipart.multipart", "faster_whisper"]
 OPENAI_BASE_URL = "https://api.openai.com/v1"
 # TODO: figure out a way to initialize the config without parsing environment variables, as those may interfere with the tests
 DEFAULT_WHISPER_CONFIG = WhisperConfig(ttl=0)
+api_key = os.getenv("OPENAI_API_KEY")
 DEFAULT_CONFIG = Config(
     whisper=DEFAULT_WHISPER_CONFIG,
     # disable the UI as it slightly increases the app startup time due to the imports it's doing
@@ -28,7 +30,7 @@ DEFAULT_CONFIG = Config(
     transcription_base_url=None,
     speech_base_url=None,
     chat_completion_base_url="https://api.openai.com/v1",
-    chat_completion_api_key=os.getenv("OPENAI_API_KEY"),
+    chat_completion_api_key=SecretStr(api_key) if api_key else None,
 )
 TIMEOUT = httpx.Timeout(15.0)
 
