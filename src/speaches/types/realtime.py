@@ -364,6 +364,20 @@ class ErrorEvent(OpenAIErrorEvent):
     event_id: str = Field(default_factory=generate_event_id)
 
 
+def create_invalid_request_error(
+    message: str, code: str | None = None, event_id: str | None = None, param: str | None = None
+) -> ErrorEvent:
+    return ErrorEvent(
+        error=Error(
+            type="invalid_request_error",
+            message=message,
+            code=code,
+            event_id=event_id,
+            param=param,
+        ),
+    )
+
+
 def create_server_error(
     message: str, code: str | None = None, event_id: str | None = None, param: str | None = None
 ) -> ErrorEvent:
