@@ -41,6 +41,7 @@ class Conversation:
         self.pubsub = pubsub
 
     def create_item(self, item: ConversationItem, previous_item_id: str | None = None) -> None:
+        # TODO: handle `previous_item_id == "root"`. See https://platform.openai.com/docs/api-reference/realtime-client-events/conversation/item/create#realtime-client-events/conversation/item/create-previous_item_id
         if item.id in self.items:
             # NOTE: Weirdly OpenAI's API allows creating an item with an already existing ID! Their implementation doesn't seem to replace the existing item. Rather, it just adds a new item with the same ID at the end. Me returning an error here deviates from their implementation.
             self.pubsub.publish_nowait(
