@@ -63,6 +63,7 @@ from openai.types.beta.realtime import (
 from openai.types.beta.realtime import (
     ResponseTextDoneEvent as OpenAIResponseTextDoneEvent,
 )
+from openai.types.beta.realtime.error_event import Error
 from pydantic import BaseModel, Discriminator, Field, model_validator
 from pydantic.type_adapter import TypeAdapter
 
@@ -361,6 +362,20 @@ class ConversationItemTruncatedEvent(OpenAIConversationItemTruncatedEvent):
 class ErrorEvent(OpenAIErrorEvent):
     type: Literal["error"] = "error"
     event_id: str = Field(default_factory=generate_event_id)
+
+
+def create_server_error(
+    message: str, code: str | None = None, event_id: str | None = None, param: str | None = None
+) -> ErrorEvent:
+    return ErrorEvent(
+        error=Error(
+            type="server_error",
+            message=message,
+            code=code,
+            event_id=event_id,
+            param=param,
+        )
+    )
 
 
 class ResponseContentPartAddedEvent(BaseModel):

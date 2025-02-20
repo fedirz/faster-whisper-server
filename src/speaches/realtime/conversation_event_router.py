@@ -19,9 +19,12 @@ from speaches.types.realtime import (
     ErrorEvent,
     Response,
     ResponseCreatedEvent,
+    create_server_error,
 )
 
 if TYPE_CHECKING:
+    from openai.types.beta.realtime import ConversationItemTruncateEvent
+
     from speaches.realtime.context import SessionContext
     from speaches.realtime.pubsub import EventPubSub
 
@@ -89,9 +92,11 @@ def handle_conversation_item_create_event(ctx: SessionContext, event: Conversati
     ctx.conversation.create_item(event.item)
 
 
-# @event_router.register("conversation.item.truncate") # TODO
-# def handle_conversation_item_truncate_event(ctx: SessionContext, event: ConversationItemTruncateEvent) -> None:
-#     pass
+@event_router.register("conversation.item.truncate")
+def handle_conversation_item_truncate_event(ctx: SessionContext, event: ConversationItemTruncateEvent) -> None:
+    ctx.pubsub.publish_nowait(
+        create_server_error(f"Handling of the '{event.type}' event is not implemented.", event_id=event.event_id)
+    )
 
 
 @event_router.register("conversation.item.delete")
