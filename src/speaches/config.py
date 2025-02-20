@@ -81,5 +81,5 @@ class Config(BaseSettings):
     """
 
     # TODO: document the below configuration options
-    chat_completion_base_url: str = "https://api.openai.com/v1"
+    chat_completion_base_url: str = "http://localhost:11434/v1"
     chat_completion_api_key: SecretStr = SecretStr("cant-be-empty")
