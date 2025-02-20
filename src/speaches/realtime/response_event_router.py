@@ -43,6 +43,7 @@ from speaches.types.realtime import (
     ResponseTextDeltaEvent,
     ResponseTextDoneEvent,
     ServerConversationItem,
+    create_server_error,
 )
 
 if TYPE_CHECKING:
@@ -304,8 +305,8 @@ async def handle_response_create_event(ctx: SessionContext, event: ResponseCreat
     ctx.response = None
 
 
-# TODO: implement this
 @event_router.register("response.cancel")
-def handle_response_cancel_event(_ctx: SessionContext, _event: ResponseCancelEvent) -> None:
-    # If there's  no response task, then it's a no-op. OpenAI's API should be monitored to see if the behaviour changes.
-    pass
+def handle_response_cancel_event(ctx: SessionContext, event: ResponseCancelEvent) -> None:
+    ctx.pubsub.publish_nowait(
+        create_server_error(f"Handling of the '{event.type}' event is not implemented.", event_id=event.event_id)
+    )
