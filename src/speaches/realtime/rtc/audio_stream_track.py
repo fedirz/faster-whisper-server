@@ -136,47 +136,5 @@ class AudioStreamTrack(MediaStreamTrack):
         super().stop()
 
 
-class ToneAudioStreamTrack(MediaStreamTrack):
-    kind = "audio"
-
-    def __init__(self) -> None:
-        super().__init__()
-        self._timestamp = 0
-        self._sample_rate = 24000
-        self._samples_per_frame = self._sample_rate // 100  # 10ms
-        self._running = True
-        self._frequency = 440  # 440 Hz tone
-
-    async def recv(self) -> AudioFrame:
-        if not self._running:
-            raise MediaStreamError("Track has ended")  # noqa: EM101
-
-        # Generate sine wave for this frame
-        t = np.linspace(0, self._samples_per_frame / self._sample_rate, self._samples_per_frame)
-        samples = np.sin(2 * np.pi * self._frequency * t)
-        samples = (samples * 32767).astype(np.int16)
-
-        # Create frame
-        frame = AudioFrame(
-            format="s16",
-            layout="mono",
-            samples=self._samples_per_frame,
-        )
-        frame.sample_rate = self._sample_rate
-        frame.pts = self._timestamp
-        frame.planes[0].update(samples.tobytes())
-
-        self._timestamp += self._samples_per_frame
-
-        # Sleep for frame duration
-        await asyncio.sleep(0.01)  # 10ms
-
-        return frame
-
-    def stop(self) -> None:
-        self._running = False
-        super().stop()
-
-
 class MediaStreamError(Exception):
     pass
