@@ -109,7 +109,9 @@ AudioFileDependency = Annotated[NDArray[float32], Depends(audio_file_dependency)
 def get_completion_client() -> AsyncCompletions:
     config = get_config()
     oai_client = AsyncOpenAI(
-        base_url=config.chat_completion_base_url, api_key=config.chat_completion_api_key.get_secret_value()
+        base_url=config.chat_completion_base_url,
+        api_key=config.chat_completion_api_key.get_secret_value(),
+        max_retries=1,
     )
     return oai_client.chat.completions
 
@@ -129,7 +131,9 @@ def get_speech_client() -> AsyncSpeech:
         transport=ASGITransport(speech_router), base_url="http://test/v1"
     )  # NOTE: "test" can be replaced with any other value
     oai_client = AsyncOpenAI(
-        http_client=http_client, api_key=config.api_key.get_secret_value() if config.api_key else "cant-be-empty"
+        http_client=http_client,
+        api_key=config.api_key.get_secret_value() if config.api_key else "cant-be-empty",
+        max_retries=1,
     )
     return oai_client.audio.speech
 
@@ -149,7 +153,9 @@ def get_transcription_client() -> AsyncTranscriptions:
         transport=ASGITransport(stt_router), base_url="http://test/v1"
     )  # NOTE: "test" can be replaced with any other value
     oai_client = AsyncOpenAI(
-        http_client=http_client, api_key=config.api_key.get_secret_value() if config.api_key else "cant-be-empty"
+        http_client=http_client,
+        api_key=config.api_key.get_secret_value() if config.api_key else "cant-be-empty",
+        max_retries=1,
     )
     return oai_client.audio.transcriptions
 
