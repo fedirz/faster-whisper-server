@@ -5,7 +5,6 @@ from contextlib import contextmanager
 import logging
 from typing import TYPE_CHECKING
 
-import aiostream
 import openai
 from openai.types.beta.realtime.error_event import Error
 from pydantic import BaseModel
@@ -47,7 +46,7 @@ from speaches.types.realtime import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import AsyncGenerator, Generator
 
     from openai.resources.chat import AsyncCompletions
     from openai.types.chat import ChatCompletionChunk
@@ -122,7 +121,7 @@ class ResponseHandler:
             ResponseContentPartDoneEvent(response_id=self.id, item_id=item.id, part=content.to_part())
         )
 
-    async def conversation_item_message_text_handler(self, chunk_stream: aiostream.Stream[ChatCompletionChunk]) -> None:
+    async def conversation_item_message_text_handler(self, chunk_stream: AsyncGenerator[ChatCompletionChunk]) -> None:
         with self.add_output_item(ConversationItemMessage(role="assistant", status="incomplete", content=[])) as item:
             self.conversation.create_item(item)
 
@@ -141,9 +140,7 @@ class ResponseHandler:
                     ResponseTextDoneEvent(item_id=item.id, response_id=self.id, text=content.text)
                 )
 
-    async def conversation_item_message_audio_handler(
-        self, chunk_stream: aiostream.Stream[ChatCompletionChunk]
-    ) -> None:
+    async def conversation_item_message_audio_handler(self, chunk_stream: AsyncGenerator[ChatCompletionChunk]) -> None:
         with self.add_output_item(ConversationItemMessage(role="assistant", status="incomplete", content=[])) as item:
             self.conversation.create_item(item)
 
@@ -179,10 +176,8 @@ class ResponseHandler:
                     )
                 )
 
-    async def conversation_item_function_call_handler(
-        self, chunk_stream: aiostream.Stream[ChatCompletionChunk]
-    ) -> None:
-        chunk = await chunk_stream
+    async def conversation_item_function_call_handler(self, chunk_stream: AsyncGenerator[ChatCompletionChunk]) -> None:
+        chunk = await anext(chunk_stream)
 
         assert len(chunk.choices) == 1, chunk
         choice = chunk.choices[0]
@@ -237,7 +232,7 @@ class ResponseHandler:
                 self.configuration,
             )
             chunk_stream = await self.completion_client.create(**completion_params)
-            chunk = await chunk_stream.__anext__()
+            chunk = await anext(chunk_stream)
             if chunk.choices[0].delta.tool_calls is not None:
                 handler = self.conversation_item_function_call_handler
             elif self.configuration.modalities == ["text"]:
@@ -245,7 +240,15 @@ class ResponseHandler:
             else:
                 handler = self.conversation_item_message_audio_handler
 
-            await handler(aiostream.stream.just(chunk) + chunk_stream)
+            async def merge_chunks_and_chunk_stream(
+                *chunks: ChatCompletionChunk, chunk_stream: openai.AsyncStream[ChatCompletionChunk]
+            ) -> AsyncGenerator[ChatCompletionChunk]:
+                for chunk in chunks:
+                    yield chunk
+                async for chunk in chunk_stream:
+                    yield chunk
+
+            await handler(merge_chunks_and_chunk_stream(chunk, chunk_stream=chunk_stream))
         except openai.APIError as e:
             logger.exception("Error while generating response")
             self.pubsub.publish_nowait(
