@@ -258,7 +258,7 @@ async def handle_completions(  # noqa: C901
     # NOTE: Adding --use-one-literal-as-default breaks the `exclude_defaults=True` behavior
     try:
         chat_completion = await chat_completion_client.create(**proxied_body.model_dump(exclude_defaults=True))
-    except openai.BadRequestError as e:
+    except openai.APIStatusError as e:
         return Response(content=e.message, status_code=e.status_code)
     if isinstance(chat_completion, AsyncStream):
 
