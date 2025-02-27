@@ -6,7 +6,14 @@ from typing import TYPE_CHECKING
 from openai.types.beta.realtime.error_event import Error
 
 from speaches.realtime.event_router import EventRouter
-from speaches.types.realtime import ErrorEvent, Session, SessionUpdatedEvent, SessionUpdateEvent
+from speaches.types.realtime import (
+    NOT_GIVEN,
+    ErrorEvent,
+    Session,
+    SessionUpdatedEvent,
+    SessionUpdateEvent,
+    TurnDetection,
+)
 
 if TYPE_CHECKING:
     from speaches.realtime.context import SessionContext
@@ -36,16 +43,20 @@ def unsupported_field_error(field: str) -> ErrorEvent:
 
 @event_router.register("session.update")
 def handle_session_update_event(ctx: SessionContext, event: SessionUpdateEvent) -> None:
-    if event.session.input_audio_format is not None:
+    if event.session.input_audio_format != NOT_GIVEN:
         ctx.pubsub.publish_nowait(unsupported_field_error("session.input_audio_format"))
-    if event.session.output_audio_format is not None:
+    if event.session.output_audio_format != NOT_GIVEN:
         ctx.pubsub.publish_nowait(unsupported_field_error("session.output_audio_format"))
-    if event.session.turn_detection is not None and event.session.turn_detection.prefix_padding_ms is not None:
+    if (
+        event.session.turn_detection is not None
+        and isinstance(event.session.turn_detection, TurnDetection)
+        and event.session.turn_detection.prefix_padding_ms != NOT_GIVEN
+    ):
         ctx.pubsub.publish_nowait(unsupported_field_error("session.turn_detection.prefix_padding_ms"))
 
     session_dict = ctx.session.model_dump()
     session_update_dict = event.session.model_dump(
-        exclude_none=True,
+        exclude_defaults=True,
         # https://docs.pydantic.dev/latest/concepts/serialization/#advanced-include-and-exclude
         exclude={"input_audio_format": True, "output_audio_format": True, "turn_detection": {"prefix_padding_ms"}},
     )

@@ -16,7 +16,6 @@ from openai.types.beta.realtime import (
     RateLimitsUpdatedEvent,
     ResponseCancelEvent,
     ResponseCreateEvent,
-    SessionUpdateEvent,
 )
 from openai.types.beta.realtime import (
     ConversationItemInputAudioTranscriptionCompletedEvent as OpenAIConversationItemInputAudioTranscriptionCompletedEvent,
@@ -70,6 +69,13 @@ from pydantic.type_adapter import TypeAdapter
 from speaches.realtime.utils import generate_event_id, generate_item_id
 
 logger = logging.getLogger(__name__)
+
+
+class NotGiven(BaseModel):
+    pass
+
+
+NOT_GIVEN = NotGiven()
 
 
 class PartText(BaseModel):
@@ -222,7 +228,7 @@ class ResponseDoneEvent(BaseModel):
 # Same as openai.types.beta.realtime.session_update_event.SessionTurnDetection but with all the fields made non-nullable
 class TurnDetection(BaseModel):
     create_response: bool
-    prefix_padding_ms: int = 0  # HACK: without this setting the `turn_detection` when it's null will not work with the current implementation of session updates
+    prefix_padding_ms: int
     silence_duration_ms: int
     threshold: float = Field(..., ge=0.0, le=1.0)
     type: Literal["server_vad"] = "server_vad"
@@ -290,6 +296,27 @@ class Session(BaseModel):
     tools: list[Tool]
     turn_detection: TurnDetection | None
     voice: str
+
+
+class PartialSession(BaseModel):
+    input_audio_format: AudioFormat | NotGiven = NOT_GIVEN
+    input_audio_transcription: InputAudioTranscription | NotGiven = NOT_GIVEN
+    instructions: str | NotGiven = NOT_GIVEN
+    max_response_output_tokens: int | Literal["inf"] | NotGiven = NOT_GIVEN
+    modalities: list[Modality] | NotGiven = NOT_GIVEN
+    model: str | NotGiven = NOT_GIVEN
+    output_audio_format: AudioFormat | NotGiven = NOT_GIVEN
+    temperature: float | NotGiven = NOT_GIVEN
+    tool_choice: ToolChoice | NotGiven = NOT_GIVEN
+    tools: list[Tool] | NotGiven = NOT_GIVEN
+    turn_detection: TurnDetection | NotGiven = NOT_GIVEN
+    voice: str | NotGiven = NOT_GIVEN
+
+
+class SessionUpdateEvent(BaseModel):
+    type: Literal["session.update"] = "session.update"
+    event_id: str | None = None
+    session: PartialSession
 
 
 class SessionCreatedEvent(BaseModel):
