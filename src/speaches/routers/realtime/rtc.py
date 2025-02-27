@@ -186,6 +186,7 @@ async def realtime_webrtc(
     completion_client = AsyncOpenAI(
         base_url=f"http://{config.host}:{config.port}/v1",
         api_key=config.api_key.get_secret_value() if config.api_key else "cant-be-empty",
+        max_retries=1,
     ).chat.completions
     ctx = SessionContext(
         transcription_client=transcription_client,
