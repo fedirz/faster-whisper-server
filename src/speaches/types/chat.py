@@ -15,7 +15,7 @@ class Audio(BaseModel):
 
 class ChatCompletionAudioParam(BaseModel):
     format: Literal["wav", "mp3", "flac", "opus", "pcm16"] = Field(..., title="Format")
-    voice: Literal["alloy", "ash", "ballad", "coral", "echo", "sage", "shimmer", "verse"] = Field(..., title="Voice")
+    voice: str = Field(..., title="Voice")
 
 
 class ChatCompletionContentPartRefusalParam(BaseModel):
