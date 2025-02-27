@@ -1,8 +1,6 @@
 import asyncio
 import base64
-import json
 import logging
-from pathlib import Path
 import time
 from typing import Annotated
 
@@ -62,7 +60,6 @@ event_router.include_router(session_event_router)
 # https://stackoverflow.com/questions/77560930/cant-create-audio-frame-with-from-nd-array
 
 rtc_tasks: set[asyncio.Task[None]] = set()
-pcs = set()
 
 
 async def rtc_datachannel_sender(ctx: SessionContext, channel: RTCDataChannel) -> None:
@@ -157,15 +154,10 @@ def datachannel_handler(ctx: SessionContext, channel: RTCDataChannel) -> None:
     channel.on("message")(lambda message: message_handler(ctx, message))
 
 
-def iceconnectionstatechange_handler(ctx: SessionContext, pc: RTCPeerConnection) -> None:
+def iceconnectionstatechange_handler(_ctx: SessionContext, pc: RTCPeerConnection) -> None:
     logger.info(f"ICE connection state changed to {pc.iceConnectionState}")
     if pc.iceConnectionState in ["failed", "closed"]:
-        pcs.discard(pc)
         logger.info("Peer connection closed")
-
-        with Path(f"sessions/{ctx.session.id}.json").open("w") as f:
-            logger.info(f"Dumping events to file {ctx.session.id}")
-            f.write(json.dumps([m.model_dump() for m in ctx.pubsub.events], indent=2))
 
 
 def track_handler(ctx: SessionContext, track: RemoteStreamTrack) -> None:
@@ -207,7 +199,6 @@ async def realtime_webrtc(
     #     iceServers=[RTCIceServer(urls="stun:stun.l.google.com:19302")],
     # )
     pc = RTCPeerConnection()
-    pcs.add(pc)
 
     pc.on("datachannel", lambda channel: datachannel_handler(ctx, channel))
     pc.on("iceconnectionstatechange", lambda: iceconnectionstatechange_handler(ctx, pc))
