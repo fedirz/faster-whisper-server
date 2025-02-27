@@ -4,7 +4,7 @@ import logging
 import time
 from typing import Annotated
 
-from aiortc import RTCDataChannel, RTCPeerConnection, RTCSessionDescription
+from aiortc import RTCConfiguration, RTCDataChannel, RTCPeerConnection, RTCRtpCodecParameters, RTCSessionDescription
 from aiortc.rtcrtpreceiver import RemoteStreamTrack
 from aiortc.sdp import SessionDescription
 from av.audio.frame import AudioFrame
@@ -55,11 +55,10 @@ event_router.include_router(response_event_router)
 event_router.include_router(session_event_router)
 
 # TODO: limit session duration
-# TODO: faster session initialization with web rtc
 
 # https://stackoverflow.com/questions/77560930/cant-create-audio-frame-with-from-nd-array
 
-rtc_tasks: set[asyncio.Task[None]] = set()
+rtc_session_tasks: dict[str, set[asyncio.Task[None]]] = {}
 
 
 async def rtc_datachannel_sender(ctx: SessionContext, channel: RTCDataChannel) -> None:
@@ -67,7 +66,6 @@ async def rtc_datachannel_sender(ctx: SessionContext, channel: RTCDataChannel) -
     q = ctx.pubsub.subscribe()
     try:
         while True:
-            # logger.debug("Waiting for event")
             event = await q.get()
             if event.type not in SERVER_EVENT_TYPES:
                 continue
@@ -78,10 +76,6 @@ async def rtc_datachannel_sender(ctx: SessionContext, channel: RTCDataChannel) -
             logger.debug(f"Sending {event.type} event")
             channel.send(server_event.model_dump_json())
             logger.info(f"Sent {event.type} event")
-            # try:
-            # except fastapi.WebSocketDisconnect:
-            #     logger.info("Failed to send message due to disconnect")
-            #     break
     except BaseException:
         logger.exception("Sender task failed")
         ctx.pubsub.subscribers.remove(q)
@@ -149,7 +143,7 @@ def datachannel_handler(ctx: SessionContext, channel: RTCDataChannel) -> None:
     logger.info(f"Data channel created: {channel}")
     channel.send(SessionCreatedEvent(session=ctx.session).model_dump_json())
 
-    rtc_tasks.add(asyncio.create_task(rtc_datachannel_sender(ctx, channel)))
+    rtc_session_tasks[ctx.session.id].add(asyncio.create_task(rtc_datachannel_sender(ctx, channel)))
 
     channel.on("message")(lambda message: message_handler(ctx, message))
 
@@ -164,7 +158,7 @@ def track_handler(ctx: SessionContext, track: RemoteStreamTrack) -> None:
     logger.info(f"Track received: kind={track.kind}")
     if track.kind == "audio":
         # Start a task to log audio data
-        rtc_tasks.add(asyncio.create_task(audio_receiver(ctx, track)))
+        rtc_session_tasks[ctx.session.id].add(asyncio.create_task(audio_receiver(ctx, track)))
     track.on("ended")(lambda: logger.info(f"Track ended: kind={track.kind}"))
 
 
@@ -185,6 +179,7 @@ async def realtime_webrtc(
         completion_client=completion_client,
         session=create_session_object_configuration(model),
     )
+    rtc_session_tasks[ctx.session.id] = set()
 
     # TODO: handle both application/sdp and application/json
     sdp = (await request.body()).decode("utf-8")
@@ -195,10 +190,8 @@ async def realtime_webrtc(
     logger.info(f"Received offer: {offer.sdp[:5]}")
 
     # Create a new RTCPeerConnection
-    # configuration = RTCConfiguration(
-    #     iceServers=[RTCIceServer(urls="stun:stun.l.google.com:19302")],
-    # )
-    pc = RTCPeerConnection()
+    rtc_configuration = RTCConfiguration()
+    pc = RTCPeerConnection(rtc_configuration)
 
     pc.on("datachannel", lambda channel: datachannel_handler(ctx, channel))
     pc.on("iceconnectionstatechange", lambda: iceconnectionstatechange_handler(ctx, pc))
@@ -224,22 +217,25 @@ async def realtime_webrtc(
     assert answer is not None
     answer_session_description = SessionDescription.parse(answer.sdp)
 
-    # remove all codecs except opus. This **should** ensure that we only receive opus audio
+    # Remove all codecs except opus. This **should** ensure that we only receive opus audio. This is done because no other codecs supported.
     for media in answer_session_description.media:
         if media.kind != "audio":
             continue
-        logger.info(f"Codec before: {media.rtp.codecs}")
-        media.rtp.codecs = [codec for codec in media.rtp.codecs if codec.name == "opus"]
-        logger.info(f"Codec after: {media.rtp.codecs}")
+        filtered_codecs: list[RTCRtpCodecParameters] = []
+        for codec in media.rtp.codecs:
+            if codec.name != "opus":
+                logger.info(f"Removing codec: {codec}")
+            filtered_codecs.append(codec)
+        if len(filtered_codecs) == 0:
+            logger.error("No appropriate codecs found")
+        media.rtp.codecs = filtered_codecs
+        logger.info(f"Filtered codecs: {media.rtp.codecs}")
 
-    # logger.info(f"Created answer: {answer_session_description}")
     start = time.perf_counter()
-    await pc.setLocalDescription(
-        answer
-        # RTCSessionDescription(str(answer_session_description), type="answer")
-    )  # NOTE: this takes ~5 secondd: could be relevant https://github.com/aiortc/aiortc/issues/1183
-    logger.info(f"Set local description in {time.perf_counter() - start:.3f} seconds")
+    # NOTE: when connected to Tailscale, this step takes ~5 seconds. Somewhat relevant https://groups.google.com/g/discuss-webrtc/c/MYTwERXGrM8
+    await pc.setLocalDescription(answer)
+    logger.info(f"Setting local description took {time.perf_counter() - start:.3f} seconds")
 
-    rtc_tasks.add(asyncio.create_task(event_listener(ctx)))
+    rtc_session_tasks[ctx.session.id].add(asyncio.create_task(event_listener(ctx)))
 
     return Response(content=pc.localDescription.sdp, media_type="text/plain charset=utf-8")
