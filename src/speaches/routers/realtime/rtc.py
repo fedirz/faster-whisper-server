@@ -44,6 +44,11 @@ from speaches.types.realtime import (
     server_event_type_adapter,
 )
 
+# NOTE: IMPORTANT! 24Khz because that's what the `input_audio_buffer.append` handler expects
+SAMPLE_RATE = 24000
+MIN_BUFFER_DURATION_MS = 200
+MIN_BUFFER_SIZE = int(SAMPLE_RATE * MIN_BUFFER_DURATION_MS / 1000)
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["realtime"])
@@ -97,11 +102,6 @@ def message_handler(ctx: SessionContext, message: str) -> None:
 
 
 async def audio_receiver(ctx: SessionContext, track: RemoteStreamTrack) -> None:
-    # NOTE: IMPORTANT! 24Khz because that's what the `input_audio_buffer.append` handler expects
-    desired_sample_rate = 24000
-    min_buffer_duration_ms = 200
-    buffer_size = int(desired_sample_rate * min_buffer_duration_ms / 1000)
-
     # Initialize buffer to store audio data
     buffer = np.array([], dtype=np.int16)
 
@@ -113,7 +113,7 @@ async def audio_receiver(ctx: SessionContext, track: RemoteStreamTrack) -> None:
         assert frames.layout.name == "stereo"
         assert frames.format.name == "s16"
 
-        resampler = AudioResampler(format="s16", layout="mono", rate=desired_sample_rate)
+        resampler = AudioResampler(format="s16", layout="mono", rate=SAMPLE_RATE)
         frames = resampler.resample(frames)
 
         # Accumulate audio data
@@ -122,21 +122,18 @@ async def audio_receiver(ctx: SessionContext, track: RemoteStreamTrack) -> None:
             buffer = np.append(buffer, arr.flatten())  # Flatten and append to buffer
 
             # When buffer reaches or exceeds target size, emit event
-            while len(buffer) >= buffer_size:
-                # Take BUFFER_SIZE samples
-                output_chunk = buffer[:buffer_size]
-                # Keep remaining samples in buffer
-                buffer = buffer[buffer_size:]
-
+            if len(buffer) >= MIN_BUFFER_SIZE:
                 # Convert to bytes and emit event
-                audio_bytes = output_chunk.tobytes()
-                assert len(audio_bytes) == len(output_chunk) * 2, "Audio sample width is not 2 bytes"
+                audio_bytes = buffer.tobytes()
+                assert len(audio_bytes) == len(buffer) * 2, "Audio sample width is not 2 bytes"
                 ctx.pubsub.publish_nowait(
                     InputAudioBufferAppendEvent(
                         type="input_audio_buffer.append",
                         audio=base64.b64encode(audio_bytes).decode(),
                     )
                 )
+
+                buffer = np.array([], dtype=np.int16)
 
 
 def datachannel_handler(ctx: SessionContext, channel: RTCDataChannel) -> None:
