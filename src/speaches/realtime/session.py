@@ -15,7 +15,9 @@ def create_session_object_configuration(model: str) -> Session:
         voice="alloy",
         input_audio_format="pcm16",
         output_audio_format="pcm16",
-        input_audio_transcription=InputAudioTranscription(model="Systran/faster-whisper-small"),
+        input_audio_transcription=InputAudioTranscription(
+            model="Systran/faster-distil-whisper-small.en", language="en"
+        ),
         turn_detection=TurnDetection(
             type="server_vad",
             threshold=0.9,
