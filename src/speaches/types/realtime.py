@@ -230,6 +230,8 @@ class TurnDetection(BaseModel):
 
 class InputAudioTranscription(BaseModel):
     model: str
+    # NOTE: `language` is a custom field not present in the OpenAI API. However, weirdly it can be found at https://github.com/openai/openai-openapi
+    language: str | None = None
 
 
 type AudioFormat = Literal["pcm16", "g711_ulaw", "g711_alaw"]

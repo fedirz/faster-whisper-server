@@ -5,6 +5,7 @@ from io import BytesIO
 from typing import TYPE_CHECKING
 
 import numpy as np
+from openai import NotGiven
 from pydantic import BaseModel
 import soundfile as sf
 
@@ -118,7 +119,10 @@ class InputAudioBufferTranscriber:
             format="wav",
         )
         transcript = await self.transcription_client.create(
-            file=file, model=self.session.input_audio_transcription.model, response_format="text"
+            file=file,
+            model=self.session.input_audio_transcription.model,
+            response_format="text",
+            language=self.session.input_audio_transcription.language or NotGiven(),
         )
         content_item.transcript = transcript
         self.pubsub.publish_nowait(
